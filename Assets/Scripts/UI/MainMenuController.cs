@@ -27,7 +27,14 @@ public class MainMenuController : MonoBehaviour, IGameUI
         editProfileButton.onClick.AddListener(OnClickEditProfileButton);
 
         //TODO: ~로 부터 userinfo를 받아온다.
-        //_userinfo = GameManager.Instance.GetUserInfo
+        //_userInfo = GameManger.Instance.GetUserInfo();
+        
+        // StartCoroutine(NetworkManage.Instance.GetUserInfo((userInfo) =>
+        // {
+        //     _userinfo = userinfo;
+        // }, () =>
+        // {
+        // }));
         
         Initialize(_userInfo);
     }
@@ -35,7 +42,13 @@ public class MainMenuController : MonoBehaviour, IGameUI
     void Initialize(UserInfo userInfo)
     {
         userInfoPanel.SetUserInfo(userInfo);
-        //coinPanel.SetCoinText(userInfo.coin);
+        UpdateUserInfo();
+    }
+
+    void UpdateUserInfo()
+    {
+        //_userInfo = GameManger.Instance.GetUserInfo();
+        //coinPanel.SetCoinText(userInfo.text);
     }
 
     void OnClickEditProfileButton()

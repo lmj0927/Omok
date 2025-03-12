@@ -18,6 +18,7 @@ public enum UI_TYPE
     SignUp,
     MainMenu,
     Game,
+    EditProfile
 }
 
 

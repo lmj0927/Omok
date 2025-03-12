@@ -18,12 +18,7 @@ public class EditProfilePanel : PanelController
         
         //TODO: userinfo 받기.
         
-        // StartCoroutine(NetworkManage.Instance.GetUserInfo((userInfo) =>
-        // {
-        //     _userinfo = userinfo;
-        // }, () =>
-        // {
-        // }));
+        //_userInfo = GameManger.Instance.GetUserInfo();
     }
     
     public void OnClickProfile(int index)

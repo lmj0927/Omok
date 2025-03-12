@@ -29,13 +29,6 @@ public class MainMenuController : MonoBehaviour, IGameUI
         //TODO: ~로 부터 userinfo를 받아온다.
         //_userInfo = GameManger.Instance.GetUserInfo();
         
-        // StartCoroutine(NetworkManage.Instance.GetUserInfo((userInfo) =>
-        // {
-        //     _userinfo = userinfo;
-        // }, () =>
-        // {
-        // }));
-        
         Initialize(_userInfo);
     }
 

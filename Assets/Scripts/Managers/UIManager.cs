@@ -61,33 +61,19 @@ public class UIManager : Singleton<UIManager>
         
     }
 
-    
-
-    public RectTransform AttachUI(RectTransform uiPrefab, Vector3 position)
+    public T ShowUI<T>(UI_TYPE type) where T : Component, IGameUI
     {
-        if (_mainCamera.IsUnityNull()) return null;
+        var ui = GetUI<T>(type);
+        ui.Show();
 
-        var result = Instantiate(uiPrefab, _mainCanvas.transform);
-        
-        Vector2 screenPoint = _mainCamera.WorldToScreenPoint(position);
-        result.position = screenPoint;
-
-        return result;
+        return ui;
     }
-
-    // public T AttachUI<T>(UI_TYPE type) where T : Component
-    // {
-    //     var ui = GetUI<T>(type);
-    //     ui.ShowUI();
-
-    //     return ui;
-    // }
     
-    // public void DetachUI<T>(UI_TYPE type) where T : Component
-    // {
-    //     var ui = GetUI<T>(type);
-    //     ui.HideUI();
-    // }
+    public void HideUI<T>(UI_TYPE type) where T : Component, IGameUI
+    {
+        var ui = GetUI<T>(type);
+        ui.Show();
+    }
     
     public T GetUI<T>(UI_TYPE type) where T : Component
     {

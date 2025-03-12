@@ -1349,7 +1349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   giveUpButton: {fileID: 5429011510459496982}
-  executeButton: {fileID: 0}
+  executeButton: {fileID: 2720113580731912896}
 --- !u!1001 &390832254045540590
 PrefabInstance:
   m_ObjectHideFlags: 0

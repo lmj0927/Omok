@@ -5,10 +5,11 @@ public class GameBoardUIController : MonoBehaviour
 {
     public Button giveUpButton;
     public Button executeButton;
-
+    
     void Start()
     {
         giveUpButton.onClick.AddListener(OnClickGiveUpButton);
+        executeButton.onClick.AddListener(OnClickExecuteButton);
     }
 
     public void OnClickGiveUpButton()
@@ -20,6 +21,10 @@ public class GameBoardUIController : MonoBehaviour
         });
     }
 
+    public void OnClickExecuteButton()
+    {
+        GameManager.Instance.matchController.SetTurn();
+    }
 
     public void Show()
     {

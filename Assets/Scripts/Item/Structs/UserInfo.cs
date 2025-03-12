@@ -1,21 +1,21 @@
-
-using Newtonsoft.Json;
-
+// [System.Serializable]
+// public class UserInfo{   
+//     public string userId { get; set; }
+//     public string nickname { get; set; }
+//     public int tier { get; set; }
+//     public int score { get; set; }
+//     public int profileIndex { get; set; }
+//     public int winCount { get; set; }
+//     public int loseCount { get; set; }
+// }
 
 [System.Serializable]
-public class UserInfo{
-    [JsonProperty("userId")]
-    public string userId;
-    [JsonProperty("nickname")]
-    public string nickname;
-    [JsonProperty("tier")]
-    public int tier;
-    [JsonProperty("score")]
-    public int score;
-    [JsonProperty("profileIndex")]
-    public int profileIndex;
-    [JsonProperty("winCount")]
-    public int winCount; 
-    [JsonProperty("loseCount")]
-    public int loseCount;
+public struct UserInfo{   
+    public string userId { get; set; }
+    public string nickname { get; set; }
+    public int tier { get; set; }
+    public int score { get; set; }
+    public int profileIndex { get; set; }
+    public int winCount { get; set; }
+    public int loseCount { get; set; }
 }

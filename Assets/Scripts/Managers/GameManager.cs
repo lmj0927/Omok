@@ -11,7 +11,7 @@ public class GameManager : Singleton<GameManager>
 
     public void StartGame(PLAY_TYPE playType){
         if(matchController == null){
-            matchController = new MatchController();    
+            matchController = new MatchController();
         }
         matchController.Initailize(playType);
 
@@ -22,4 +22,7 @@ public class GameManager : Singleton<GameManager>
 
     }
 
+    public void GiveUpGame(){
+        matchController.Dispose();
+    }
 }

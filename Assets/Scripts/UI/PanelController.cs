@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
 
 
 [RequireComponent(typeof(CanvasGroup))]
-public class PanelController : MonoBehaviour
+public class PanelController : MonoBehaviour, IGameUI
 {
     [SerializeField] private RectTransform panelRectTransform;      // 팝업창
     
@@ -30,21 +31,34 @@ public class PanelController : MonoBehaviour
         _backgroundCanvasGroup.DOFade(1, 0.3f).SetEase(Ease.Linear);
         panelRectTransform.DOScale(1, 0.3f).SetEase(Ease.OutBack);
     }
-
+    
     /// <summary>
     /// Panel 숨기기 함수
     /// </summary>
-    public void Hide(PanelControllerHideDelegate hideDelegate = null)
+    public void Hide()
+    {
+        HideAsync().Forget();
+    }
+    
+    public async void Hide(PanelControllerHideDelegate hideDelegate)
+    {
+        await HideAsync();
+        hideDelegate?.Invoke();
+    }
+    
+    protected async UniTask HideAsync()
     {
         _backgroundCanvasGroup.alpha = 1;
         panelRectTransform.localScale = Vector3.one;
-        
-        _backgroundCanvasGroup.DOFade(0, 0.3f).SetEase(Ease.Linear);
-        panelRectTransform.DOScale(0, 0.3f)
-            .SetEase(Ease.InBack).OnComplete(() =>
+    
+        var sequence = DOTween.Sequence();
+        sequence.Join(_backgroundCanvasGroup.DOFade(0, 0.3f).SetEase(Ease.Linear))
+            .Join(panelRectTransform.DOScale(0, 0.3f).SetEase(Ease.InBack))
+            .OnComplete(() =>
             {
-                hideDelegate?.Invoke();
                 Destroy(gameObject);
             });
+
+        await sequence.AsyncWaitForCompletion();
     }
 }

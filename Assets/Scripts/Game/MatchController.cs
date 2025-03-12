@@ -26,6 +26,10 @@ public class MatchController : IDisposable
 
 
     public void Initailize(PLAY_TYPE matchPlayType){
+        _gameTypeController?.Dispose();
+        _gameTypeController = null;
+        _matchState = MATCH_STATE.End;
+
         _matchPlayType = matchPlayType;
         _isMatched = false;
         _isCancelMatch = false;
@@ -145,9 +149,18 @@ public class MatchController : IDisposable
                     break;
                 case MultiplayManagerState.StartGame:
                     try{
-                        _isMatched = true;               
-                        UserInfo opponent = data as UserInfo;
-                        _matchInfo.opponent = opponent;
+                        _isMatched = true;
+                        if (data is UserInfo user)
+                        {
+                            UserInfo opponent = user;
+                            _matchInfo.opponent = opponent;
+                        }
+                        else
+                        {
+                            Debug.LogError("데이터가 UserInfo 형식이 아닙니다.");
+                        }
+                        
+                        Debug.Log("## Start Game: " + _matchInfo.opponent.nickname);
                     }
                     catch(Exception err)
                     {
@@ -164,8 +177,14 @@ public class MatchController : IDisposable
                 case MultiplayManagerState.EndTurn:
                     try
                     {
-                        TurnData turnData = data as TurnData;
-                        SetTurn(turnData.row, turnData.col);    
+                        if(data is TurnData turnData)
+                        {
+                            SetTurn(turnData.row, turnData.col);    
+                        }
+                        else
+                        {
+                            Debug.LogError("데이터가 TurnData 형식이 아닙니다.");
+                        }
                         Debug.Log("## End Turn");
                     }
                     catch (Exception err)
@@ -173,6 +192,8 @@ public class MatchController : IDisposable
                         Debug.Log("## End Turn Error: " + err.Message);
                     }
                     
+                    break;
+                case MultiplayManagerState.ReadyComplete:                    
                     break;
             }
         });

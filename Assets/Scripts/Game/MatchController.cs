@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static Constants;
@@ -23,9 +24,33 @@ public class MatchController : IDisposable
     MatchInfo _matchInfo;
     MATCH_STATE _matchState = MATCH_STATE.End;
     float _turnTime = 30f;
+    
+    private Cell currentCell;
 
+    public Action<TurnData, CELL_TYPE> OnDrawCell;
 
+    public void SetCurrentCell(Cell cell)
+    {
+        if(currentCell != null)
+            OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
+        currentCell = cell;
+        
+        if (_matchState == MATCH_STATE.BlackTurn)
+        {
+            OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.PreviewBlack);
+        }
+        else if (_matchState == MATCH_STATE.WhiteTurn)
+        {
+            OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.PreviewWhite);
+        }
+    }
+    
+    
     public void Initailize(PLAY_TYPE matchPlayType){
+        _gameTypeController?.Dispose();
+        _gameTypeController = null;
+        _matchState = MATCH_STATE.End;
+
         _matchPlayType = matchPlayType;
         _isMatched = false;
         _isCancelMatch = false;
@@ -115,6 +140,8 @@ public class MatchController : IDisposable
         AIController aiController = new AIController();
         aiController.Initailize();
 
+        StartMatch();
+        
         _gameTypeController = aiController;
     }
 
@@ -145,9 +172,18 @@ public class MatchController : IDisposable
                     break;
                 case MultiplayManagerState.StartGame:
                     try{
-                        _isMatched = true;               
-                        UserInfo opponent = data as UserInfo;
-                        _matchInfo.opponent = opponent;
+                        _isMatched = true;
+                        if (data is UserInfo user)
+                        {
+                            UserInfo opponent = user;
+                            _matchInfo.opponent = opponent;
+                        }
+                        else
+                        {
+                            Debug.LogError("데이터가 UserInfo 형식이 아닙니다.");
+                        }
+                        
+                        Debug.Log("## Start Game: " + _matchInfo.opponent.nickname);
                     }
                     catch(Exception err)
                     {
@@ -164,8 +200,14 @@ public class MatchController : IDisposable
                 case MultiplayManagerState.EndTurn:
                     try
                     {
-                        TurnData turnData = data as TurnData;
-                        SetTurn(turnData.row, turnData.col);    
+                        if(data is TurnData turnData)
+                        {
+                            SetTurn(turnData.row, turnData.col);    
+                        }
+                        else
+                        {
+                            Debug.LogError("데이터가 TurnData 형식이 아닙니다.");
+                        }
                         Debug.Log("## End Turn");
                     }
                     catch (Exception err)
@@ -174,6 +216,8 @@ public class MatchController : IDisposable
                     }
                     
                     break;
+                case MultiplayManagerState.ReadyComplete:                    
+                    break;
             }
         });
         multiplayController.Initailize();
@@ -181,8 +225,19 @@ public class MatchController : IDisposable
         _gameTypeController = multiplayController;
     }
 
+
+    public void SetTurn()
+    {
+        if (!currentCell.IsUnityNull())
+        {
+            SetTurn(currentCell.row, currentCell.col);
+            currentCell = null;
+        }
+    }
     
     public void SetTurn(int row, int col){
+        
+        
         TurnData turnData = new TurnData(){
             row = row,
             col = col,
@@ -191,9 +246,11 @@ public class MatchController : IDisposable
         _matchInfo.turn.Add(turnData);
 
         if(_matchState == MATCH_STATE.BlackTurn){
+            OnDrawCell?.Invoke(turnData, CELL_TYPE.Black);
             _matchState = MATCH_STATE.WhiteTurn;
         }
         else{
+            OnDrawCell?.Invoke(turnData, CELL_TYPE.White);
             _matchState = MATCH_STATE.BlackTurn;
         }
     }

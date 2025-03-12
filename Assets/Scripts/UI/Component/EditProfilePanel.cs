@@ -5,13 +5,6 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 
-[Serializable]
-public struct ProfileIndex
-{
-    [JsonProperty("profileIndex")]
-    public int profileIndex;
-}
-
 public class EditProfilePanel : PanelController
 {
     [SerializeField] Button[] profileImage;
@@ -23,13 +16,9 @@ public class EditProfilePanel : PanelController
     {
         Show();
         
-        //TODO: GetScore는 임시로 넣음.
-        StartCoroutine(NetworkManage.Instance.GetScore((userInfo) =>
-        {
-            UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
-        }, () =>
-        {
-        }));
+        //TODO: userinfo 받기.
+        
+        //_userInfo = GameManger.Instance.GetUserInfo();
     }
     
     public void OnClickProfile(int index)
@@ -37,8 +26,9 @@ public class EditProfilePanel : PanelController
         _profileIndex = index;
         
         //TODO: 변경된 정보 업데이트.
-        var userInfoPanel = FindObjectOfType<UserInfoPanel>();
-        userInfoPanel.SetUserInfo(_userInfo);
+        
+        //_userInfo.profileIndex = index;
+        //userInfoPanel.SetUserInfo(_userInfo);
         
         Hide();
     }

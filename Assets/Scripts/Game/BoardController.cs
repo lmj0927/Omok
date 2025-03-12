@@ -11,8 +11,8 @@ public class BoardController : MonoBehaviour
     public int height;
     public GameObject cellPrefab;
     public RectTransform cellParent;
-
-
+    
+    
     // void Start()
     // {
     //     Initialize();
@@ -39,7 +39,7 @@ public class BoardController : MonoBehaviour
         }
         
         cells = new Cell[width, height];
-
+        
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -48,10 +48,88 @@ public class BoardController : MonoBehaviour
                 cells[i, j] = cell.GetComponent<Cell>();
                 cells[i, j].Initialize(i, j);
             }
-        }       
+        }
+        GameManager.Instance.matchController.OnDrawCell = OnDrawCell;
+    }
+
+    private void OnDrawCell(TurnData turnData, CELL_TYPE type)
+    {
+        var row = turnData.row;
+        var col = turnData.col;
+        cells[row, col].SetCellType(type);
+        if (type == CELL_TYPE.Black || type == CELL_TYPE.White)
+        {
+            cells[row, col].GetComponent<Button>().onClick.RemoveAllListeners();
+            Debug.Log(CheckGameResult(row, col));
+        }
+    }
+
+
+    #region GameResult
+    
+    public bool CheckGameResult(int row, int col)
+    {
+        var matchState = cells[row, col].GetCellType() == CELL_TYPE.Black ? MATCH_STATE.BlackTurn : MATCH_STATE.WhiteTurn;
+        
+        int count = 0; //count가 4이상이면 오목완성(SetTurn후 불리기에 현재 위치는 자기자신)
+
+        List<(int, int)> dira = new List<(int, int)>{ (0, 1), (0, -1) };
+        List<(int, int)> dirb = new List<(int, int)>{ (1, 0), (-1, 0) };
+        List<(int, int)> dirc = new List<(int, int)>{ (1, 1), (-1, -1) };
+        List<(int, int)> dird = new List<(int, int)>{ (1, -1), (-1, 1) };
+
+        List<List<(int, int)>> directions = new List<List<(int, int)>>
+        {
+            dira,
+            dirb,
+            dirc,
+            dird
+        };
+        
+        foreach (var dirs in directions)
+        {
+            foreach (var dir in dirs)
+            {
+                for (int i = 1; i < 5; i++)
+                {
+                    if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, matchState))
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                
+                if(count >= 4)
+                    return true;
+            }
+            count = 0;
+        }
+        
+        return false;
+    }
+
+    private bool CheckMark(int row, int col, MATCH_STATE matchState)
+    {
+        if(row < 0 || row >= width || col < 0 || col >= height)
+            return false;
+        
+        if (cells[row, col].GetCellType() == CELL_TYPE.Black && matchState == MATCH_STATE.BlackTurn)
+        {
+            return true;
+        };
+        if (cells[row, col].GetCellType() == CELL_TYPE.White && matchState == MATCH_STATE.WhiteTurn)
+        {
+            return true;
+        }
+        
+        return false;
     }
     
-
+    #endregion
+    
     public void SetCellType(int x, int y, CELL_TYPE cellType)
     {
         cells[x, y].SetCellType(cellType);

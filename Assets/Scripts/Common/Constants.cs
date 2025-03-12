@@ -10,7 +10,8 @@ public class Constants
         StartGame,
         EndGame,
         EndTurn,
-        EndMatch
+        EndMatch,
+        ReadyComplete
     }
 
 

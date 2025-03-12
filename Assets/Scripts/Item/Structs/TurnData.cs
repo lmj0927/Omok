@@ -1,9 +1,6 @@
-using Newtonsoft.Json;
 
 [System.Serializable]
-public class TurnData{
-    [JsonProperty("row")]
-    public int row;
-    [JsonProperty("col")]
-    public int col;
+public struct TurnData{
+    public int row { get; set; }
+    public int col { get; set; }
 }

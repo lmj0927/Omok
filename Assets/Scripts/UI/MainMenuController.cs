@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
 
-public class MainMenuController : MonoBehaviour
+public class MainMenuController : MonoBehaviour, IGameUI
 {
     [SerializeField] Button startButton;
     [SerializeField] Button replayButton;
@@ -37,12 +37,22 @@ public class MainMenuController : MonoBehaviour
 
     void OnClickShopButton()
     {
-        UIManager.Instance.GetUI<RectTransform>(UI_TYPE.Shop);
+        UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
     }
 
     void OnClickSettingButton()
     {
         Debug.Log("SettingButton Clicked");
         UIManager.Instance.GetUI<RectTransform>(UI_TYPE.Setting);        
+    }
+
+    public void Show()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Hide()
+    {
+        throw new System.NotImplementedException();
     }
 }

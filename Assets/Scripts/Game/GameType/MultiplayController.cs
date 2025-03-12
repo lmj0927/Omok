@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using SocketIOClient;
 using UnityEngine;
 
@@ -10,7 +11,6 @@ public class MultiplayController : IBaseGameTypeController
     private event Action<Constants.MultiplayManagerState, dynamic> _onMultiplayStateChanged;
 
     public void Initailize(){
-        //sid
         var sid = PlayerPrefs.GetString("sid");
         var uri = new Uri(Constants.GameServerURL);
         _socket = new SocketIOUnity(uri, new SocketIOOptions
@@ -22,11 +22,12 @@ public class MultiplayController : IBaseGameTypeController
             }
         });
         
-        _socket.OnUnityThread("createRoom", CreateRoom);
-        _socket.OnUnityThread("joinRoom", JoinRoom);
-        _socket.OnUnityThread("startGame", StartGame);
-        _socket.OnUnityThread("endGame", EndGame);
-        _socket.OnUnityThread("endTurn", EndTurn);
+        _socket.OnUnityThread("createRoomCli", CreateRoom);
+        _socket.OnUnityThread("joinRoomCli", JoinRoom);
+        _socket.OnUnityThread("startGameCli", StartGame);
+        _socket.OnUnityThread("endGameCli", EndGame);
+        _socket.OnUnityThread("endTurnCli", EndTurn);
+        _socket.OnUnityThread("readyCompleteCli", ReadyComplete);        
         
         _socket.Connect();
     }
@@ -46,16 +47,26 @@ public class MultiplayController : IBaseGameTypeController
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.JoinRoom, null);
     }
 
+    private void LeaveRoom(SocketIOResponse response)
+    {
+        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndMatch, null);
+    }
+
     private void StartGame(SocketIOResponse response)
     {
-        var data = response.GetValue<UserInfo>();   
-
+        var data = response.GetValue<UserInfo>();
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.StartGame, data);
     }
 
     private void EndGame(SocketIOResponse response)
     {
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndGame, null);
+    }
+
+    private void ReadyComplete(SocketIOResponse response)
+    {
+        ReadyComplete();
+        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.ReadyComplete, null);
     }
   
     private void EndTurn(SocketIOResponse response)
@@ -69,14 +80,26 @@ public class MultiplayController : IBaseGameTypeController
         _socket.Emit("turnChange", new { row, col });
     }
 
+    public void ReadyComplete(){
+        Debug.Log("## Ready Complete");
+        _socket.Emit("readyComplete");
+    }
+
+    public void LeaveRoom(){
+        _socket.Emit("leaveRoom");
+    }
+
     public void Operate(){
         
     }
 
     public void Dispose()
     {
+        Debug.Log("## MultiplayController Dispose");
+
         if (_socket != null)
         {
+            LeaveRoom();
             _socket.Disconnect();
             _socket.Dispose();
             _socket = null;

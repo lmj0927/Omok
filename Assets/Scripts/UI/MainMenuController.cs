@@ -53,7 +53,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickLeaderboardButton()
     {
-        UIManager.Instance.GetUI<RectTransform>(UI_TYPE.Leaderboard);        
+        UIManager.Instance.ShowUI<LeaderBoardPanelController>(UI_TYPE.Leaderboard);        
     }
 
     void OnClickShopButton()

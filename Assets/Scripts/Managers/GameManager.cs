@@ -6,7 +6,7 @@ using static Constants;
 public class GameManager : Singleton<GameManager>
 {
     public MatchController matchController;
-
+    public UserInfo userInfo;
 
     public void StartGame(PLAY_TYPE playType){
         if(matchController == null){

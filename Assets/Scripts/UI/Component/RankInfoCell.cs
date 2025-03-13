@@ -13,11 +13,11 @@ public class RankInfoCell : MonoBehaviour
     [SerializeField] Sprite[] profileSprites;
     private UserInfo _userInfo;
 
-    public void SetRankInfo(UserInfo userInfo)
+    public void SetRankInfo(UserInfo userInfo, int rankIndex = 0)
     {
         _userInfo = userInfo;
         
-        //TODO: 랭크 계산 후 순위 적용
+        rankText.text = rankIndex.ToString();
 
         int index = _userInfo.profileIndex;
         profileImage.sprite = profileSprites[index];

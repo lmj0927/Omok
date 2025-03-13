@@ -29,10 +29,11 @@ public class MatchController : IDisposable
     private Cell currentCell;
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
-
+    public Action<TurnData, MATCH_STATE> TurnEnded;
+    
     public void SetCurrentCell(Cell cell)
     {
-        if(!IsMyTurn()) return;
+        if(!IsMyTurn() && _matchPlayType == PLAY_TYPE.Multi) return;
 
         if(currentCell != null)
             OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
@@ -98,6 +99,8 @@ public class MatchController : IDisposable
         _isMatched = true;
         _isCancelMatch = false;
         _matchState = MATCH_STATE.BlackTurn;
+
+        UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
     }
 
@@ -119,7 +122,6 @@ public class MatchController : IDisposable
         _matchMakingCts = new CancellationTokenSource();
         await UniTask.Delay(_matchTimeSecond * 1000, cancellationToken: _matchMakingCts.Token);
         
-        UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         if(_isMatched || _isCancelMatch){
             Debug.Log("## Find or Cancel Matching");
             return;
@@ -178,20 +180,16 @@ public class MatchController : IDisposable
                         {
                             Debug.LogError("데이터가 UserInfo 형식이 아닙니다.");
                         }
-                        
+                        StartMatch();
                         Debug.Log("## Start Game: " + _matchInfo.opponent.nickname);
                     }
                     catch(Exception err)
                     {
                         Debug.Log("## Start Game Error: " + err.Message);
                     }
-
-                    StartMatch();
-                    Debug.Log("## Start Game");
                     break;
                 case MultiplayManagerState.EndGame:
-                    Dispose();
-                    Debug.Log("## End Game");
+                    EndMatch();
                     break;
                 case MultiplayManagerState.EndTurn:
                     try
@@ -247,12 +245,12 @@ public class MatchController : IDisposable
 
         _matchInfo.turn.Add(turnData);
 
+        TurnEnded?.Invoke(turnData, _matchState);
+
         if(_matchState == MATCH_STATE.BlackTurn){
-            OnDrawCell?.Invoke(turnData, CELL_TYPE.Black);
             _matchState = MATCH_STATE.WhiteTurn;
         }
         else{
-            OnDrawCell?.Invoke(turnData, CELL_TYPE.White);
             _matchState = MATCH_STATE.BlackTurn;
         }
     }
@@ -272,7 +270,9 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.End;
     }
 
-    public void CloseMaktch(){
-        
+    public void EndMatch()
+    {
+        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
+        Dispose();
     }
 }

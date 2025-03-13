@@ -179,10 +179,18 @@ public class NetworkManage : Singleton<NetworkManage>
         }
     }    
 
-    public IEnumerator GetLeaderboard(Action<Scores> success, Action failure)
+    // GetLeaderboard 사용 예시
+    // StartCoroutine(NetworkManage.Instance.GetLeaderboard((ret) => {
+    //         foreach (var userInfo in ret.userInfos)
+    //         {
+    //             Debug.Log(userInfo.nickname);
+    //         }
+    //     }, () => {}));
+
+    public IEnumerator GetLeaderboard(Action<UserInfos> success, Action failure)
     {
         using (UnityWebRequest www =
-               new UnityWebRequest(Constants.ServerURL + "/leaderboard", UnityWebRequest.kHttpVerbGET))
+               new UnityWebRequest(Constants.ServerURL + "/users/leaderboard", UnityWebRequest.kHttpVerbGET))
         {
             www.downloadHandler = new DownloadHandlerBuffer();
             
@@ -207,9 +215,9 @@ public class NetworkManage : Singleton<NetworkManage>
             else
             {
                 var result = www.downloadHandler.text;
-                var scores = JsonUtility.FromJson<Scores>(result);
+                var userInfos = JsonConvert.DeserializeObject<UserInfos>(result);
                 
-                success?.Invoke(scores);
+                success?.Invoke(userInfos);
             }
         }
     }

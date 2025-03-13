@@ -61,6 +61,7 @@ public class BoardController : MonoBehaviour
             }
         }
         GameManager.Instance.matchController.OnDrawCell = OnDrawCell;
+        GameManager.Instance.matchController.TurnEnded = EndTurn;
     }
 
     private void OnDrawCell(TurnData turnData, CELL_TYPE type)
@@ -68,7 +69,14 @@ public class BoardController : MonoBehaviour
         var row = turnData.row;
         var col = turnData.col;
         cells[row, col].SetCellType(type);
-        if (type == CELL_TYPE.Black)
+    }
+
+    private void EndTurn(TurnData turnData, MATCH_STATE state)
+    {
+        OnDrawCell(turnData, state == MATCH_STATE.BlackTurn ? CELL_TYPE.Black : CELL_TYPE.White);
+        var row = turnData.row;
+        var col = turnData.col;
+        if (state == MATCH_STATE.BlackTurn)
         {
             Debug.Log(CheckGameResult(row, col));
             if (forbidden != null)
@@ -84,7 +92,7 @@ public class BoardController : MonoBehaviour
                 }   
             }
         }
-        else if (type == CELL_TYPE.White)
+        else if (state == MATCH_STATE.WhiteTurn)
         {
             Debug.Log(CheckGameResult(row, col));
             forbidden = GetForbiddenPoints();
@@ -100,12 +108,11 @@ public class BoardController : MonoBehaviour
         }
     }
 
-
     #region GameResult
     
     private bool CheckGameResult(int row, int col)
     {
-        var matchState = cells[row, col].GetCellType() == CELL_TYPE.Black ? MATCH_STATE.BlackTurn : MATCH_STATE.WhiteTurn;
+        var cellType = cells[row, col].GetCellType();
         
         int count = 0; //count가 4이상이면 오목완성(SetTurn후 불리기에 현재 위치는 자기자신)
        
@@ -115,7 +122,7 @@ public class BoardController : MonoBehaviour
             {
                 for (int i = 1; i < 5; i++)
                 {
-                    if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, matchState))
+                    if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, cellType))
                     {
                         count++;
                     }
@@ -134,18 +141,14 @@ public class BoardController : MonoBehaviour
         return false;
     }
 
-    private bool CheckMark(int row, int col, MATCH_STATE matchState)
+    private bool CheckMark(int row, int col, CELL_TYPE cellType)
     {
         if (IsValidPosition(row, col))
         {
-            if (cells[row, col].GetCellType() == CELL_TYPE.Black && matchState == MATCH_STATE.BlackTurn)
+            if (cells[row, col].GetCellType() == cellType)
             {
                 return true;
             };
-            if (cells[row, col].GetCellType() == CELL_TYPE.White && matchState == MATCH_STATE.WhiteTurn)
-            {
-                return true;
-            }
         }
         
         return false;
@@ -177,7 +180,7 @@ public class BoardController : MonoBehaviour
                     int lineCount = 1;
                     foreach (var dir in dirs)
                     {
-                        for (int i = 1; i < 4; i++)
+                        for (int i = 1; i < 6; i++)
                         {
                             int newRow = row + dir.Item1 * i;
                             int newCol = col + dir.Item2 * i;

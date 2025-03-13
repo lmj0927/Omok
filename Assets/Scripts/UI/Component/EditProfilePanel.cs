@@ -10,7 +10,6 @@ public class EditProfilePanel : PanelController
     [SerializeField] Button[] profileImage;
     private int _profileIndex;
     
-    public Action<int> onChangedProfile;
     UserInfo _userInfo;
     
     void Start()
@@ -25,10 +24,7 @@ public class EditProfilePanel : PanelController
     public void OnClickProfile(int index)
     {
         _profileIndex = index;
-        onChangedProfile?.Invoke(_profileIndex);
-        
-        //_userInfo.profileIndex = index;
-        //userInfoPanel.SetUserInfo(_userInfo);
+        GameManager.Instance.playerDataController.SetProfile(index);
         
         Hide();
     }

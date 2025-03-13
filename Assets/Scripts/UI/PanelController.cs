@@ -27,6 +27,7 @@ public class PanelController : MonoBehaviour, IGameUI
     {
         _backgroundCanvasGroup.alpha = 0;
         panelRectTransform.localScale = Vector3.zero;
+        gameObject.SetActive(true);
         
         _backgroundCanvasGroup.DOFade(1, 0.3f).SetEase(Ease.Linear);
         panelRectTransform.DOScale(1, 0.3f).SetEase(Ease.OutBack);
@@ -56,7 +57,7 @@ public class PanelController : MonoBehaviour, IGameUI
             .Join(panelRectTransform.DOScale(0, 0.3f).SetEase(Ease.InBack))
             .OnComplete(() =>
             {
-                Destroy(gameObject);
+                gameObject.SetActive(false);
             });
 
         await sequence.AsyncWaitForCompletion();

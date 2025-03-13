@@ -58,7 +58,6 @@ public class MatchController : IDisposable
         _matchPlayType = matchPlayType;
         _isMatched = false;
         _isCancelMatch = false;
-        SetUIMode();
     }
 
     public void StartMatchMaking(){
@@ -103,17 +102,7 @@ public class MatchController : IDisposable
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
     }
-
-    void SetUIMode(){
-        //TODO: Replay, Game
-        if(_matchPlayType == PLAY_TYPE.Replay){
-            
-        }
-        else{
-
-        }
-    }
-
+    
     async UniTask FindMatching()
     {
         if(_matchMakingCts != null){
@@ -137,9 +126,60 @@ public class MatchController : IDisposable
         AIController aiController = new AIController();
         aiController.Initailize();
 
-        StartMatch();
-        
         _gameTypeController = aiController;
+
+        //AI정보 1,2,3
+        int tier = GameManager.Instance.playerDataController.UserInfo.tier;
+        //Mathf
+
+        //10~18 = 1
+        //5 ~ 9 = 2
+        //1 ~ 4 = 3
+        string aiId = "ai1";
+        if(tier >= 10 && tier <= 18)
+        {
+            //aiController.SetAILevel(1);
+            aiId = "ai1";
+            
+        }
+        else if(tier >= 5 && tier <= 9)
+        {
+            //aiController.SetAILevel(2);
+            aiId = "ai2";
+        }
+        else if(tier >= 1 && tier <= 4)
+        {
+            //aiController.SetAILevel(3);
+            aiId = "ai3";
+        }
+        
+        NetworkManage.Instance.LoadUserInfo(aiId, 
+            (userInfo) =>
+            {
+                _matchInfo.opponent = userInfo;
+                Debug.Log("AI 정보를 불러오는데 성공했습니다.");
+                
+                StartMatch();
+                
+            },
+            () =>
+            {
+                Debug.Log("AI 정보를 불러오는데 실패했습니다.");
+                //가짜 정보
+                _matchInfo.opponent = new UserInfo()
+                {
+                    userId = "FakeAI2025",
+                    nickname = "AI",
+                    tier = 10,
+                    winCount = 0,
+                    loseCount = 0,
+                    score = 0,
+                    profileIndex = 0,
+                };
+
+                StartMatch();
+            }
+        );
     }
 
     void InitializeReplayController(int replayIndex)

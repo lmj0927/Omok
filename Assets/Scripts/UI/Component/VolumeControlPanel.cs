@@ -46,7 +46,7 @@ public class VolumeControlPanel : MonoBehaviour
         float volume = isMuted ? 0f : PlayerPrefs.GetFloat(_volumeKey, 1f);
         
         // 볼륨 설정 및 저장
-        SetAudioVolume(volume);
+        SetMute(isMuted);
         UpdateUI(volume, isMuted);
     }
 
@@ -70,6 +70,18 @@ public class VolumeControlPanel : MonoBehaviour
         else if (soundType == SoundType.SFX)
         {
             AudioManager.Instance.SetSFXVolume(volume);
+        }
+    }
+    
+    private void SetMute(bool isMuted)
+    {
+        if (soundType == SoundType.BGM)
+        {
+            AudioManager.Instance.MuteBGM(isMuted);
+        }
+        else if (soundType == SoundType.SFX)
+        {
+            AudioManager.Instance.MuteSFX(isMuted);
         }
     }
     

@@ -18,7 +18,6 @@ public class GameBoardUIController : MonoBehaviour
         {
             GameManager.Instance.GiveUpGame();
             Debug.Log(GameManager.Instance.userInfo.nickname + "님이 게임을 포기하였습니다.");
-            Hide();
         });
     }
 

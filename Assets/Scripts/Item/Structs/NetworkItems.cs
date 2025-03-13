@@ -13,26 +13,10 @@ public struct SigninResult
     public UserInfo userInfo { get; set; }
 }
 
-public struct ScoreResult
-{
-    public string id;
-    public string username;
-    public string nickname;
-    public int score;
-}
 
-[Serializable]
-public struct ScoreInfo
+public struct UserInfos
 {
-    public string username;
-    public string nickname;
-    public int score;
-}
-
-[Serializable]
-public struct Scores
-{
-    public ScoreInfo[] scores;
+    public UserInfo[] userInfos { get; set; }
 }
 
 

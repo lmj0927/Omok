@@ -82,7 +82,6 @@ public class MultiplayController : IBaseGameTypeController
     }
 
     public void SendReadyComplete(){
-        Debug.Log("## Ready Complete");
         _socket.Emit("readyComplete");
     }
 

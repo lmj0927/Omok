@@ -19,13 +19,14 @@ public class GameManager : Singleton<GameManager>
     }
 
     public void EndGame(){
-
+        matchController.EndMatch();
     }
 
     public void GiveUpGame(){
         userInfo.loseCount--;
         SaveUserInfo(() =>{}, () =>{});
-        matchController.Dispose();
+        
+        matchController.EndMatch();
     }
 
 

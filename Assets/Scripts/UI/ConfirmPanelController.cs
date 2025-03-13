@@ -13,6 +13,8 @@ public class ConfirmPanelController : PanelController
 
     public void Show(string message, OnConfirmButtonClick onConfirmButtonClick)
     {
+        transform.SetAsLastSibling();
+
         messageText.text = message;
         this.onConfirmButtonClick = onConfirmButtonClick;
         base.Show();

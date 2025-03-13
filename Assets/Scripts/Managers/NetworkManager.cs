@@ -3,12 +3,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public class NetworkManage : Singleton<NetworkManage>
 {
     public IEnumerator Signup(SignupData signupData, Action success, Action failure)
     {
-        string jsonString = JsonUtility.ToJson(signupData);
+        string jsonString = JsonConvert.SerializeObject(signupData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonString);
 
         using (UnityWebRequest www =
@@ -45,9 +46,9 @@ public class NetworkManage : Singleton<NetworkManage>
         }
     }
     
-    public IEnumerator Signin(SigninData signinData, Action success, Action<int> failure)
+    public IEnumerator Signin(SigninData signinData, Action<UserInfo> success, Action<int> failure)
     {
-        string jsonString = JsonUtility.ToJson(signinData);
+        string jsonString = JsonConvert.SerializeObject(signinData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonString);
 
         using (UnityWebRequest www =
@@ -75,7 +76,8 @@ public class NetworkManage : Singleton<NetworkManage>
                 }
                 
                 var resultString = www.downloadHandler.text;
-                var result = JsonUtility.FromJson<SigninResult>(resultString);
+                var result = JsonConvert.DeserializeObject<SigninResult>(resultString);
+                
 
                 if (result.result == 0)
                 {
@@ -95,17 +97,17 @@ public class NetworkManage : Singleton<NetworkManage>
                 {
                     UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("로그인에 성공하였습니다.", () =>
                     {
-                        success?.Invoke();
+                        success?.Invoke(result.userInfo);
                     });
                 }
             }
         }
     }
 
-    public IEnumerator GetScore(Action<ScoreResult> success, Action failure)
+    public IEnumerator VerifySession(Action<UserInfo> success, Action failure)
     {
         using (UnityWebRequest www =
-               new UnityWebRequest(Constants.ServerURL + "/users/score", UnityWebRequest.kHttpVerbGET))
+               new UnityWebRequest(Constants.ServerURL + "/users/session", UnityWebRequest.kHttpVerbGET))
         {
             www.downloadHandler = new DownloadHandlerBuffer();
             
@@ -129,12 +131,10 @@ public class NetworkManage : Singleton<NetworkManage>
             }
             else
             {
-                var result = www.downloadHandler.text;
-                var userScore = JsonUtility.FromJson<ScoreResult>(result);
+                var resultString = www.downloadHandler.text;
+                var result = JsonConvert.DeserializeObject<SigninResult>(resultString);
                 
-                Debug.Log(userScore.score);
-                
-                success?.Invoke(userScore);
+                success?.Invoke(result.userInfo);
             }
         }
     }

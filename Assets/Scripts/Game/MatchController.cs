@@ -29,7 +29,8 @@ public class MatchController : IDisposable
     private Cell currentCell;
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
-
+    public Action<TurnData, MATCH_STATE> TurnEnded;
+    
     public void SetCurrentCell(Cell cell)
     {
         if(!IsMyTurn()) return;
@@ -244,12 +245,12 @@ public class MatchController : IDisposable
 
         _matchInfo.turn.Add(turnData);
 
+        TurnEnded?.Invoke(turnData, _matchState);
+
         if(_matchState == MATCH_STATE.BlackTurn){
-            OnDrawCell?.Invoke(turnData, CELL_TYPE.Black);
             _matchState = MATCH_STATE.WhiteTurn;
         }
         else{
-            OnDrawCell?.Invoke(turnData, CELL_TYPE.White);
             _matchState = MATCH_STATE.BlackTurn;
         }
     }

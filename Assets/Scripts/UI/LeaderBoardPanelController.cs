@@ -22,7 +22,7 @@ public class LeaderBoardPanelController : PanelController
     
     private void Start()
     {
-        _userInfo = GameManager.Instance.userInfo;
+        _userInfo = GameManager.Instance.playerDataController.UserInfo;
         
         closeButton.onClick.AddListener(OnClickCloseButton);
         

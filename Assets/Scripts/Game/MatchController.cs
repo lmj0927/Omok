@@ -135,11 +135,9 @@ public class MatchController : IDisposable
     }
 
     void InitializeAIController(){
-
-
         AIController aiController = new AIController();
         aiController.Initailize();
-
+        
         StartMatch();
         
         _gameTypeController = aiController;
@@ -248,10 +246,16 @@ public class MatchController : IDisposable
         if(_matchState == MATCH_STATE.BlackTurn){
             OnDrawCell?.Invoke(turnData, CELL_TYPE.Black);
             _matchState = MATCH_STATE.WhiteTurn;
+
         }
         else{
             OnDrawCell?.Invoke(turnData, CELL_TYPE.White);
             _matchState = MATCH_STATE.BlackTurn;
+        }
+
+        if (_matchState == MATCH_STATE.WhiteTurn)
+        {
+            if(_gameTypeController is AIController){ ((AIController)_gameTypeController).Operate(row, col);}
         }
     }
 

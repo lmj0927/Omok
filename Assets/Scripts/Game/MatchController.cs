@@ -65,7 +65,7 @@ public class MatchController : IDisposable
         switch(_matchPlayType){
             case PLAY_TYPE.Multi:
                 //Show MatchMaking Loading UI
-                UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking);
+                UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Show();
                 //Multiplay Initialize
                 InitializeMultiController();
                 //waiting thread
@@ -132,9 +132,8 @@ public class MatchController : IDisposable
         StartMatchMaking();
     }
 
-    void InitializeAIController(){
-
-
+    void InitializeAIController()
+    {
         AIController aiController = new AIController();
         aiController.Initailize();
 
@@ -143,7 +142,8 @@ public class MatchController : IDisposable
         _gameTypeController = aiController;
     }
 
-    void InitializeReplayController(int replayIndex){
+    void InitializeReplayController(int replayIndex)
+    {
         ReplayController replayController = new ReplayController();
         replayController.Initailize(replayIndex);
         _matchInfo = replayController.GetMatchInfo();
@@ -151,7 +151,8 @@ public class MatchController : IDisposable
         _gameTypeController = replayController;
     }
 
-    void InitializeMultiController(){
+    void InitializeMultiController()
+    {
         _matchInfo = new MatchInfo(){
             turn = new List<TurnData>(),
         };
@@ -181,7 +182,7 @@ public class MatchController : IDisposable
                             Debug.LogError("데이터가 UserInfo 형식이 아닙니다.");
                         }
                         StartMatch();
-                        Debug.Log("## Start Game: " + _matchInfo.opponent.nickname);
+                        Debug.Log("## Start Game: " + _matchInfo.opponent.userId);
                     }
                     catch(Exception err)
                     {
@@ -189,7 +190,21 @@ public class MatchController : IDisposable
                     }
                     break;
                 case MultiplayManagerState.EndGame:
-                    EndMatch();
+                    try{
+                        if (data is bool isBlackWin)
+                        {
+                            EndMatch(isBlackWin, true);
+                        }
+                        else
+                        {
+                            Debug.LogError("데이터가 bool 형식이 아닙니다.");
+                        }
+                        Debug.Log("## End Game");
+                    }
+                    catch(Exception err)
+                    {
+                        Debug.Log("## End Game Error: " + err.Message);
+                    }
                     break;
                 case MultiplayManagerState.EndTurn:
                     try
@@ -262,6 +277,10 @@ public class MatchController : IDisposable
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
     }
+
+    public bool IsClientBlack(){
+        return _matchInfo.isBlack;
+    }
     
     public void Dispose()
     {
@@ -270,8 +289,37 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.End;
     }
 
-    public void EndMatch()
+    public void Surrender()
     {
+        if(_gameTypeController is MultiplayController multiplayController)
+        {
+            multiplayController.EndGame(!IsClientBlack());
+        }
+        
+        EndMatch(!IsClientBlack(), true);
+    }
+
+    public void EndMatch(bool isBlackWin, bool isSurrender)
+    {
+        _matchState = MATCH_STATE.End;
+
+        PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;
+        PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);
+        
+        if(isBlackWin == IsClientBlack())
+        {
+            myPlayerDataController.Win();
+            opponentPlayerDataController.Lose();
+        }
+        else
+        {
+            if(_matchPlayType == PLAY_TYPE.AI)
+            {
+                myPlayerDataController.Lose();
+                opponentPlayerDataController.Win();
+            }
+        }
+
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
         Dispose();
     }

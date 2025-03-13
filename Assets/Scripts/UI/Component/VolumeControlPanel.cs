@@ -21,15 +21,20 @@ public class VolumeControlPanel : MonoBehaviour
     
     private bool isUpdatingUI = false;  // 무한 루프 방지용 플래그
 
+    private string _volumeKey;
+    private string _muteKey;
+
     private void Awake()
     {
         volumeSlider.onValueChanged.AddListener(OnVolumeSliderValueChanged);
         muteToggle.onValueChanged.AddListener(OnMuteToggleValueChanged);
         
         // 초기 값 설정
-        string soundKey = soundType == SoundType.BGM ? "BGM" : "SFX";
-        float savedVolume = PlayerPrefs.GetFloat(soundKey, 1f);
-        bool isMuted = PlayerPrefs.GetInt(soundKey + "Mute", 0) == 1;
+        _volumeKey = soundType == SoundType.BGM ? Constants.BGMVolume : Constants.SFXVolume;
+        _muteKey = soundType == SoundType.BGM ? Constants.BGMMute : Constants.SFXMute;
+        
+        float savedVolume = PlayerPrefs.GetFloat(_volumeKey, 1f);
+        bool isMuted = PlayerPrefs.GetInt(_muteKey, 0) == 1;
         
         UpdateUI(isMuted ? 0f : savedVolume, isMuted);
     }
@@ -38,14 +43,10 @@ public class VolumeControlPanel : MonoBehaviour
     {
         if (isUpdatingUI) return;
         
-        string soundKey = soundType == SoundType.BGM ? "BGM" : "SFX";
-        float volume = isMuted ? 0f : PlayerPrefs.GetFloat(soundKey, 1f);
+        float volume = isMuted ? 0f : PlayerPrefs.GetFloat(_volumeKey, 1f);
         
         // 볼륨 설정 및 저장
         SetAudioVolume(volume);
-        PlayerPrefs.SetInt(soundKey + "Mute", isMuted ? 1 : 0);
-        PlayerPrefs.Save();
-        
         UpdateUI(volume, isMuted);
     }
 
@@ -53,15 +54,10 @@ public class VolumeControlPanel : MonoBehaviour
     {
         if (isUpdatingUI) return;
         
-        string soundKey = soundType == SoundType.BGM ? "BGM" : "SFX";
         bool isMuted = volume <= 0.01f;
         
         // 볼륨 설정 및 저장
         SetAudioVolume(volume);
-        PlayerPrefs.SetFloat(soundKey, volume);
-        PlayerPrefs.SetInt(soundKey + "Mute", isMuted ? 1 : 0);
-        PlayerPrefs.Save();
-        
         UpdateUI(volume, isMuted);
     }
     

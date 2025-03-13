@@ -14,6 +14,8 @@ public class SettingsPanelController : PanelController
 
     void Start()
     {
+        GameManager.Instance.playerDataController.OnChangedProfile += OnProfileChanged;
+        
         profileButton.onMouseEnter += () => { editIconPanel.SetActive(true); };
         profileButton.onMouseExit += ()=> { editIconPanel.SetActive(false); };
         
@@ -24,10 +26,7 @@ public class SettingsPanelController : PanelController
     
     private void OnClickProfileButton()
     {
-        var editProfilePanel = UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
-        
-        editProfilePanel.onChangedProfile -= OnProfileChanged;
-        editProfilePanel.onChangedProfile += OnProfileChanged;
+        UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
     }
 
     private void OnProfileChanged(int idx)
@@ -45,7 +44,7 @@ public class SettingsPanelController : PanelController
 
     public void OnClickLogoutButton()
     {
-        PlayerPrefs.SetString("sid", null); 
+        PlayerPrefs.SetString(Constants.SID, null); 
         Hide();
         
         UIManager.Instance.GetUI<SigninPanelController>(UI_TYPE.SignIn);

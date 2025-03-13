@@ -178,19 +178,22 @@ public class BoardController : MonoBehaviour
             
                 foreach (var dirs in directions)
                 {
-                    int count = 1;
+                    
                     bool isOpen = true;
                     int lineCount = 1;
                     foreach (var dir in dirs)
                     {
-                        for (int i = 1; i < 4; i++)
+                        for (int i = 1; i < 5; i++)
                         {
                             int newRow = row + dir.Item1 * i;
                             int newCol = col + dir.Item2 * i;
-                        
+                            
                             if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White)
                             {
-                                isOpen = false;
+                                if (i < 4)
+                                {
+                                    isOpen = false;
+                                }
                                 break;
                             }
                             if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)

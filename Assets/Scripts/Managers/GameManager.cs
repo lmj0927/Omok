@@ -7,7 +7,32 @@ using static Constants;
 public class GameManager : Singleton<GameManager>
 {
     public MatchController matchController;
-    public UserInfo userInfo;
+    public PlayerDataController playerDataController;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        var tempData = new UserInfo();
+        tempData.nickname = "test";
+        tempData.score = 2;
+        tempData.tier = 10;
+        tempData.userId = "test@test.com";
+        tempData.loseCount = 5;
+        tempData.winCount = 3;
+        tempData.profileIndex = 2;
+        
+        SetUserInfo(tempData);
+    }
+
+    public void SetUserInfo(UserInfo userInfo)
+    {
+        playerDataController = new PlayerDataController(userInfo);
+    }
+
+    public UserInfo GetUserInfo()
+    {
+        return playerDataController.UserInfo;
+    }
 
     public void StartGame(PLAY_TYPE playType){
         if(matchController == null){
@@ -23,7 +48,7 @@ public class GameManager : Singleton<GameManager>
     }
 
     public void GiveUpGame(){
-        userInfo.loseCount--;
+        playerDataController.SetLooseCount(playerDataController.UserInfo.loseCount + 1);
         SaveUserInfo(() =>{}, () =>{});
         
         matchController.EndMatch();
@@ -31,6 +56,6 @@ public class GameManager : Singleton<GameManager>
 
 
     public void SaveUserInfo(Action success, Action fail){
-        StartCoroutine(NetworkManage.Instance.SetUserInfo(userInfo, success, fail));
+        StartCoroutine(NetworkManage.Instance.SetUserInfo(playerDataController.UserInfo, success, fail));
     }
 }

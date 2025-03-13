@@ -30,9 +30,7 @@ public class Cell : MonoBehaviour
     
     void OnClickCell()
     {
-        // int randomIndex = Random.Range(0, Enum.GetValues(typeof(CELL_TYPE)).Length);
-        // SetCellType((CELL_TYPE)randomIndex);
-        //OnClickedCell?.Invoke(row, col);
+        
         GameManager.Instance.matchController.SetCurrentCell(this);
     }
 
@@ -65,6 +63,15 @@ public class Cell : MonoBehaviour
             {
                 _image.color = new Color(1, 1, 1, 1);
             }
+        }
+
+        if (cellType == CELL_TYPE.Black || cellType == CELL_TYPE.White || cellType == CELL_TYPE.Warning)
+        {
+            GetComponent<Button>().onClick.RemoveListener(OnClickCell);
+        }
+        else
+        {
+            GetComponent<Button>().onClick.AddListener(OnClickCell);
         }
     }
 

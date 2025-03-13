@@ -27,18 +27,31 @@ public class LeaderBoardPanelController : PanelController
         closeButton.onClick.AddListener(OnClickCloseButton);
         
         Show();
+    }
+
+    void OnEnable()
+    {
+        //기존 셀 삭제.
+        if (contentTransform.GetComponentsInChildren<Transform>() != null)
+        {
+            var cells = contentTransform.GetComponentsInChildren<Transform>();
+            foreach (var cell in cells)
+            {
+                if(cell != contentTransform) Destroy(cell.gameObject);
+            }
+        }
+        
         CreateRankCell();
     }
 
-    void InitUserCell(int rankIndex)
+    void InitUserCell(UserInfo userInfo,int rankIndex)
     {
-        
-        int index = _userInfo.profileIndex;
+        int index = userInfo.profileIndex;
         profileImage.sprite = profileSprites[index];
         
-        float winRate = (float)_userInfo.winCount / (_userInfo.winCount + _userInfo.loseCount) * 100f;
-        userInfoText.text = $"{_userInfo.tier}급 {_userInfo.nickname}";
-        userWinRateText.text = $"{rankIndex}위 | {_userInfo.winCount}승 {_userInfo.loseCount}패 ({winRate:F0}%)";
+        float winRate = (float)userInfo.winCount / (userInfo.winCount + userInfo.loseCount) * 100f;
+        userInfoText.text = $"{userInfo.tier}급 {userInfo.nickname}";
+        userWinRateText.text = $"{rankIndex}위 | {userInfo.winCount}승 {userInfo.loseCount}패 ({winRate:F0}%)";
     }
 
     void CreateRankCell()
@@ -63,13 +76,13 @@ public class LeaderBoardPanelController : PanelController
                 switch (rank)
                 {
                     case 1:
-                        cell.GetComponentsInChildren<Image>()[0].DOColor(Color.yellow,0);
+                        cell.GetComponentsInChildren<Image>()[0].DOColor(new Color32(180,90,255,255),0);
                         break;
                     case 2:
-                        cell.GetComponentsInChildren<Image>()[0].DOColor(new Color32(236,236,236,255),0);
+                        cell.GetComponentsInChildren<Image>()[0].DOColor(new Color32(84,255,194,255),0);
                         break;
                     case 3:
-                        cell.GetComponentsInChildren<Image>()[0].DOColor(new Color32(251,109,42,255),0);
+                        cell.GetComponentsInChildren<Image>()[0].DOColor(new Color32(255,228,83,255),0);
                         break;
                 }
 
@@ -77,7 +90,7 @@ public class LeaderBoardPanelController : PanelController
                 if (_userInfo.userId == userinfo.userId)
                 {
                     cell.GetComponentsInChildren<TMP_Text>()[1].DOColor(Color.blue, 0);
-                    InitUserCell(rank);
+                    InitUserCell(userinfo, rank);
                 }
                     
                 contentTransform.sizeDelta = new Vector2(0, cellSize*rank);

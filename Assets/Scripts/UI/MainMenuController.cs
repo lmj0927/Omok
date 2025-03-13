@@ -41,11 +41,6 @@ public class MainMenuController : MonoBehaviour, IGameUI
         //coinPanel.SetCoinText(userInfo.text);
     }
 
-    void OnClickEditProfileButton()
-    {
-        UIManager.Instance.GetUI<RectTransform>(UI_TYPE.EditProfile);
-    }
-
     void OnClickStartButton()
     {
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);

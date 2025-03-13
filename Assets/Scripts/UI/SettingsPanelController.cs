@@ -5,33 +5,20 @@ using UnityEngine.UI;
 
 public class SettingsPanelController : PanelController
 {
+    public Button profileButton;
     public Button closeButton;
     public Button logoutButton;
 
-
     void Start()
     {
+        profileButton.onClick.AddListener(OnClickProfileButton);   
         closeButton.onClick.AddListener(OnClickCloseButton);   
         logoutButton.onClick.AddListener(OnClickLogoutButton);
     }
 
-
-    /// <summary>
-    /// SFX On/Off시 호출되는 함수
-    /// </summary>
-    /// <param name="value">On/Off 값</param>
-    public void OnSFXToggleValueChanged(bool value)
+    private void OnClickProfileButton()
     {
-        
-    }
-    
-    /// <summary>
-    /// BGM On/Off시 호출되는 함수
-    /// </summary>
-    /// <param name="value">On/Off 값</param>
-    public void OnBGMToggleValueChanged(bool value)
-    {
-        
+        UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
     }
 
     /// <summary>

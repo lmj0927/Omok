@@ -3834,6 +3834,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panelRectTransform: {fileID: 7257350694580994433}
+  profileButton: {fileID: 7751889262885078296}
   closeButton: {fileID: 7925350500008031377}
   logoutButton: {fileID: 4792250021380177533}
 --- !u!225 &7498579463380119278

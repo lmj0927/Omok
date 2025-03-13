@@ -13,7 +13,6 @@ public class MainMenuController : MonoBehaviour, IGameUI
     [SerializeField] Button leaderboardButton;
     [SerializeField] Button shopButton;
     [SerializeField] Button settingButton;
-    [SerializeField] Button editProfileButton;
     
     UserInfo _userInfo;
 
@@ -24,7 +23,6 @@ public class MainMenuController : MonoBehaviour, IGameUI
         leaderboardButton.onClick.AddListener(OnClickLeaderboardButton);
         shopButton.onClick.AddListener(OnClickShopButton);
         settingButton.onClick.AddListener(OnClickSettingButton);
-        editProfileButton.onClick.AddListener(OnClickEditProfileButton);
 
         //TODO: ~로 부터 userinfo를 받아온다.
         //_userinfo = GameManager.Instance.GetUserInfo

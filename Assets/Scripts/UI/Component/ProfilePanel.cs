@@ -12,6 +12,7 @@ public class ProfilePanel : MonoBehaviour
     private void Start()
     {
         GameManager.Instance.playerDataController.OnChangedProfile += SetProfileImage;
+        SetProfileImage(GameManager.Instance.GetUserInfo().profileIndex);
     }
 
     public void SetProfileImage(int idx)

@@ -16,4 +16,11 @@ public class PlayerDataController
         //TODO: 프로필 변경 요청
         OnChangedProfile?.Invoke(index);
     }
+
+    public void SetLooseCount(int count)
+    {
+        var info = UserInfo;
+        info.loseCount = count;
+        UserInfo = info;
+    }
 }

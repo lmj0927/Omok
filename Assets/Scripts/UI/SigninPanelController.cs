@@ -12,7 +12,7 @@ public class SigninPanelController : MonoBehaviour
     {
         StartCoroutine(NetworkManage.Instance.VerifySession((userInfo) =>
         {
-            GameManager.Instance.userInfo = userInfo;
+            GameManager.Instance.SetUserInfo(userInfo);
             Destroy(gameObject);
             UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
         }, () =>
@@ -43,7 +43,7 @@ public class SigninPanelController : MonoBehaviour
         
         StartCoroutine(NetworkManage.Instance.Signin(signinData, (userInfo) =>
         {
-            GameManager.Instance.userInfo = userInfo;
+            GameManager.Instance.SetUserInfo(userInfo);
             Destroy(gameObject);
             UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
         }, result =>

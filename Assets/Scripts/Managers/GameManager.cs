@@ -29,9 +29,8 @@ public class GameManager : Singleton<GameManager>
         playerDataController = new PlayerDataController(userInfo);
     }
 
-    public UserInfo? GetUserInfo()
+    public UserInfo GetUserInfo()
     {
-        if (playerDataController == null) return null;
         return playerDataController.UserInfo;
     }
 
@@ -49,13 +48,13 @@ public class GameManager : Singleton<GameManager>
     }
 
     public void GiveUpGame(){
-        userInfo.loseCount--;
+        playerDataController.SetLooseCount(playerDataController.UserInfo.loseCount + 1);
         SaveUserInfo(() =>{}, () =>{});
         matchController.Dispose();
     }
 
 
     public void SaveUserInfo(Action success, Action fail){
-        StartCoroutine(NetworkManage.Instance.SetUserInfo(userInfo, success, fail));
+        StartCoroutine(NetworkManage.Instance.SetUserInfo(playerDataController.UserInfo, success, fail));
     }
 }

@@ -12,7 +12,7 @@ public class SettingsPanelController : PanelController
     [SerializeField] private Button closeButton;
     [SerializeField] private Button logoutButton;
     [SerializeField] private GameObject editIconPanel;
-    [SerializeField] private ProfilePanel profilePanel;
+    [SerializeField] private UserInfoPanel userInfoPanel;
 
     private RectTransform _settingsPanel;
 
@@ -24,8 +24,6 @@ public class SettingsPanelController : PanelController
 
     void Start()
     {
-        GameManager.Instance.playerDataController.OnChangedProfile += OnProfileChanged;
-        
         profileButton.onMouseEnter += () => { editIconPanel.SetActive(true); };
         profileButton.onMouseExit += ()=> { editIconPanel.SetActive(false); };
         
@@ -37,11 +35,6 @@ public class SettingsPanelController : PanelController
     private void OnClickProfileButton()
     {
         UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
-    }
-
-    private void OnProfileChanged(int idx)
-    {
-        profilePanel.SetProfileImage(idx);
     }
 
     /// <summary>

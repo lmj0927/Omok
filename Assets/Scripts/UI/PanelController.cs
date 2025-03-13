@@ -15,7 +15,7 @@ public class PanelController : MonoBehaviour, IGameUI
     
     public delegate void PanelControllerHideDelegate();
     
-    private void Awake()
+    protected virtual void Awake()
     {
         _backgroundCanvasGroup = GetComponent<CanvasGroup>();
     }
@@ -23,7 +23,7 @@ public class PanelController : MonoBehaviour, IGameUI
     /// <summary>
     /// Panel 표시 함수
     /// </summary>
-    public void Show()
+    public virtual void Show()
     {
         _backgroundCanvasGroup.alpha = 0;
         panelRectTransform.localScale = Vector3.zero;
@@ -36,7 +36,7 @@ public class PanelController : MonoBehaviour, IGameUI
     /// <summary>
     /// Panel 숨기기 함수
     /// </summary>
-    public void Hide()
+    public virtual void Hide()
     {
         HideAsync().Forget();
     }

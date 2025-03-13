@@ -50,11 +50,14 @@ public class GameManager : Singleton<GameManager>
 
     public new void OnDestroy()
     {
-        if(matchController.GetMatchState() != MATCH_STATE.End)
+        if(matchController != null)
         {
-            matchController.Surrender();
+            if(matchController.GetMatchState() != MATCH_STATE.End)
+            {
+                matchController.Surrender();
+            }
+            matchController.Dispose();
         }
-        matchController.Dispose();
         base.OnDestroy();
     }
 }

@@ -1,24 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SettingsPanelController : PanelController
 {
-    public Button profileButton;
-    public Button closeButton;
-    public Button logoutButton;
+    [SerializeField] private HoverEventButton profileButton;
+    [SerializeField] private Button closeButton;
+    [SerializeField] private Button logoutButton;
+    [SerializeField] private GameObject editIconPanel;
+    [SerializeField] private ProfilePanel profilePanel;
 
     void Start()
     {
+        profileButton.onMouseEnter += () => { editIconPanel.SetActive(true); };
+        profileButton.onMouseExit += ()=> { editIconPanel.SetActive(false); };
+        
         profileButton.onClick.AddListener(OnClickProfileButton);   
         closeButton.onClick.AddListener(OnClickCloseButton);   
         logoutButton.onClick.AddListener(OnClickLogoutButton);
     }
-
+    
     private void OnClickProfileButton()
     {
-        UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
+        var editProfilePanel = UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
+        
+        editProfilePanel.onChangedProfile -= OnProfileChanged;
+        editProfilePanel.onChangedProfile += OnProfileChanged;
+    }
+
+    private void OnProfileChanged(int idx)
+    {
+        profilePanel.SetProfileImage(idx);
     }
 
     /// <summary>

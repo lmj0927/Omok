@@ -8,8 +8,9 @@ using UnityEngine.UI;
 public class EditProfilePanel : PanelController
 {
     [SerializeField] Button[] profileImage;
-    [SerializeField] private int _profileIndex;
+    private int _profileIndex;
     
+    public Action<int> onChangedProfile;
     UserInfo _userInfo;
     
     void Start()
@@ -24,8 +25,7 @@ public class EditProfilePanel : PanelController
     public void OnClickProfile(int index)
     {
         _profileIndex = index;
-        
-        //TODO: 변경된 정보 업데이트.
+        onChangedProfile?.Invoke(_profileIndex);
         
         //_userInfo.profileIndex = index;
         //userInfoPanel.SetUserInfo(_userInfo);

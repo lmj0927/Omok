@@ -6,9 +6,11 @@ public struct SigninData
     public string password;
 }
 
+
 public struct SigninResult
 {
     public int result;
+    public UserInfo userInfo { get; set; }
 }
 
 public struct ScoreResult

@@ -1,8 +1,8 @@
 public class Constants
-{
+{   
     #region Network
-    public const string ServerURL = "http://localhost:3000";
-    public const string GameServerURL = "ws://localhost:3000";
+    public const string ServerURL = "https://omok-server.onrender.com";
+    public const string GameServerURL = "wss://omok-server.onrender.com";
     public const string SID = "sid";
     #endregion
     

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class SettingsPanelController : PanelController
@@ -53,6 +54,8 @@ public class SettingsPanelController : PanelController
 
     public void OnClickLogoutButton()
     {
+        
+        UnityWebRequest.ClearCookieCache();
         PlayerPrefs.SetString(Constants.SID, null); 
         Hide();
         

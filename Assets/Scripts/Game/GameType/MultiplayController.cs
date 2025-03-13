@@ -11,7 +11,7 @@ public class MultiplayController : IBaseGameTypeController
     private event Action<Constants.MultiplayManagerState, dynamic> _onMultiplayStateChanged;
 
     public void Initailize(){
-        var sid = PlayerPrefs.GetString("sid");
+        var sid = PlayerPrefs.GetString(Constants.SID);
         var uri = new Uri(Constants.GameServerURL);
         _socket = new SocketIOUnity(uri, new SocketIOOptions
         {

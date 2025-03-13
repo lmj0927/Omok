@@ -63,8 +63,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickSettingButton()
     {
-        Debug.Log("SettingButton Clicked");
-        UIManager.Instance.GetUI<RectTransform>(UI_TYPE.Setting);        
+        UIManager.Instance.ShowUI<SettingsPanelController>(UI_TYPE.Setting);        
     }
 
     public void Show()

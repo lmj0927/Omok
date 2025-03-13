@@ -180,7 +180,7 @@ public class BoardController : MonoBehaviour
                     int lineCount = 1;
                     foreach (var dir in dirs)
                     {
-                        for (int i = 1; i < 6; i++)
+                        for (int i = 1; i < 4; i++)
                         {
                             int newRow = row + dir.Item1 * i;
                             int newCol = col + dir.Item2 * i;

@@ -72,7 +72,7 @@ public class NetworkManage : Singleton<NetworkManage>
                 {
                     int lastIndex = cookie.LastIndexOf(";");
                     string sid = cookie.Substring(0, lastIndex);
-                    PlayerPrefs.SetString("sid", sid); 
+                    PlayerPrefs.SetString(Constants.SID, sid); 
                 }
                 
                 var resultString = www.downloadHandler.text;
@@ -111,7 +111,7 @@ public class NetworkManage : Singleton<NetworkManage>
         {
             www.downloadHandler = new DownloadHandlerBuffer();
             
-            string sid = PlayerPrefs.GetString("sid", "");
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
             if (!string.IsNullOrEmpty(sid))
             {
                 www.SetRequestHeader("Cookie", sid);
@@ -194,7 +194,7 @@ public class NetworkManage : Singleton<NetworkManage>
         {
             www.downloadHandler = new DownloadHandlerBuffer();
             
-            string sid = PlayerPrefs.GetString("sid", "");
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
             if (!string.IsNullOrEmpty(sid))
             {
                 www.SetRequestHeader("Cookie", sid);

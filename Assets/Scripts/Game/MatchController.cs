@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 
 using TMPro;
@@ -16,7 +17,7 @@ public class MatchController : IDisposable
     //For MatchMaking
     int _matchTimeSecond = 3;
     bool _isMatched = false;
-    bool _isMatchMaking = false;
+    CancellationTokenSource _matchMakingCts;
     bool _isCancelMatch = false;
 
     //For Game
@@ -62,7 +63,7 @@ public class MatchController : IDisposable
 
     public void CloseMatchMaking()
     {
-        _isMatchMaking = false;
+        _matchMakingCts?.Cancel();
         _isMatched = false;
         _isCancelMatch = true;
         Dispose();
@@ -70,7 +71,7 @@ public class MatchController : IDisposable
 
     void StartMatch()
     {
-        _isMatchMaking = false;
+        _matchMakingCts?.Cancel();
         _isMatched = true;
         _isCancelMatch = false;
         _matchState = MATCH_STATE.BlackTurn;
@@ -87,20 +88,13 @@ public class MatchController : IDisposable
         }
     }
 
-
     async UniTask FindMatching()
     {
-        float time = 0;
-
-        _isMatchMaking = true;
-        while(_isMatchMaking){
-            await UniTask.Delay(100);
-            time += 0.1f;
-
-            if(time >= _matchTimeSecond){
-                _isMatchMaking = false;
-            }
+        if(_matchMakingCts != null){
+            _matchMakingCts.Cancel();
         }
+        _matchMakingCts = new CancellationTokenSource();
+        await UniTask.Delay(3000, cancellationToken: _matchMakingCts.Token);
         
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         if(_isMatched || _isCancelMatch){
@@ -228,5 +222,9 @@ public class MatchController : IDisposable
         _gameTypeController?.Dispose();
         _gameTypeController = null;
         _matchState = MATCH_STATE.End;
+    }
+
+    public void CloseMaktch(){
+        
     }
 }

@@ -98,6 +98,8 @@ public class MatchController : IDisposable
         _isMatched = true;
         _isCancelMatch = false;
         _matchState = MATCH_STATE.BlackTurn;
+
+        UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
     }
 
@@ -119,7 +121,6 @@ public class MatchController : IDisposable
         _matchMakingCts = new CancellationTokenSource();
         await UniTask.Delay(_matchTimeSecond * 1000, cancellationToken: _matchMakingCts.Token);
         
-        UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         if(_isMatched || _isCancelMatch){
             Debug.Log("## Find or Cancel Matching");
             return;
@@ -178,20 +179,16 @@ public class MatchController : IDisposable
                         {
                             Debug.LogError("데이터가 UserInfo 형식이 아닙니다.");
                         }
-                        
+                        StartMatch();
                         Debug.Log("## Start Game: " + _matchInfo.opponent.nickname);
                     }
                     catch(Exception err)
                     {
                         Debug.Log("## Start Game Error: " + err.Message);
                     }
-
-                    StartMatch();
-                    Debug.Log("## Start Game");
                     break;
                 case MultiplayManagerState.EndGame:
-                    Dispose();
-                    Debug.Log("## End Game");
+                    EndMatch();
                     break;
                 case MultiplayManagerState.EndTurn:
                     try
@@ -272,7 +269,9 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.End;
     }
 
-    public void CloseMaktch(){
-        
+    public void EndMatch()
+    {
+        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
+        Dispose();
     }
 }

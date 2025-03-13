@@ -9,6 +9,7 @@ using Image = UnityEngine.UI.Image;
 using Random = UnityEngine.Random;
 using Button = UnityEngine.UI.Button;
 using AYellowpaper.SerializedCollections;
+using UnityEngine.EventSystems;
 
 public class Cell : MonoBehaviour
 {
@@ -18,18 +19,19 @@ public class Cell : MonoBehaviour
 
     public int row;
     public int col;
-
+    
+    
     void Start()
     {
         _image = GetComponent<Image>();
         GetComponent<Button>().onClick.AddListener(OnClickCell);
         _image.color = new Color(0, 0, 0, 0);
     }
-
+    
     void OnClickCell()
     {
-        int randomIndex = Random.Range(0, Enum.GetValues(typeof(CELL_TYPE)).Length);
-        SetCellType((CELL_TYPE)randomIndex);
+        
+        GameManager.Instance.matchController.SetCurrentCell(this);
     }
 
     public void Initialize(int row, int col)
@@ -37,6 +39,7 @@ public class Cell : MonoBehaviour
         this.row = row;
         this.col = col;
         _cellType = CELL_TYPE.None;
+        
     }
     
     public void SetCellType(CELL_TYPE cellType)
@@ -61,12 +64,19 @@ public class Cell : MonoBehaviour
                 _image.color = new Color(1, 1, 1, 1);
             }
         }
+
+        if (cellType == CELL_TYPE.Black || cellType == CELL_TYPE.White || cellType == CELL_TYPE.Warning)
+        {
+            GetComponent<Button>().onClick.RemoveListener(OnClickCell);
+        }
+        else
+        {
+            GetComponent<Button>().onClick.AddListener(OnClickCell);
+        }
     }
 
     public CELL_TYPE GetCellType()
     {
         return _cellType;
     }
-
-
 }

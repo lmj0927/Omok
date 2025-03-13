@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static Constants;
@@ -24,8 +25,28 @@ public class MatchController : IDisposable
     MatchInfo _matchInfo;
     MATCH_STATE _matchState = MATCH_STATE.End;
     float _turnTime = 30f;
+    
+    private Cell currentCell;
 
+    public Action<TurnData, CELL_TYPE> OnDrawCell;
 
+    public void SetCurrentCell(Cell cell)
+    {
+        if(currentCell != null)
+            OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
+        currentCell = cell;
+        
+        if (_matchState == MATCH_STATE.BlackTurn)
+        {
+            OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.PreviewBlack);
+        }
+        else if (_matchState == MATCH_STATE.WhiteTurn)
+        {
+            OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.PreviewWhite);
+        }
+    }
+    
+    
     public void Initailize(PLAY_TYPE matchPlayType){
         _gameTypeController?.Dispose();
         _gameTypeController = null;
@@ -113,6 +134,8 @@ public class MatchController : IDisposable
         AIController aiController = new AIController();
         aiController.Initailize();
 
+        StartMatch();
+        
         _gameTypeController = aiController;
     }
 
@@ -196,8 +219,19 @@ public class MatchController : IDisposable
         _gameTypeController = multiplayController;
     }
 
+
+    public void SetTurn()
+    {
+        if (!currentCell.IsUnityNull())
+        {
+            SetTurn(currentCell.row, currentCell.col);
+            currentCell = null;
+        }
+    }
     
     public void SetTurn(int row, int col){
+        
+        
         TurnData turnData = new TurnData(){
             row = row,
             col = col,
@@ -206,9 +240,11 @@ public class MatchController : IDisposable
         _matchInfo.turn.Add(turnData);
 
         if(_matchState == MATCH_STATE.BlackTurn){
+            OnDrawCell?.Invoke(turnData, CELL_TYPE.Black);
             _matchState = MATCH_STATE.WhiteTurn;
         }
         else{
+            OnDrawCell?.Invoke(turnData, CELL_TYPE.White);
             _matchState = MATCH_STATE.BlackTurn;
         }
     }

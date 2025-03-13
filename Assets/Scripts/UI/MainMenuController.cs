@@ -1,15 +1,19 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
 
 public class MainMenuController : MonoBehaviour, IGameUI
 {
+    [SerializeField] UserInfoPanel userInfoPanel;
+    [SerializeField] CoinPanel coinPanel;
+    
     [SerializeField] Button startButton;
     [SerializeField] Button replayButton;
     [SerializeField] Button leaderboardButton;
     [SerializeField] Button shopButton;
     [SerializeField] Button settingButton;
-
+    UserInfo _userInfo;
 
     void Start()
     {
@@ -18,6 +22,28 @@ public class MainMenuController : MonoBehaviour, IGameUI
         leaderboardButton.onClick.AddListener(OnClickLeaderboardButton);
         shopButton.onClick.AddListener(OnClickShopButton);
         settingButton.onClick.AddListener(OnClickSettingButton);
+
+        //TODO: ~로 부터 userinfo를 받아온다.
+        //_userInfo = GameManger.Instance.GetUserInfo();
+        
+        //Initialize(_userInfo);
+    }
+
+    void Initialize(UserInfo userInfo)
+    {
+        //userInfoPanel.SetUserInfo(userInfo);
+        UpdateUserInfo();
+    }
+
+    void UpdateUserInfo()
+    {
+        //_userInfo = GameManger.Instance.GetUserInfo();
+        //coinPanel.SetCoinText(userInfo.text);
+    }
+
+    void OnClickEditProfileButton()
+    {
+        UIManager.Instance.GetUI<RectTransform>(UI_TYPE.EditProfile);
     }
 
     void OnClickStartButton()

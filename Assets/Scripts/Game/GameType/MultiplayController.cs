@@ -19,7 +19,8 @@ public class MultiplayController : IBaseGameTypeController
             Query = new Dictionary<string, string>
             {
                 {"Cookie", sid}
-            }
+            },
+            
         });
         
         _socket.OnUnityThread("createRoomCli", CreateRoom);
@@ -65,7 +66,7 @@ public class MultiplayController : IBaseGameTypeController
 
     private void ReadyComplete(SocketIOResponse response)
     {
-        ReadyComplete();
+        SendReadyComplete();
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.ReadyComplete, null);
     }
   
@@ -76,11 +77,11 @@ public class MultiplayController : IBaseGameTypeController
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndTurn, data);
     }
 
-    public void SendTurnChange(int row, int col){
-        _socket.Emit("turnChange", new { row, col });
+    public void SendEndTurn(int row, int col){
+        _socket.Emit("endTurn", new { row, col });
     }
 
-    public void ReadyComplete(){
+    public void SendReadyComplete(){
         Debug.Log("## Ready Complete");
         _socket.Emit("readyComplete");
     }

@@ -10,8 +10,9 @@ public class SigninPanelController : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(NetworkManage.Instance.GetScore((userInfo) =>
+        StartCoroutine(NetworkManage.Instance.VerifySession((userInfo) =>
         {
+            GameManager.Instance.userInfo = userInfo;
             Destroy(gameObject);
             UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
         }, () =>
@@ -22,10 +23,10 @@ public class SigninPanelController : MonoBehaviour
     public void OnClickSigninButton()
     {
         //테스트용 코드
-        Destroy(gameObject);
-        UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
+        // Destroy(gameObject);
+        // UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
 
-        return;
+        // return;
 
         string username = _usernameInputField.text;
         string password = _passwordInputField.text;
@@ -40,8 +41,9 @@ public class SigninPanelController : MonoBehaviour
         signinData.username = username;
         signinData.password = password;
         
-        StartCoroutine(NetworkManage.Instance.Signin(signinData, () =>
+        StartCoroutine(NetworkManage.Instance.Signin(signinData, (userInfo) =>
         {
+            GameManager.Instance.userInfo = userInfo;
             Destroy(gameObject);
             UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
         }, result =>

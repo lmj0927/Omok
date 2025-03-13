@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class SettingsPanelController : PanelController
@@ -44,6 +45,8 @@ public class SettingsPanelController : PanelController
 
     public void OnClickLogoutButton()
     {
+        
+        UnityWebRequest.ClearCookieCache();
         PlayerPrefs.SetString("sid", null); 
         Hide();
         

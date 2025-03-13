@@ -43,19 +43,18 @@ public class GameManager : Singleton<GameManager>
         matchController.StartMatchMaking();
     }
 
-    public void EndGame(){
-        matchController.EndMatch();
+    public void GiveUpGame()
+    {   
+        matchController.Surrender();
     }
 
-    public void GiveUpGame(){
-        playerDataController.SetLooseCount(playerDataController.UserInfo.loseCount + 1);
-        SaveUserInfo(() =>{}, () =>{});
-        
-        matchController.EndMatch();
-    }
-
-
-    public void SaveUserInfo(Action success, Action fail){
-        StartCoroutine(NetworkManage.Instance.SetUserInfo(playerDataController.UserInfo, success, fail));
+    public new void OnDestroy()
+    {
+        if(matchController.GetMatchState() != MATCH_STATE.End)
+        {
+            matchController.Surrender();
+        }
+        matchController.Dispose();
+        base.OnDestroy();
     }
 }

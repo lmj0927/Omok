@@ -178,6 +178,13 @@ public class NetworkManage : Singleton<NetworkManage>
             }
         }
     }    
+    //SetUserInfo Wrapper
+    public void SaveUserInfo(UserInfo userInfo, Action success, Action failure)
+    {
+        StartCoroutine(SetUserInfo(userInfo, success, failure));
+    }
+    
+
 
     // GetLeaderboard 사용 예시
     // StartCoroutine(NetworkManage.Instance.GetLeaderboard((ret) => {

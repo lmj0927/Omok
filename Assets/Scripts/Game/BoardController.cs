@@ -76,9 +76,13 @@ public class BoardController : MonoBehaviour
         OnDrawCell(turnData, state == MATCH_STATE.BlackTurn ? CELL_TYPE.Black : CELL_TYPE.White);
         var row = turnData.row;
         var col = turnData.col;
+        if (CheckGameResult(row, col))
+        {
+            GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
+        }
+
         if (state == MATCH_STATE.BlackTurn)
         {
-            Debug.Log(CheckGameResult(row, col));
             if (forbidden != null)
             {
                 foreach (var forbid in forbidden)
@@ -94,7 +98,6 @@ public class BoardController : MonoBehaviour
         }
         else if (state == MATCH_STATE.WhiteTurn)
         {
-            Debug.Log(CheckGameResult(row, col));
             forbidden = GetForbiddenPoints();
             foreach (var forbid in forbidden)
             {

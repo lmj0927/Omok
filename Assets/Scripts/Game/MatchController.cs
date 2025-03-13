@@ -32,6 +32,8 @@ public class MatchController : IDisposable
 
     public void SetCurrentCell(Cell cell)
     {
+        if(!IsMyTurn()) return;
+
         if(currentCell != null)
             OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
         currentCell = cell;
@@ -115,7 +117,7 @@ public class MatchController : IDisposable
             _matchMakingCts.Cancel();
         }
         _matchMakingCts = new CancellationTokenSource();
-        await UniTask.Delay(3000, cancellationToken: _matchMakingCts.Token);
+        await UniTask.Delay(_matchTimeSecond * 1000, cancellationToken: _matchMakingCts.Token);
         
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         if(_isMatched || _isCancelMatch){
@@ -196,7 +198,7 @@ public class MatchController : IDisposable
                     {
                         if(data is TurnData turnData)
                         {
-                            SetTurn(turnData.row, turnData.col);    
+                            SetTurn(turnData.row, turnData.col);
                         }
                         else
                         {
@@ -222,8 +224,14 @@ public class MatchController : IDisposable
 
     public void SetTurn()
     {
+            
         if (!currentCell.IsUnityNull())
         {
+            if(_gameTypeController is MultiplayController multiplayController)
+            {
+                multiplayController.SendEndTurn(currentCell.row, currentCell.col);
+            }
+
             SetTurn(currentCell.row, currentCell.col);
             currentCell = null;
         }
@@ -251,6 +259,10 @@ public class MatchController : IDisposable
 
     public MATCH_STATE GetMatchState(){
         return _matchState;
+    }
+
+    public bool IsMyTurn(){
+        return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
     }
     
     public void Dispose()

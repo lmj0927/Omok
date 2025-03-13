@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +23,13 @@ public class GameManager : Singleton<GameManager>
     }
 
     public void GiveUpGame(){
+        userInfo.loseCount--;
+        SaveUserInfo(() =>{}, () =>{});
         matchController.Dispose();
+    }
+
+
+    public void SaveUserInfo(Action success, Action fail){
+        StartCoroutine(NetworkManage.Instance.SetUserInfo(userInfo, success, fail));
     }
 }

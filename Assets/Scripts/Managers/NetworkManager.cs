@@ -139,6 +139,46 @@ public class NetworkManage : Singleton<NetworkManage>
         }
     }
 
+    public IEnumerator SetUserInfo(UserInfo userInfo, Action success, Action failure)
+    {
+        string jsonString = JsonConvert.SerializeObject(userInfo);
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonString);
+
+        using (UnityWebRequest www =
+               new UnityWebRequest(Constants.ServerURL + "/users/update", UnityWebRequest.kHttpVerbPOST))
+        {
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            
+            string sid = PlayerPrefs.GetString("sid", "");
+            if (!string.IsNullOrEmpty(sid))
+            {
+                www.SetRequestHeader("Cookie", sid);
+            }
+
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError ||
+                www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                if (www.responseCode == 403)
+                {
+                    Debug.Log("로그인이 필요합니다.");
+                }
+                
+                failure?.Invoke();
+            }
+            else
+            {
+                // var result = www.downloadHandler.text;
+                // var user = JsonUtility.FromJson<UserInfo>(result);
+                
+                success?.Invoke();
+            }
+        }
+    }    
+
     public IEnumerator GetLeaderboard(Action<Scores> success, Action failure)
     {
         using (UnityWebRequest www =

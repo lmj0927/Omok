@@ -74,7 +74,7 @@ public class GameBoardUIController : MonoBehaviour
     void Update()
     {
         GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
-        OnTimerCircle();
+        OnTimerCircle(); 
     }
 
     private void Initialize()
@@ -127,10 +127,10 @@ public class GameBoardUIController : MonoBehaviour
         //if (!_isBlack) OnRepeatYourTurnVFX();
         
         //턴 전환 애니메이션
-        switch (currentState)
+        switch (currentState) 
         {
             case MATCH_STATE.BlackTurn:
-                if (!_isBlack)
+                if (_isBlack)
                 {
                     executeButton.interactable = true;
                     descriptionText.text = "당신의 턴";
@@ -170,7 +170,7 @@ public class GameBoardUIController : MonoBehaviour
                 whiteTurnFadeRect.DOFade(1, Duration);
                 break;
             case MATCH_STATE.WhiteTurn:
-                if (_isBlack)
+                if (!_isBlack)
                 {
                     executeButton.interactable = true;
                     descriptionText.text = "당신의 턴";
@@ -235,7 +235,6 @@ public class GameBoardUIController : MonoBehaviour
         circleEffectRect.DOScale(new Vector3(1.1f,1.1f,1.1f), 1);
         boardOutlineFade.DOFade(0, 2);
         circleEffectFade.DOFade(0, 2).OnComplete(OnRepeatYourTurnVFX);
-        
     }
 
     public void Show()

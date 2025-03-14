@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
@@ -12,6 +13,16 @@ public class BoardController : MonoBehaviour
     public GameObject cellPrefab;
     public RectTransform cellParent;
     
+    
+    List<List<(int, int)>> directions = new List<List<(int, int)>>
+    {
+        new List<(int, int)>{ (0, 1), (0, -1) },
+        new List<(int, int)>{ (1, 0), (-1, 0) },
+        new List<(int, int)>{ (1, 1), (-1, -1) },
+        new List<(int, int)>{ (1, -1), (-1, 1) }
+    };
+
+    private List<(int, int)> forbidden;
     
     // void Start()
     // {
@@ -50,6 +61,7 @@ public class BoardController : MonoBehaviour
             }
         }
         GameManager.Instance.matchController.OnDrawCell = OnDrawCell;
+        GameManager.Instance.matchController.TurnEnded = EndTurn;
     }
 
     private void OnDrawCell(TurnData turnData, CELL_TYPE type)
@@ -57,42 +69,63 @@ public class BoardController : MonoBehaviour
         var row = turnData.row;
         var col = turnData.col;
         cells[row, col].SetCellType(type);
-        if (type == CELL_TYPE.Black || type == CELL_TYPE.White)
+    }
+
+    private void EndTurn(TurnData turnData, MATCH_STATE state)
+    {
+        OnDrawCell(turnData, state == MATCH_STATE.BlackTurn ? CELL_TYPE.Black : CELL_TYPE.White);
+        var row = turnData.row;
+        var col = turnData.col;
+        if (CheckGameResult(row, col))
         {
-            cells[row, col].GetComponent<Button>().onClick.RemoveAllListeners();
-            Debug.Log(CheckGameResult(row, col));
+            GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
+        }
+
+        if (state == MATCH_STATE.BlackTurn)
+        {
+            if (forbidden != null)
+            {
+                foreach (var forbid in forbidden)
+                {
+                    TurnData t = new TurnData()
+                    {
+                        row = forbid.Item1,
+                        col = forbid.Item2
+                    };
+                    OnDrawCell(t, CELL_TYPE.None);
+                }   
+            }
+        }
+        else if (state == MATCH_STATE.WhiteTurn)
+        {
+            forbidden = GetForbiddenPoints();
+            foreach (var forbid in forbidden)
+            {
+                TurnData t = new TurnData()
+                {
+                    row = forbid.Item1,
+                    col = forbid.Item2
+                };
+                OnDrawCell(t, CELL_TYPE.Warning);
+            }
         }
     }
 
-
     #region GameResult
     
-    public bool CheckGameResult(int row, int col)
+    private bool CheckGameResult(int row, int col)
     {
-        var matchState = cells[row, col].GetCellType() == CELL_TYPE.Black ? MATCH_STATE.BlackTurn : MATCH_STATE.WhiteTurn;
+        var cellType = cells[row, col].GetCellType();
         
         int count = 0; //count가 4이상이면 오목완성(SetTurn후 불리기에 현재 위치는 자기자신)
-
-        List<(int, int)> dira = new List<(int, int)>{ (0, 1), (0, -1) };
-        List<(int, int)> dirb = new List<(int, int)>{ (1, 0), (-1, 0) };
-        List<(int, int)> dirc = new List<(int, int)>{ (1, 1), (-1, -1) };
-        List<(int, int)> dird = new List<(int, int)>{ (1, -1), (-1, 1) };
-
-        List<List<(int, int)>> directions = new List<List<(int, int)>>
-        {
-            dira,
-            dirb,
-            dirc,
-            dird
-        };
-        
+       
         foreach (var dirs in directions)
         {
             foreach (var dir in dirs)
             {
                 for (int i = 1; i < 5; i++)
                 {
-                    if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, matchState))
+                    if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, cellType))
                     {
                         count++;
                     }
@@ -111,23 +144,88 @@ public class BoardController : MonoBehaviour
         return false;
     }
 
-    private bool CheckMark(int row, int col, MATCH_STATE matchState)
+    private bool CheckMark(int row, int col, CELL_TYPE cellType)
     {
-        if(row < 0 || row >= width || col < 0 || col >= height)
-            return false;
-        
-        if (cells[row, col].GetCellType() == CELL_TYPE.Black && matchState == MATCH_STATE.BlackTurn)
+        if (IsValidPosition(row, col))
         {
-            return true;
-        };
-        if (cells[row, col].GetCellType() == CELL_TYPE.White && matchState == MATCH_STATE.WhiteTurn)
-        {
-            return true;
+            if (cells[row, col].GetCellType() == cellType)
+            {
+                return true;
+            };
         }
         
         return false;
     }
     
+    #endregion
+
+    #region RenjunRule
+
+    private List<(int, int)> GetForbiddenPoints()
+    {
+        List<(int, int)> forbiddenPoints = new List<(int, int)>();
+    
+        for (int row = 0; row < width; row++)
+        {
+            for (int col = 0; col < height; col++)
+            {
+                if (cells[row, col].GetCellType() != CELL_TYPE.None)
+                    continue;
+
+                int threeCount = 0;
+                int fourCount = 0;
+                bool isOverline = false;
+            
+                foreach (var dirs in directions)
+                {
+                    
+                    bool isOpen = true;
+                    int lineCount = 1;
+                    foreach (var dir in dirs)
+                    {
+                        for (int i = 1; i < 5; i++)
+                        {
+                            int newRow = row + dir.Item1 * i;
+                            int newCol = col + dir.Item2 * i;
+                            
+                            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White)
+                            {
+                                if (i < 4)
+                                {
+                                    isOpen = false;
+                                }
+                                break;
+                            }
+                            if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
+                            {
+                                lineCount++;
+                            }
+                        }
+                    }
+                    if (lineCount == 3 && isOpen)
+                        threeCount++;
+                    if (lineCount == 4)
+                        fourCount++;
+                    if (lineCount > 5)
+                        isOverline = true;
+                }
+            
+                if (threeCount >= 2 || fourCount >= 2 || isOverline)
+                {
+                    forbiddenPoints.Add((row, col));
+                }
+            }
+        }
+        return forbiddenPoints;
+    }
+
+    private bool IsValidPosition(int row, int col)
+    {
+        return row >= 0 && row < width && col >= 0 && col < height;
+    }
+
+    
+
     #endregion
     
     public void SetCellType(int x, int y, CELL_TYPE cellType)

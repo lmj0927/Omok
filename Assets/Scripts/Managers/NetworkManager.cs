@@ -3,12 +3,13 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public class NetworkManage : Singleton<NetworkManage>
 {
     public IEnumerator Signup(SignupData signupData, Action success, Action failure)
     {
-        string jsonString = JsonUtility.ToJson(signupData);
+        string jsonString = JsonConvert.SerializeObject(signupData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonString);
 
         using (UnityWebRequest www =
@@ -45,9 +46,9 @@ public class NetworkManage : Singleton<NetworkManage>
         }
     }
     
-    public IEnumerator Signin(SigninData signinData, Action success, Action<int> failure)
+    public IEnumerator Signin(SigninData signinData, Action<UserInfo> success, Action<int> failure)
     {
-        string jsonString = JsonUtility.ToJson(signinData);
+        string jsonString = JsonConvert.SerializeObject(signinData);
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonString);
 
         using (UnityWebRequest www =
@@ -71,11 +72,12 @@ public class NetworkManage : Singleton<NetworkManage>
                 {
                     int lastIndex = cookie.LastIndexOf(";");
                     string sid = cookie.Substring(0, lastIndex);
-                    PlayerPrefs.SetString("sid", sid); 
+                    PlayerPrefs.SetString(Constants.SID, sid); 
                 }
                 
                 var resultString = www.downloadHandler.text;
-                var result = JsonUtility.FromJson<SigninResult>(resultString);
+                var result = JsonConvert.DeserializeObject<SigninResult>(resultString);
+                
 
                 if (result.result == 0)
                 {
@@ -95,21 +97,21 @@ public class NetworkManage : Singleton<NetworkManage>
                 {
                     UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("로그인에 성공하였습니다.", () =>
                     {
-                        success?.Invoke();
+                        success?.Invoke(result.userInfo);
                     });
                 }
             }
         }
     }
 
-    public IEnumerator GetScore(Action<ScoreResult> success, Action failure)
+    public IEnumerator VerifySession(Action<UserInfo> success, Action failure)
     {
         using (UnityWebRequest www =
-               new UnityWebRequest(Constants.ServerURL + "/users/score", UnityWebRequest.kHttpVerbGET))
+               new UnityWebRequest(Constants.ServerURL + "/users/session", UnityWebRequest.kHttpVerbGET))
         {
             www.downloadHandler = new DownloadHandlerBuffer();
             
-            string sid = PlayerPrefs.GetString("sid", "");
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
             if (!string.IsNullOrEmpty(sid))
             {
                 www.SetRequestHeader("Cookie", sid);
@@ -129,22 +131,25 @@ public class NetworkManage : Singleton<NetworkManage>
             }
             else
             {
-                var result = www.downloadHandler.text;
-                var userScore = JsonUtility.FromJson<ScoreResult>(result);
+                var resultString = www.downloadHandler.text;
+                var result = JsonConvert.DeserializeObject<SigninResult>(resultString);
                 
-                Debug.Log(userScore.score);
-                
-                success?.Invoke(userScore);
+                success?.Invoke(result.userInfo);
             }
         }
     }
 
-    public IEnumerator GetLeaderboard(Action<Scores> success, Action failure)
+    public IEnumerator SetUserInfo(UserInfo userInfo, Action success, Action failure)
     {
+        string jsonString = JsonConvert.SerializeObject(userInfo);
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonString);
+
         using (UnityWebRequest www =
-               new UnityWebRequest(Constants.ServerURL + "/leaderboard", UnityWebRequest.kHttpVerbGET))
+               new UnityWebRequest(Constants.ServerURL + "/users/update", UnityWebRequest.kHttpVerbPOST))
         {
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
             www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
             
             string sid = PlayerPrefs.GetString("sid", "");
             if (!string.IsNullOrEmpty(sid))
@@ -166,10 +171,60 @@ public class NetworkManage : Singleton<NetworkManage>
             }
             else
             {
-                var result = www.downloadHandler.text;
-                var scores = JsonUtility.FromJson<Scores>(result);
+                // var result = www.downloadHandler.text;
+                // var user = JsonUtility.FromJson<UserInfo>(result);
                 
-                success?.Invoke(scores);
+                success?.Invoke();
+            }
+        }
+    }    
+    //SetUserInfo Wrapper
+    public void SaveUserInfo(UserInfo userInfo, Action success, Action failure)
+    {
+        StartCoroutine(SetUserInfo(userInfo, success, failure));
+    }
+    
+
+
+    // GetLeaderboard 사용 예시
+    // StartCoroutine(NetworkManage.Instance.GetLeaderboard((ret) => {
+    //         foreach (var userInfo in ret.userInfos)
+    //         {
+    //             Debug.Log(userInfo.nickname);
+    //         }
+    //     }, () => {}));
+
+    public IEnumerator GetLeaderboard(Action<UserInfos> success, Action failure)
+    {
+        using (UnityWebRequest www =
+               new UnityWebRequest(Constants.ServerURL + "/users/leaderboard", UnityWebRequest.kHttpVerbGET))
+        {
+            www.downloadHandler = new DownloadHandlerBuffer();
+            
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
+            if (!string.IsNullOrEmpty(sid))
+            {
+                www.SetRequestHeader("Cookie", sid);
+            }
+
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError ||
+                www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                if (www.responseCode == 403)
+                {
+                    Debug.Log("로그인이 필요합니다.");
+                }
+                
+                failure?.Invoke();
+            }
+            else
+            {
+                var result = www.downloadHandler.text;
+                var userInfos = JsonConvert.DeserializeObject<UserInfos>(result);
+                
+                success?.Invoke(userInfos);
             }
         }
     }

@@ -11,7 +11,7 @@ public class MultiplayController : IBaseGameTypeController
     private event Action<Constants.MultiplayManagerState, dynamic> _onMultiplayStateChanged;
 
     public void Initailize(){
-        var sid = PlayerPrefs.GetString("sid");
+        var sid = PlayerPrefs.GetString(Constants.SID);
         var uri = new Uri(Constants.GameServerURL);
         _socket = new SocketIOUnity(uri, new SocketIOOptions
         {
@@ -19,7 +19,8 @@ public class MultiplayController : IBaseGameTypeController
             Query = new Dictionary<string, string>
             {
                 {"Cookie", sid}
-            }
+            },
+            
         });
         
         _socket.OnUnityThread("createRoomCli", CreateRoom);
@@ -59,13 +60,14 @@ public class MultiplayController : IBaseGameTypeController
     }
 
     private void EndGame(SocketIOResponse response)
-    {
-        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndGame, null);
+    {   
+        var data = response.GetValue<bool>();
+        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndGame, data);
     }
 
     private void ReadyComplete(SocketIOResponse response)
     {
-        ReadyComplete();
+        SendReadyComplete();
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.ReadyComplete, null);
     }
   
@@ -76,17 +78,20 @@ public class MultiplayController : IBaseGameTypeController
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndTurn, data);
     }
 
-    public void SendTurnChange(int row, int col){
-        _socket.Emit("turnChange", new { row, col });
+    public void SendEndTurn(int row, int col){
+        _socket.Emit("endTurn", new { row, col });
     }
 
-    public void ReadyComplete(){
-        Debug.Log("## Ready Complete");
+    public void SendReadyComplete(){
         _socket.Emit("readyComplete");
     }
 
     public void LeaveRoom(){
         _socket.Emit("leaveRoom");
+    }
+
+    public void EndGame(bool isBlackWin){
+        _socket.Emit("endGame", isBlackWin);
     }
 
     public void Operate(){

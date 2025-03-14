@@ -16,8 +16,8 @@ public class GameBoardUIController : MonoBehaviour
     {
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("정말로 게임을 포기하시겠습니까?", () =>
         {
-            //GameManager.Instance.GiveUpGame();
-            Hide();
+            GameManager.Instance.GiveUpGame();
+            Debug.Log(GameManager.Instance.GetUserInfo().nickname + "님이 게임을 포기하였습니다.");
         });
     }
 

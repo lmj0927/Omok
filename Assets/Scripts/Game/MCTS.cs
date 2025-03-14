@@ -13,7 +13,7 @@ public class MCTS
 
     private int[,] board;
     
-    private int iterations = 100000;
+    private int iterations = 10000;
 
     public MCTS()
     {

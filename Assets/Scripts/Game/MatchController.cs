@@ -45,7 +45,7 @@ public class MatchController : IDisposable
     
     public void SetCurrentCell(Cell cell)
     {
-        if(!IsMyTurn() && _matchPlayType == PLAY_TYPE.Multi) return;
+        if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
 
         if(currentCell != null)
             OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);

@@ -436,8 +436,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uAC8C\uC784\uC744 \uC885\uB8CC\uD558\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3a4e3c2c38c1e384fa3c4c0cb47315e9, type: 2}
-  m_sharedMaterial: {fileID: -1423741528718833254, guid: 3a4e3c2c38c1e384fa3c4c0cb47315e9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 4ba7a122a0ecb234ebb05b86af8d6de4, type: 2}
+  m_sharedMaterial: {fileID: -1178999987824903073, guid: 4ba7a122a0ecb234ebb05b86af8d6de4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

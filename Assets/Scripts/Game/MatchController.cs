@@ -40,8 +40,7 @@ public class MatchController : IDisposable
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
-    public delegate void OnTurnEndUIDelegate();
-    public OnTurnEndUIDelegate OnTurnEndUI;
+    public Action OnTurnEndUI;
     
     public void SetCurrentCell(Cell cell)
     {

@@ -277,6 +277,10 @@ public class MatchController : IDisposable
         else{
             _matchState = MATCH_STATE.BlackTurn;
         }
+        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController)
+        {
+            ((AIController)_gameTypeController).Operate(row, col);
+        }
     }
 
     public MATCH_STATE GetMatchState(){

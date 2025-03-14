@@ -3,6 +3,8 @@
     None,
     Draw,
     Remove,
+    DrawAll,
+    RemoveAll,
 }
 
 public class OperateCommand

@@ -30,6 +30,7 @@ public class MatchController : IDisposable
         get => _turnTime;
         set
         {
+            //타이머 0 아래로 내려가지 않게.
             if (value < 0)_turnTime = 0;
             else _turnTime = value;
         }
@@ -39,6 +40,8 @@ public class MatchController : IDisposable
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
+    public delegate void OnTurnEndUIDelegate();
+    public OnTurnEndUIDelegate OnTurnEndUI;
     
     public void SetCurrentCell(Cell cell)
     {
@@ -281,6 +284,7 @@ public class MatchController : IDisposable
         {
             ((AIController)_gameTypeController).Operate(row, col);
         }
+        OnTurnEndUI?.Invoke();
     }
 
     public MATCH_STATE GetMatchState(){

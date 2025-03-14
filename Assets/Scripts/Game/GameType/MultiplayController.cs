@@ -60,8 +60,9 @@ public class MultiplayController : IBaseGameTypeController
     }
 
     private void EndGame(SocketIOResponse response)
-    {
-        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndGame, null);
+    {   
+        var data = response.GetValue<bool>();
+        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndGame, data);
     }
 
     private void ReadyComplete(SocketIOResponse response)
@@ -89,7 +90,12 @@ public class MultiplayController : IBaseGameTypeController
         _socket.Emit("leaveRoom");
     }
 
-    public void Operate(OperateCommand command){
+    public void EndGame(bool isBlackWin){
+        _socket.Emit("endGame", isBlackWin);
+    }
+
+    public void Operate(OperateCommand command)
+    {
         
     }
 

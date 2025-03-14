@@ -20,10 +20,41 @@ public class PlayerDataController
         OnChangedProfile?.Invoke(index);
     }
 
-    public void SetLooseCount(int count)
+    public void Win()
     {
         var info = UserInfo;
-        info.loseCount = count;
+        info.winCount++;
+        info.score++;
         UserInfo = info;
+
+        Save();
+    }
+
+    public void Lose()
+    {
+        var info = UserInfo;
+        info.loseCount++;
+        info.score--;
+        UserInfo = info;
+
+        Save();
+    }
+
+    public void SetNickname(string nickname)
+    {
+        var info = UserInfo;
+        info.nickname = nickname;
+        UserInfo = info;
+    }
+
+    public void Save()
+    {
+        NetworkManage.Instance.SaveUserInfo(this.UserInfo,
+            () =>{
+                Debug.Log("Save Success");
+            },
+            () => {
+                Debug.Log("Save Fail");
+            });
     }
 }

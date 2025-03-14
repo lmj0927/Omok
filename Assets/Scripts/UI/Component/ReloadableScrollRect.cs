@@ -1,41 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using VFolders.Libs;
 
-public class ReloadableScrollView : ScrollRect
+public class ReloadableScrollRect : ScrollRect
 {
-    private GameObject _cellPrefab = null;
-    private List<RectTransform> _cells = new List<RectTransform>();
+    private List<GameObject> _cells = new List<GameObject>();
     
-    public void Initialize<T>(List<T> items, GameObject cellPrefab)
+    public void Reload<T>(List<T> items, GameObject cellPrefab)
     {
-        _cellPrefab = cellPrefab;
-        
-        // 기존 셀 정리
-        foreach (var cell in _cells)
+        //cell 조정
+        if (items.Count < _cells.Count)
         {
-            if (cell != null)
-                Destroy(cell.gameObject);
-        }
-        _cells.Clear();
-
-        foreach (var item in items)
-        {
-            var cell = GameObject.Instantiate(_cellPrefab, content);
-            var rectTransform = cell.GetComponent<RectTransform>();
-            _cells.Add(rectTransform);
-            
-            if(cell.TryGetComponent<IReloadableCell<T>>(out var cellComponent))
+            for (var i = items.Count; i < _cells.Count; i++)
             {
-                cellComponent.SetData(item);
+                _cells[i].gameObject.SetActive(false);
             }
         }
-    }
-    
-    public void Reload<T>(List<T> items, Action onReload = null)
-    {
-        Initialize(items, _cellPrefab);
-        onReload?.Invoke();
+        else if (items.Count > _cells.Count)
+        {
+            for (var i = _cells.Count; i < items.Count; i++)
+            {
+                var cell = Instantiate(cellPrefab, content);
+                _cells.Add(cell);
+            }
+        }
+        
+        //데이터 설정
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (!_cells[i].IsUnityNull())
+            {
+                if(_cells[i].TryGetComponent<IReloadableCell<T>>(out var cellComponent))
+                {
+                    cellComponent.SetData(items[i]);
+                }
+            }
+        }
     }
 }

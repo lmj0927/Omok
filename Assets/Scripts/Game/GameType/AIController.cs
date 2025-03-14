@@ -9,8 +9,9 @@ public class AIController : IBaseGameTypeController
     {   
     }
 
-    public void Operate()
+    public void Operate(OperateCommand command)
     {
+        
     }
 
     public void Dispose()

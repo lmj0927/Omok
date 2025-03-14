@@ -89,7 +89,7 @@ public class MultiplayController : IBaseGameTypeController
         _socket.Emit("leaveRoom");
     }
 
-    public void Operate(){
+    public void Operate(OperateCommand command){
         
     }
 

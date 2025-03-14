@@ -280,8 +280,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 020b4679fbfdb51488d689673eb08a7c, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -3768,7 +3768,7 @@ MonoBehaviour:
   closeButton: {fileID: 7925350500008031377}
   logoutButton: {fileID: 4792250021380177533}
   editIconPanel: {fileID: 4465097962068793188}
-  profilePanel: {fileID: 0}
+  userInfoPanel: {fileID: 0}
 --- !u!225 &7498579463380119278
 CanvasGroup:
   m_ObjectHideFlags: 0

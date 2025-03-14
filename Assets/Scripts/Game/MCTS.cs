@@ -191,36 +191,43 @@ public class Node
     //     return Children.OrderByDescending(n => (double)n.Wins / (n.Visits + 1e-6) + ExplorationParameter * Math.Sqrt(2 * Math.Log(Visits + 1) / (n.Visits + 1e-6))).FirstOrDefault();
     // }
     
+    private static readonly (int, int)[] directions = 
+    {
+        (1, 0),
+        (0, 1),
+        (1, 1),
+        (1, -1)
+    };
+
     private static bool CheckWin(int[,] board, (int, int) lastMove)
     {
         int x = lastMove.Item1, y = lastMove.Item2;
         int player = board[x, y];
         if (player == 0) return false;
 
-        List<(int, int)> directions = new List<(int, int)>{ (1, 0), (0, 1), (1, 1), (1, -1) };
-
-        foreach (var dir in directions)
+        foreach (var (dx, dy) in directions)
         {
-            int count = 1;
-            for (int i = 1; i < 5; i++)
+            if (CountConsecutiveStones(board, x, y, dx, dy, player) + CountConsecutiveStones(board, x, y, -dx, -dy, player) - 1 >= 5)
             {
-                int nx = x + dir.Item1 * i, ny = y + dir.Item2 * i;
-                if (nx >= 0 && ny >= 0 && nx < board.GetLength(0) && ny < board.GetLength(1) && board[nx, ny] == player)
-                    count++;
-                else break;
+                return true;
             }
-
-            for (int i = 1; i < 5; i++)
-            {
-                int nx = x - dir.Item1 * i, ny = y - dir.Item2 * i;
-                if (nx >= 0 && ny >= 0 && nx < board.GetLength(0) && ny < board.GetLength(1) && board[nx, ny] == player)
-                    count++;
-                else break;
-            }
-
-            if (count >= 5) return true;
         }
         return false;
+    }
+
+    private static int CountConsecutiveStones(int[,] board, int x, int y, int dx, int dy, int player)
+    {
+        int count = 0;
+        int boardCount = board.GetLength(0);
+
+        while (x >= 0 && x < boardCount && y >= 0 && y < boardCount && board[x, y] == player)
+        {
+            count++;
+            x += dx;
+            y += dy;
+        }
+
+        return count;
     }
 
     private static bool CheckDirection(int[,] board, int x, int y, int dx, int dy)

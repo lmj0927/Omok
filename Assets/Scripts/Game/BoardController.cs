@@ -79,6 +79,7 @@ public class BoardController : MonoBehaviour
         if (CheckGameResult(row, col))
         {
             GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
+            return;
         }
 
         if (state == MATCH_STATE.BlackTurn)

@@ -70,7 +70,7 @@ public class GameBoardUIController : MonoBehaviour
     }
 
     //임시 타이머 차감용
-    void Update()
+    void FixedUpdate()
     {
         if(_isStartMatch)
         {

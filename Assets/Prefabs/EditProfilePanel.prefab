@@ -461,7 +461,6 @@ MonoBehaviour:
   - {fileID: 9000375413604835824}
   - {fileID: 822931767650196308}
   - {fileID: 4042936744134757064}
-  _profileIndex: 0
 --- !u!225 &1722597089929104074
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -883,8 +882,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d134599aa33f9c24f8b479ff9971d425, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 07dba31d80a63454aabddf15b78d6f7f, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

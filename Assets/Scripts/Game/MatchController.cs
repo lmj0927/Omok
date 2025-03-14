@@ -91,8 +91,7 @@ public class MatchController : IDisposable
                 break;
             case PLAY_TYPE.Replay:
                 //Show Replay UI
-                UIManager.Instance.GetUI<ReplayGameBoardUIController>(UI_TYPE.Replay).Show();
-                //Replay Initialize
+                // UIManager.Instance.ShowUI<ReplayGameBoardUIController>(UI_TYPE.Replay);
                 break;
         }
     }
@@ -118,8 +117,8 @@ public class MatchController : IDisposable
 
     void SetUIMode(){
         //TODO: Replay, Game
-        if(_matchPlayType == PLAY_TYPE.Replay){
-            
+        if(_matchPlayType == PLAY_TYPE.Replay)
+        {
         }
         else{
 
@@ -154,10 +153,10 @@ public class MatchController : IDisposable
         _gameTypeController = aiController;
     }
 
-    void InitializeReplayController(int replayIndex)
+    public void InitializeReplayController(int replayIndex)
     {
         ReplayController replayController = new ReplayController();
-        replayController.Initailize(replayIndex);
+        replayController.Initialize(replayIndex);
         _matchInfo = replayController.GetMatchInfo();
 
         _gameTypeController = replayController;
@@ -246,25 +245,22 @@ public class MatchController : IDisposable
         _gameTypeController = multiplayController;
     }
 
-
     public void SetTurn()
     {
-            
         if (!currentCell.IsUnityNull())
         {
-            if(_gameTypeController is MultiplayController multiplayController)
+            if (_gameTypeController is MultiplayController multiplayController)
             {
                 multiplayController.SendEndTurn(currentCell.row, currentCell.col);
             }
-
+            
             SetTurn(currentCell.row, currentCell.col);
             currentCell = null;
         }
     }
     
-    public void SetTurn(int row, int col){
-        
-        
+    public void SetTurn(int row, int col)
+    {
         TurnData turnData = new TurnData(){
             row = row,
             col = col,
@@ -282,9 +278,17 @@ public class MatchController : IDisposable
         }
         if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController)
         {
-            ((AIController)_gameTypeController).Operate(row, col);
+            OperateCommand command = new OperateCommand();
+            command.turnData = turnData;
+            
+            ((AIController)_gameTypeController).Operate(command);
         }
         OnTurnEndUI?.Invoke();
+    }
+
+    public void Operate(OperateCommand command)
+    {
+        _gameTypeController.Operate(command);
     }
 
     public MATCH_STATE GetMatchState(){

@@ -235,15 +235,15 @@ public class MatchController : IDisposable
 
     public void SetTurn()
     {
-        if (_gameTypeController is MultiplayController multiplayController)
+        if (!currentCell.IsUnityNull())
         {
-            if (!currentCell.IsUnityNull())
+            if (_gameTypeController is MultiplayController multiplayController)
             {
                 multiplayController.SendEndTurn(currentCell.row, currentCell.col);
-
-                SetTurn(currentCell.row, currentCell.col);
-                currentCell = null;
             }
+            
+            SetTurn(currentCell.row, currentCell.col);
+            currentCell = null;
         }
     }
     
@@ -266,7 +266,10 @@ public class MatchController : IDisposable
         }
         if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController)
         {
-            ((AIController)_gameTypeController).Operate(row, col);
+            OperateCommand command = new OperateCommand();
+            command.turnData = turnData;
+            
+            ((AIController)_gameTypeController).Operate(command);
         }
     }
 

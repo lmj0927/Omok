@@ -14,15 +14,10 @@ public class AIController : IBaseGameTypeController
         _mctsAI = new MCTS();
     }
 
-    async public void Operate(int row, int col)
+    async public void Operate(OperateCommand command)
     {
-        var bestMove = await _mctsAI.RunSearch(row, col);
+        var bestMove = await _mctsAI.RunSearch(command.turnData.row, command.turnData.col);
         GameManager.Instance.matchController.SetTurn(bestMove.Item1, bestMove.Item2);
-    }
-
-    public void Operate(OperateCommand command)
-    {
-        
     }
 
     public void Dispose()

@@ -301,10 +301,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f332c4f578704a2a81d81ee048981e4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shopPanel: {fileID: 0}
   content: {fileID: 5388338562381292399}
   itemCellPrefab: {fileID: 9034679154983347179, guid: a8efa08a98a324349ac476c4b1b190f2, type: 3}
   backButton: {fileID: 8495565283220335663}
+  scrollRect: {fileID: 2021847809359885033}
   products:
   - productType: 1
     reward: 300
@@ -686,7 +686,7 @@ GameObject:
   - component: {fileID: 6952797434209167917}
   - component: {fileID: 7365809247992721116}
   - component: {fileID: 4030883473976921720}
-  - component: {fileID: 2277342381597553077}
+  - component: {fileID: 2021847809359885033}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -753,7 +753,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2277342381597553077
+--- !u!114 &2021847809359885033
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -762,7 +762,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4755050019706198350}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+  m_Script: {fileID: 11500000, guid: 983965a9808f4a9f913d5214810dadc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 5388338562381292399}
@@ -776,9 +776,9 @@ MonoBehaviour:
   m_Viewport: {fileID: 6582410458618147944}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 8772756242812874353}
-  m_HorizontalScrollbarVisibility: 2
+  m_HorizontalScrollbarVisibility: 0
   m_VerticalScrollbarVisibility: 2
-  m_HorizontalScrollbarSpacing: -3
+  m_HorizontalScrollbarSpacing: 0
   m_VerticalScrollbarSpacing: -3
   m_OnValueChanged:
     m_PersistentCalls:

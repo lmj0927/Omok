@@ -2,35 +2,28 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ShopPanelController: MonoBehaviour,IGameUI
 {
     [Header("UI Elements")]
-    [SerializeField] private RectTransform shopPanel;
     [SerializeField] private RectTransform content;
     [SerializeField] private GameObject itemCellPrefab;
     [SerializeField] private Button backButton;
+    [SerializeField] private ReloadableScrollRect scrollRect;
     
     [Header("Data")]
     [SerializeField] private List<ProductData> products;
 
+    private RectTransform _shopPanel;
+    
     private void Awake()
     {
-        shopPanel = gameObject.GetComponent<RectTransform>();
+        _shopPanel = gameObject.GetComponent<RectTransform>();
         
         //Product 설정
-        foreach (var product in products)
-        {
-            var productCell = Instantiate(itemCellPrefab, content); 
-            if(productCell.TryGetComponent<ShopProductCell>(out var cell))
-            {
-                cell.SetProductType(product.productType);
-                cell.SetReward(product.reward);
-                cell.SetPrice(product.price);
-            }
-        }
-        
+        scrollRect.Reload(products, itemCellPrefab);
         backButton.onClick.AddListener(Hide);
         
         //TODO: Coin 설정
@@ -38,21 +31,21 @@ public class ShopPanelController: MonoBehaviour,IGameUI
 
     public void Show()
     {
-        var original = shopPanel.anchoredPosition;
-        shopPanel.anchoredPosition = new Vector2(Screen.width, original.y);
+        var original = _shopPanel.anchoredPosition;
+        _shopPanel.anchoredPosition = new Vector2(Screen.width, original.y);
 
         gameObject.SetActive(true);
-        shopPanel.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
+        _shopPanel.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
     }
 
     public void Hide()
     {
-        var original = shopPanel.anchoredPosition;
+        var original = _shopPanel.anchoredPosition;
 
-        shopPanel.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
+        _shopPanel.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
         {
             gameObject.SetActive(false);
-            shopPanel.anchoredPosition = original;
+            _shopPanel.anchoredPosition = original;
         });
     }
 }

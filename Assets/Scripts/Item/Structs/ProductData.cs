@@ -2,7 +2,7 @@
 using System;
 
 [Serializable]
-public struct ProductData
+public class ProductData
 {
     public ShopProductCell.ProductType productType;
     public int reward;

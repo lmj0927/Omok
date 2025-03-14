@@ -16,7 +16,7 @@ public class AIController : IBaseGameTypeController
 
     async public void Operate(int row, int col)
     {
-        var bestMove = _mctsAI.RunSearch(row, col);
+        var bestMove = await _mctsAI.RunSearch(row, col);
         GameManager.Instance.matchController.SetTurn(bestMove.Item1, bestMove.Item2);
     }
     

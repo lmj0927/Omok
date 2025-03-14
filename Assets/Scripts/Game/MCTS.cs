@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Random = System.Random;
 
 public class MCTS
@@ -12,7 +13,7 @@ public class MCTS
 
     private int[,] board;
     
-    private int iterations = 50000;
+    private int iterations = 100000;
 
     public MCTS()
     {
@@ -20,13 +21,14 @@ public class MCTS
     }
     
 
-    public (int, int) RunSearch(int row, int col)
+    public async UniTask<(int, int)> RunSearch(int row, int col)
     {
         board[row, col] = -1;
         rootNode = new Node(null, board, -1, (row, col));
         
         for (int i = 0; i < iterations; i++)
         {
+            if (i % 100 == 0) await UniTask.Yield();
             Node node = Select(rootNode); // uct에 따라 leaf node 선택
             int result = Simulate(node); // 다
             Backpropagate(node, result);
@@ -131,7 +133,7 @@ public class Node
             possibleMoves.Remove(move);
             player = -player;
         }
-        return CheckWin(tempBoard, move) ? (player == 1 ? 1 : -1) : 0;
+        return CheckWin(tempBoard, move) ? (player == 1 ? 5 : -5) : 0;
     }
 
     public void Update(int result)

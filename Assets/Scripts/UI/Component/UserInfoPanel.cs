@@ -9,7 +9,7 @@ public class UserInfoPanel : MonoBehaviour
     [SerializeField] ProfilePanel profilePanel;
     private UserInfo _userInfo;
 
-    private void Start()
+    private void Awake()
     {
         SetUserInfo(GameManager.Instance.GetUserInfo());
     }

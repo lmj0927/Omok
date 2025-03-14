@@ -1696,7 +1696,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   exitButton: {fileID: 3229661567671156752}
   nextButton: {fileID: 5418996092551786826}
-  prevbutton: {fileID: 3786249337417958518}
+  prevButton: {fileID: 3786249337417958518}
+  firstButton: {fileID: 5859085457759514719}
+  lastButton: {fileID: 7787827675746105926}
   userInfoPanel: {fileID: 4849541848133733123}
   opponentInfoPanel: {fileID: 5014165413852294508}
 --- !u!1001 &5983513048000815431

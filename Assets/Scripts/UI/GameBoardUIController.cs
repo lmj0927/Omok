@@ -69,12 +69,19 @@ public class GameBoardUIController : MonoBehaviour
         
         Initialize();
     }
+    
+    
 
     //임시 타이머 차감용
     void Update()
     {
         GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
         OnTimerCircle(); 
+    }
+
+    void OnEnable()
+    {
+        Initialize();
     }
 
     private void Initialize()

@@ -94,7 +94,8 @@ public class MultiplayController : IBaseGameTypeController
         _socket.Emit("endGame", isBlackWin);
     }
 
-    public void Operate(){
+    public void Operate(OperateCommand command)
+    {
         
     }
 

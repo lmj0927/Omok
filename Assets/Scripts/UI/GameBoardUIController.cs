@@ -48,6 +48,7 @@ public class GameBoardUIController : MonoBehaviour
     private RectTransform _timerHeadRect;
     private Image _timerHead;
     private Image _timerSeed;
+    private bool _isStartMatch = false;
     
     void Start()
     {
@@ -66,17 +67,16 @@ public class GameBoardUIController : MonoBehaviour
         
         _blackOriginWidth = blackTurnPanel.sizeDelta.x;
         _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
-        
-        Initialize();
     }
-    
-    
 
     //임시 타이머 차감용
     void Update()
     {
-        GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
-        OnTimerCircle(); 
+        if(_isStartMatch)
+        {
+            GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
+            OnTimerCircle(); 
+        }
     }
 
     void OnEnable()
@@ -86,16 +86,18 @@ public class GameBoardUIController : MonoBehaviour
 
     private void Initialize()
     {
+        _isStartMatch = false;
+    }
+
+    public void StartMatch()
+    {
         GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
 
         SetChangedTurn();
-        
-        //
         OnTimerCircle();
-        
-        //
-        if (GameManager.Instance.matchController.IsClientBlack()) _isBlack = true;
-        else _isBlack = false;
+ 
+        _isBlack = GameManager.Instance.matchController.IsClientBlack();
+        _isStartMatch = true;
     }
     
     public void OnClickGiveUpButton()
@@ -119,8 +121,7 @@ public class GameBoardUIController : MonoBehaviour
         GameManager.Instance.matchController.TurnTime = 30f;
         
         //내가 흑돌인가?
-        if (GameManager.Instance.matchController.IsClientBlack()) _isBlack = true;
-        else _isBlack = false;
+        _isBlack = GameManager.Instance.matchController.IsClientBlack();
         
         //현재 어느 턴인지?
         _currentState = GameManager.Instance.matchController.GetMatchState();

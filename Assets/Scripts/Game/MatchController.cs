@@ -111,17 +111,10 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.BlackTurn;
 
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
-        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
-    }
-
-    void SetUIMode(){
-        //TODO: Replay, Game
-        if(_matchPlayType == PLAY_TYPE.Replay)
-        {
-        }
-        else{
-
-        }
+        
+        var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
+        gameBoardUIController.Show();
+        gameBoardUIController.StartMatch();
     }
 
     async UniTask FindMatching()

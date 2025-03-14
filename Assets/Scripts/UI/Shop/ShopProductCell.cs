@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopProductCell: MonoBehaviour
+public class ShopProductCell: MonoBehaviour, IReloadableCell<ProductData>
 {
     [SerializeField] private TMP_Text rewardText;
     [SerializeField] private TMP_Text priceText;
@@ -34,7 +34,7 @@ public class ShopProductCell: MonoBehaviour
         Debug.Log($"{_price:N0}원 결제: {_reward:N0}개 보상");
     }
 
-    public void SetProductType(ProductType productType)
+    private void SetProductType(ProductType productType)
     {
         _productType = productType;
         if (productType == ProductType.Advertise)
@@ -49,15 +49,22 @@ public class ShopProductCell: MonoBehaviour
         }
     }
     
-    public void SetReward(int reward)
+    private void SetReward(int reward)
     {
         _reward = reward;
         rewardText.text = $"코인 {reward:N0} 개";
     }
     
-    public void SetPrice(int price)
+    private void SetPrice(int price)
     {
         _price = price;
         priceText.text = $"{price:N0} 원";
+    }
+
+    public void SetData(ProductData data)
+    {
+        SetProductType(data.productType);
+        SetReward(data.reward);
+        SetPrice(data.price);
     }
 }

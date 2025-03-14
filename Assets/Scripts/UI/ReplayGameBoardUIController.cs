@@ -1,11 +1,14 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ReplayGameBoardUIController : MonoBehaviour
+public class ReplayGameBoardUIController : MonoBehaviour, IGameUI
 {
     public Button exitButton;
     public Button nextButton;
-    public Button prevbutton;
+    public Button prevButton;
+    public Button firstButton;
+    public Button lastButton;
 
     public UserInfoPanel userInfoPanel;
     public UserInfoPanel opponentInfoPanel;
@@ -14,28 +17,41 @@ public class ReplayGameBoardUIController : MonoBehaviour
     {
         exitButton.onClick.AddListener(OnClickExitButton);
         nextButton.onClick.AddListener(OnClickNextButton);
-        prevbutton.onClick.AddListener(OnClickPrevButton);
+        prevButton.onClick.AddListener(OnClickPrevButton);
+        firstButton.onClick.AddListener(OnClickFirstButton);
+        lastButton.onClick.AddListener(OnClickLastButton);
     }
-
-    void Initialize(UserInfo userInfo, UserInfo opponentInfo)
+   
+    public void Initialize(UserInfo userInfo, UserInfo opponentInfo)
     {
         userInfoPanel.SetUserInfo(userInfo);
         opponentInfoPanel.SetUserInfo(opponentInfo);    
     }
 
-    public void OnClickExitButton()
+    private void OnClickExitButton()
     {
         Hide();
     }
 
-    public void OnClickNextButton()
+    private void OnClickNextButton()
     {
+        GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.Draw });
     }
 
-    public void OnClickPrevButton()
+    private void OnClickPrevButton()
     {
+        GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.Remove });
+    }
+    
+    private void OnClickFirstButton()
+    {
+        GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.RemoveAll });
     }
 
+    private void OnClickLastButton()
+    {
+        GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.DrawAll });
+    }
 
     public void Show()
     {

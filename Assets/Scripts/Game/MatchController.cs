@@ -110,7 +110,7 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.BlackTurn;
 
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
-        
+
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
         gameBoardUIController.Show();
         gameBoardUIController.StartMatch();
@@ -318,12 +318,12 @@ public class MatchController : IDisposable
         else{
             _matchState = MATCH_STATE.BlackTurn;
         }
-        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController)
+        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController aiController)
         {
             OperateCommand command = new OperateCommand();
             command.turnData = turnData;
             
-            ((AIController)_gameTypeController).Operate(command);
+            aiController.Operate(command);
         }
         OnTurnEndUI?.Invoke();
     }

@@ -25,7 +25,16 @@ public class MatchController : IDisposable
     MatchInfo _matchInfo;
     MATCH_STATE _matchState = MATCH_STATE.End;
     float _turnTime = 30f;
-    
+    public float TurnTime
+    {
+        get => _turnTime;
+        set
+        {
+            if (value < 0)_turnTime = 0;
+            else _turnTime = value;
+        }
+    }
+
     private Cell currentCell;
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;

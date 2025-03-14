@@ -25,6 +25,7 @@ public class GameBoardUIController : MonoBehaviour
     private const float UpScalePanel = 1.5f;
     private const float DownScalePanel = 0.5f;
 
+    //강조 효과
     [SerializeField] private RectTransform boardOutlineRect;
     private CanvasGroup boardOutlineFade;
     [SerializeField] private RectTransform circleEffectRect;
@@ -32,8 +33,11 @@ public class GameBoardUIController : MonoBehaviour
     
     private Image _excuteButtonImage;
     private TMP_Text _excuteButtonText;
+
+    private delegate void OnRepeatEffect();
+    private OnRepeatEffect _onRepeatEffect;
     
-    MATCH_STATE _currentState = MATCH_STATE.BlackTurn;
+    [SerializeField]MATCH_STATE _currentState = MATCH_STATE.BlackTurn;
     public bool _isBlack = true;
     
     //유저 프로필
@@ -54,6 +58,12 @@ public class GameBoardUIController : MonoBehaviour
         giveUpButton.onClick.AddListener(OnClickGiveUpButton);
         executeButton.onClick.AddListener(OnClickExecuteButton);
         
+        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+        GameManager.Instance.matchController.OnInitBoardUI = Initialize;
+        
+        _onRepeatEffect += OnRepeatBoardEffect;
+        _onRepeatEffect += OnRepeatCircleEffect;
+        
         _excuteButtonImage = executeButton.GetComponent<Image>();
         _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
         
@@ -66,12 +76,8 @@ public class GameBoardUIController : MonoBehaviour
         
         _blackOriginWidth = blackTurnPanel.sizeDelta.x;
         _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
-        
-        Initialize();
     }
     
-    
-
     //임시 타이머 차감용
     void Update()
     {
@@ -79,15 +85,8 @@ public class GameBoardUIController : MonoBehaviour
         OnTimerCircle(); 
     }
 
-    void OnEnable()
-    {
-        Initialize();
-    }
-
     private void Initialize()
     {
-        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
-
         SetChangedTurn();
         
         //
@@ -125,14 +124,15 @@ public class GameBoardUIController : MonoBehaviour
         //현재 어느 턴인지?
         _currentState = GameManager.Instance.matchController.GetMatchState();
         
+        //플레이어 턴이면 강조 이펙트 켜기
+        _onRepeatEffect?.Invoke();
+        
         //턴 전환
         OnChangedTurn(_currentState);
     }
     
     public void OnChangedTurn(MATCH_STATE currentState)
     {
-        //if (!_isBlack) OnRepeatYourTurnVFX();
-        
         //턴 전환 애니메이션
         switch (currentState) 
         {
@@ -230,18 +230,35 @@ public class GameBoardUIController : MonoBehaviour
         timerText.text = $"{GameManager.Instance.matchController.TurnTime:F2}";
     }
 
-    void OnRepeatYourTurnVFX()
+    void OnRepeatCircleEffect()
     {
-        boardOutlineRect.DOScale(Vector3.one, 0);
-        boardOutlineFade.DOFade(1, 0);
-        
-        circleEffectRect.DOScale(Vector3.one, 0);
-        circleEffectFade.DOFade(1, 0);
-        
-        boardOutlineRect.DOScale(new Vector3(1.1f,1.1f,1.1f), 1);
-        circleEffectRect.DOScale(new Vector3(1.1f,1.1f,1.1f), 1);
-        boardOutlineFade.DOFade(0, 2);
-        circleEffectFade.DOFade(0, 2).OnComplete(OnRepeatYourTurnVFX);
+        if ((_currentState == MATCH_STATE.BlackTurn && _isBlack) ||
+            (_currentState == MATCH_STATE.WhiteTurn && !_isBlack))
+        {
+            circleEffectRect.DOScale(Vector3.one, 0);
+            circleEffectFade.DOFade(1, 0);
+            
+            circleEffectRect.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 1);
+            circleEffectFade.DOFade(0, 2).OnComplete(OnRepeatCircleEffect);
+        }
+    }
+
+    void OnRepeatBoardEffect()
+    {
+        if ((_currentState == MATCH_STATE.BlackTurn && _isBlack) ||
+            (_currentState == MATCH_STATE.WhiteTurn && !_isBlack))
+        {
+            boardOutlineRect.DOScale(Vector3.one, 0);
+            boardOutlineFade.DOFade(1, 0);
+
+            boardOutlineRect.DOScale(new Vector3(1.05f, 1.05f, 1.05f), 1);
+            boardOutlineFade.DOFade(0, 2).OnComplete(OnRepeatBoardEffect);
+            //     () =>
+            // {
+            //     boardOutlineRect.DOScale(Vector3.one, 1);
+            //     boardOutlineFade.DOFade(1, 2).OnComplete(OnRepeatBoardEffect);
+            // });
+        }
     }
 
     public void Show()

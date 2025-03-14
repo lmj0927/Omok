@@ -42,6 +42,8 @@ public class MatchController : IDisposable
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public delegate void OnTurnEndUIDelegate();
     public OnTurnEndUIDelegate OnTurnEndUI;
+    public delegate void OnInitBoardUIDelegate();
+    public OnInitBoardUIDelegate OnInitBoardUI;
     
     public void SetCurrentCell(Cell cell)
     {
@@ -110,6 +112,8 @@ public class MatchController : IDisposable
         _isCancelMatch = false;
         _matchState = MATCH_STATE.BlackTurn;
 
+        OnInitBoardUI?.Invoke();
+        
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
     }

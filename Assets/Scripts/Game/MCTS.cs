@@ -30,7 +30,7 @@ public class MCTS
         
         for (int i = 0; i < iterations; i++)
         {
-            if (i % 25 == 0) await UniTask.Yield();
+            if (i % 100 == 0) await UniTask.Yield();
             
             Node node = Select(rootNode); // uct에 따라 leaf node 선택
             int result = Simulate(node);

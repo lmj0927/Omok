@@ -37,10 +37,11 @@ public class GameManager : Singleton<GameManager>
     {
         if(matchController != null)
         {
-            if(matchController.GetMatchState() != MATCH_STATE.End)
-            {
-                matchController.Surrender();
-            }
+            //본인이 도망갔을 경우 처리 방향이지만, 처리 불가
+            // if(matchController.GetMatchState() != MATCH_STATE.End)
+            // {
+            //     matchController.Surrender();
+            // }
             matchController.Dispose();
         }
         base.OnDestroy();

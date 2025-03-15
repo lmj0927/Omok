@@ -1,28 +1,30 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class AIController : IBaseGameTypeController
 {
     private MCTS _mctsAI;
     
-    
     public void Initailize()
     {
         Debug.Log("AIController::Initailize");
         _mctsAI = new MCTS();
+        _mctsAI.onSearchComplete += (turnData) => {
+            GameManager.Instance.matchController.SetTurn(turnData.row, turnData.col);
+        };
     }
 
-    async public void Operate(OperateCommand command)
+    public void Operate(OperateCommand command)
     {
-        var bestMove = await _mctsAI.RunSearch(command.turnData.row, command.turnData.col);
-        GameManager.Instance.matchController.SetTurn(bestMove.Item1, bestMove.Item2);
+        _ = _mctsAI.RunSearch(command.turnData.row, command.turnData.col);        
     }
 
     public void Dispose()
     {
-
+        _mctsAI = null;
     }
     
 }

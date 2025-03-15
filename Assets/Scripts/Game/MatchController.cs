@@ -40,14 +40,11 @@ public class MatchController : IDisposable
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
-    public delegate void OnTurnEndUIDelegate();
-    public OnTurnEndUIDelegate OnTurnEndUI;
-    public delegate void OnInitBoardUIDelegate();
-    public OnInitBoardUIDelegate OnInitBoardUI;
+    public Action OnTurnEndUI;
     
     public void SetCurrentCell(Cell cell)
     {
-        if(!IsMyTurn() && _matchPlayType == PLAY_TYPE.Multi) return;
+        if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
 
         if(currentCell != null)
             OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
@@ -112,20 +109,11 @@ public class MatchController : IDisposable
         _isCancelMatch = false;
         _matchState = MATCH_STATE.BlackTurn;
 
-        OnInitBoardUI?.Invoke();
-        
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
-        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
-    }
 
-    void SetUIMode(){
-        //TODO: Replay, Game
-        if(_matchPlayType == PLAY_TYPE.Replay)
-        {
-        }
-        else{
-
-        }
+        var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
+        gameBoardUIController.Show();
+        gameBoardUIController.StartMatch();
     }
 
     async UniTask FindMatching()
@@ -330,12 +318,12 @@ public class MatchController : IDisposable
         else{
             _matchState = MATCH_STATE.BlackTurn;
         }
-        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController)
+        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController aiController)
         {
             OperateCommand command = new OperateCommand();
             command.turnData = turnData;
             
-            ((AIController)_gameTypeController).Operate(command);
+            aiController.Operate(command);
         }
         OnTurnEndUI?.Invoke();
     }

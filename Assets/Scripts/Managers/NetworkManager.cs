@@ -223,7 +223,7 @@ public class NetworkManage : Singleton<NetworkManage>
         }
     }    
     //SetUserInfo Wrapper
-    public void SaveUserInfo(UserInfo userInfo, Action success, Action failure)
+    public void SaveUserInfoWrapper(UserInfo userInfo, Action success, Action failure)
     {
         StartCoroutine(SetUserInfo(userInfo, success, failure));
     }
@@ -271,5 +271,90 @@ public class NetworkManage : Singleton<NetworkManage>
                 success?.Invoke(userInfos);
             }
         }
+    }
+
+
+    public IEnumerator SendWinner(string userId, Action<UserInfo> success, Action failure)
+    {
+
+        Debug.Log("User ID: " + userId);
+        using (UnityWebRequest www =
+               new UnityWebRequest(Constants.ServerURL + "/users/win/" + userId, UnityWebRequest.kHttpVerbPOST))
+        {
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
+            if (!string.IsNullOrEmpty(sid))
+            {
+                www.SetRequestHeader("Cookie", sid);
+            }
+
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError ||
+                www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                if (www.responseCode == 403)
+                {
+                    Debug.Log("로그인이 필요합니다.");
+                }
+                
+                failure?.Invoke();
+            }
+            else
+            {
+                var result = www.downloadHandler.text;
+                var userInfoResult = JsonConvert.DeserializeObject<UserInfoResult>(result);
+                
+                success?.Invoke(userInfoResult.userInfo);
+            }
+        }
+    }
+
+    public IEnumerator SendLoser(string userId, Action<UserInfo> success, Action failure)
+    {
+        using (UnityWebRequest www =
+               new UnityWebRequest(Constants.ServerURL + "/users/lose/" + userId, UnityWebRequest.kHttpVerbPOST))
+        {
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
+            if (!string.IsNullOrEmpty(sid))
+            {
+                www.SetRequestHeader("Cookie", sid);
+            }
+
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError ||
+                www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                if (www.responseCode == 403)
+                {
+                    Debug.Log("로그인이 필요합니다.");
+                }
+                
+                failure?.Invoke();
+            }
+            else
+            {
+                var result = www.downloadHandler.text;
+                var userInfoResult = JsonConvert.DeserializeObject<UserInfoResult>(result);
+                
+                success?.Invoke(userInfoResult.userInfo);
+            }
+        }
+    }
+
+    public void SendWinnerWrapper(string userId, Action<UserInfo> success, Action failure)
+    {
+        StartCoroutine(SendWinner(userId, success, failure));
+    }
+
+    public void SendLoserWrapper(string userId, Action<UserInfo> success, Action failure)
+    {
+        StartCoroutine(SendLoser(userId, success, failure));
     }
 }

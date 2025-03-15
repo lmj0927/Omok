@@ -41,6 +41,7 @@ public class Constants
         Multi,
         AI,
         Replay,
+        RenjuTest,
     }
 
     public enum MATCH_STATE{

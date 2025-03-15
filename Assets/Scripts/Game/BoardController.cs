@@ -64,6 +64,7 @@ public class BoardController : MonoBehaviour
         }
         GameManager.Instance.matchController.OnDrawCell = OnDrawCell;
         GameManager.Instance.matchController.TurnEnded = EndTurn;
+        GameManager.Instance.matchController.onNextTest = TestRenjuOperate;
     }
 
     private void OnDrawCell(TurnData turnData, CELL_TYPE type)
@@ -259,6 +260,40 @@ public class BoardController : MonoBehaviour
             {
                 cells[i, j].SetCellType(CELL_TYPE.None);
             }
+        }
+    }
+
+
+    //for test
+    public void TestRenjuOperate(){
+        RenjuRuleLogic.SetBoard(cells);
+
+        List<(int, int)> forbiddenPoints = new List<(int, int)>();
+
+        // for (int row = 0; row < width; row++)
+        // {
+        //     for (int col = 0; col < height; col++)
+        //     {
+        //         bool isForbidden = RenjuRuleLogic.IsRenjuRuleViolation(row, col);
+        //         if (isForbidden)
+        //         {
+        //             forbiddenPoints.Add((row, col));
+        //         }      
+        //     }
+        // }
+
+        forbiddenPoints = GetForbiddenPoints();
+
+        
+
+        foreach (var point in forbiddenPoints)
+        {
+            TurnData t = new TurnData()
+            {
+                row = point.Item1,
+                col = point.Item2
+            };
+            OnDrawCell(t, CELL_TYPE.Warning);
         }
     }
 }

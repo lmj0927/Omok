@@ -40,6 +40,7 @@ public class MatchController : IDisposable
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
+    public Action onNextTest;
     public Action OnTurnEndUI;
     
     public void SetCurrentCell(Cell cell)
@@ -91,6 +92,12 @@ public class MatchController : IDisposable
                 //Show Replay UI
                 // UIManager.Instance.ShowUI<ReplayGameBoardUIController>(UI_TYPE.Replay);
                 break;
+            case PLAY_TYPE.RenjuTest:
+                //Show GameBoard UI
+                UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
+                //Renju Initialize
+                InitializeRenjuTestController();
+                break;
         }
     }
 
@@ -130,7 +137,7 @@ public class MatchController : IDisposable
         }
         Debug.Log("## Timeout Matching");
         
-        Initailize(PLAY_TYPE.AI);
+        Initailize(PLAY_TYPE.RenjuTest);
         StartMatchMaking();
     }
 
@@ -287,8 +294,23 @@ public class MatchController : IDisposable
         _gameTypeController = multiplayController;
     }
 
+    void InitializeRenjuTestController()
+    {
+        RenjuTestController renjuTestController = new RenjuTestController();
+        renjuTestController.Initailize();
+
+        _gameTypeController = renjuTestController;
+    }
+
+
     public void SetTurn()
     {
+        if(_gameTypeController is RenjuTestController renjuTestController)
+        {
+            renjuTestController.Operate(new OperateCommand());
+            return;
+        }
+
         if (!currentCell.IsUnityNull())
         {
             if (_gameTypeController is MultiplayController multiplayController)

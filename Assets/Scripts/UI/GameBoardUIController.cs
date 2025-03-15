@@ -76,6 +76,24 @@ public class GameBoardUIController : MonoBehaviour
         {
             GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
             OnTimerCircle(); 
+            
+            if (GameManager.Instance.matchController.TurnTime <= 0)
+            {
+                bool isMyTurn = false;
+                if(_isBlack && _currentState == MATCH_STATE.BlackTurn)
+                {
+                    isMyTurn = true;
+                }
+                else if(!_isBlack && _currentState == MATCH_STATE.WhiteTurn)
+                {
+                    isMyTurn = true;
+                }
+
+                if(isMyTurn)
+                {
+                    GameManager.Instance.matchController.Surrender();
+                }
+            }
         }
     }
 

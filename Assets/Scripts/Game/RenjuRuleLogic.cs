@@ -48,6 +48,19 @@ public static class RenjuRuleLogic
     {
         testPatterns.Clear();
         // 1. 삼삼(쌍삼) 패턴들
+
+        //테스트 삼삼
+        List<TurnData> doubleTreePattern_overlinePattern = new List<TurnData>
+        {
+            //new TurnData{row = 7, col = 7},  // 중앙
+            new TurnData{row = 7, col = 8},  // 가로 방향
+            new TurnData{row = 7, col = 9},
+            new TurnData{row = 7, col = 12},
+            new TurnData{row = 8, col = 7},  // 세로 방향
+            new TurnData{row = 9, col = 7},
+            // 착점 위치: (7, 6) - 이 위치에 두면 삼삼과 장목이 동시에 발생
+        };
+
         
         // 삼삼 패턴 1: 가로-세로 방향 삼삼
         List<TurnData> doubleThreePattern1 = new List<TurnData>
@@ -198,6 +211,7 @@ public static class RenjuRuleLogic
         };
 
         // 테스트 패턴 추가
+        testPatterns.Add("DoubleTreePattern_overlinePattern", doubleTreePattern_overlinePattern);
         testPatterns.Add("DoubleThreePattern1", doubleThreePattern1);
         testPatterns.Add("DoubleThreePattern2", doubleThreePattern2);
         testPatterns.Add("DoubleThreePattern3", doubleThreePattern3);

@@ -1,26 +1,30 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using System.Linq;
+using static Constants;
 
 public static class MatchInfoUtil
 {
-    const string MATCH_INFO_KEY = "MatchInfoList";
-
     // MatchInfo 리스트 저장
-    public static void SaveMatchInfoList(List<MatchInfo> matchInfoList)
+    public static void SaveMatchInfoToFile(List<MatchInfo> matchInfoList)
     {
-        string jsonData = JsonUtility.ToJson(new MatchInfoWrapper { matches = matchInfoList });
-        PlayerPrefs.SetString(MATCH_INFO_KEY, jsonData);
-        PlayerPrefs.Save();
+        var jsonData = JsonUtility.ToJson(new MatchInfoWrapper { matches = matchInfoList });
+        var path = Path.Combine(Application.persistentDataPath, "matchData.json");
+        File.WriteAllText(path, jsonData);
     }
 
     // MatchInfo 리스트 불러오기
     public static List<MatchInfo> LoadMatchInfoList()
     {
-        if (!PlayerPrefs.HasKey(MATCH_INFO_KEY))
+        var path = Path.Combine(Application.persistentDataPath, "matchData.json");
+        if(!File.Exists(path))
+        {
+            File.Create(path).Close();
             return new List<MatchInfo>();
-
-        string jsonData = PlayerPrefs.GetString(MATCH_INFO_KEY);
+        }
+        
+        var jsonData = File.ReadAllText(path);
         return JsonUtility.FromJson<MatchInfoWrapper>(jsonData)?.matches ?? new List<MatchInfo>();
     }
 
@@ -28,14 +32,14 @@ public static class MatchInfoUtil
     {
         List<MatchInfo> matchList = LoadMatchInfoList();
         matchList.Add(matchInfo);
-        SaveMatchInfoList(matchList);
+        SaveMatchInfoToFile(matchList);
     }
 
     public static void RemoveMatchInfo(int index)
     {
         List<MatchInfo> matchList = LoadMatchInfoList();
-        matchList = matchList.Where(m => m.index != index).ToList();
-        SaveMatchInfoList(matchList);
+        matchList.RemoveAt(index);
+        SaveMatchInfoToFile(matchList);
     }
 
     public static void ClearAllMatchInfo()

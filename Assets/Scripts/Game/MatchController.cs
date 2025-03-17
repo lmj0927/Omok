@@ -341,6 +341,8 @@ public class MatchController : IDisposable
             }
         }
 
+        MatchInfoUtil.AddMatchInfo(_matchInfo);
+        
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
         Dispose();
     }

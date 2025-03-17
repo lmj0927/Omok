@@ -18,6 +18,7 @@ public class Constants
     public const string SFXVolume = "SFXVolume";
     public const string BGMMute = "BGMMute";
     public const string SFXMute = "SFXMute";
+    public const string MATCH_INFO_KEY = "MatchInfoList";
 
     #endregion
 

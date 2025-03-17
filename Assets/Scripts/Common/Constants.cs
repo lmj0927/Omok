@@ -22,17 +22,18 @@ public class Constants
     public const string BGMMute = "BGMMute";
     public const string SFXMute = "SFXMute";
     public const string MATCH_INFO_KEY = "MatchInfoList";
+    public const string OwnCoin  = "OwnCoin";
 
     #endregion
 
     #region Game
     public const int AutoPlaceSpeed = 200;
+    public const int CostPerGame = 100;
 
     #endregion
 
     #region Setting
     public static readonly string MatchInfoFilePath = Path.Combine(Application.persistentDataPath, "matchData.json");
-
     #endregion
     
     public enum MultiplayManagerState

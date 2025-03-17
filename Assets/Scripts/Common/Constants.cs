@@ -1,3 +1,6 @@
+using System.IO;
+using UnityEngine;
+
 public class Constants
 {   
     
@@ -18,6 +21,7 @@ public class Constants
     public const string SFXVolume = "SFXVolume";
     public const string BGMMute = "BGMMute";
     public const string SFXMute = "SFXMute";
+    public const string MATCH_INFO_KEY = "MatchInfoList";
 
     #endregion
 
@@ -26,6 +30,11 @@ public class Constants
 
     #endregion
 
+    #region Setting
+    public static readonly string MatchInfoFilePath = Path.Combine(Application.persistentDataPath, "matchData.json");
+
+    #endregion
+    
     public enum MultiplayManagerState
     {
         CreateRoom,

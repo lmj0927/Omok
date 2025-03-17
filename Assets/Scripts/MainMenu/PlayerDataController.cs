@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PlayerDataController
 {
-    //TODO: matchInfos 설정
-    public List<MatchInfo> matchInfos = new List<MatchInfo>();
     public Action<int> OnChangedProfile;
     public UserInfo UserInfo { get; private set; }
 

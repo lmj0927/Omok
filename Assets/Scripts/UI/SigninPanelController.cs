@@ -46,6 +46,7 @@ public class SigninPanelController : MonoBehaviour
             GameManager.Instance.SetUserInfo(userInfo);
             Destroy(gameObject);
             UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu);
+            GameManager.Instance.mainUIUpdate?.Invoke();
         }, result =>
         {
             if (result == 0)

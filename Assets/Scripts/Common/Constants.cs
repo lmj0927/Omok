@@ -22,6 +22,7 @@ public class Constants
     public const string BGMMute = "BGMMute";
     public const string SFXMute = "SFXMute";
     public const string MATCH_INFO_KEY = "MatchInfoList";
+    public const string OwnCoin  = "OwnCoin";
 
     #endregion
 
@@ -32,7 +33,6 @@ public class Constants
 
     #region Setting
     public static readonly string MatchInfoFilePath = Path.Combine(Application.persistentDataPath, "matchData.json");
-
     #endregion
     
     public enum MultiplayManagerState

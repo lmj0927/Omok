@@ -28,6 +28,7 @@ public class Constants
 
     #region Game
     public const int AutoPlaceSpeed = 200;
+    public const int CostPerGame = 100;
 
     #endregion
 

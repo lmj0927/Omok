@@ -43,6 +43,14 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickStartButton()
     {
+        if (GameManager.Instance.coinController.Coin < Constants.CostPerGame)
+        {
+            //TODO: 코인 부족 알림 popup
+            Debug.Log("코인이 부족합니다.");
+            return;
+        }
+        
+        GameManager.Instance.coinController.ConsumeCoin(Constants.CostPerGame);
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);
     }
 

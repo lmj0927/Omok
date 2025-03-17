@@ -8,7 +8,7 @@ public class CoinController
 
     public CoinController()
     {
-        Coin = PlayerPrefs.GetInt("Coin", 0);
+        Coin = PlayerPrefs.GetInt(Constants.OwnCoin, 0);
     }
     
     public void AddCoin(int amount)

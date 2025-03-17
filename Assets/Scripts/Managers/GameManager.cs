@@ -9,21 +9,6 @@ public class GameManager : Singleton<GameManager>
     public MatchController matchController;
     public PlayerDataController playerDataController;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        var tempData = new UserInfo();
-        tempData.nickname = "test";
-        tempData.score = 2;
-        tempData.tier = 10;
-        tempData.userId = "test@test.com";
-        tempData.loseCount = 5;
-        tempData.winCount = 3;
-        tempData.profileIndex = 2;
-        
-        SetUserInfo(tempData);
-    }
-
     public void SetUserInfo(UserInfo userInfo)
     {
         playerDataController = new PlayerDataController(userInfo);
@@ -50,11 +35,15 @@ public class GameManager : Singleton<GameManager>
 
     public new void OnDestroy()
     {
-        if(matchController.GetMatchState() != MATCH_STATE.End)
+        if(matchController != null)
         {
-            matchController.Surrender();
+            //본인이 도망갔을 경우 처리 방향이지만, 처리 불가
+            // if(matchController.GetMatchState() != MATCH_STATE.End)
+            // {
+            //     matchController.Surrender();
+            // }
+            matchController.Dispose();
         }
-        matchController.Dispose();
         base.OnDestroy();
     }
 }

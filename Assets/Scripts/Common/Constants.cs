@@ -18,8 +18,13 @@ public class Constants
     public const string SFXVolume = "SFXVolume";
     public const string BGMMute = "BGMMute";
     public const string SFXMute = "SFXMute";
+
     #endregion
 
+    #region Game
+    public const int AutoPlaceSpeed = 200;
+
+    #endregion
 
     public enum MultiplayManagerState
     {

@@ -48,7 +48,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickReplayButton()
     {
-        GameManager.Instance.StartGame(PLAY_TYPE.Replay);
+        UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation);        
     }
 
     void OnClickLeaderboardButton()

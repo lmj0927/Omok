@@ -2,6 +2,6 @@ using System;
 
 public interface IBaseGameTypeController
 {
-    public void Operate();
+    public void Operate(OperateCommand command);
     void Dispose();
 }

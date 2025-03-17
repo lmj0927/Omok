@@ -25,15 +25,26 @@ public class MatchController : IDisposable
     MatchInfo _matchInfo;
     MATCH_STATE _matchState = MATCH_STATE.End;
     float _turnTime = 30f;
-    
+    public float TurnTime
+    {
+        get => _turnTime;
+        set
+        {
+            //타이머 0 아래로 내려가지 않게.
+            if (value < 0)_turnTime = 0;
+            else _turnTime = value;
+        }
+    }
+
     private Cell currentCell;
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
+    public Action OnTurnEndUI;
     
     public void SetCurrentCell(Cell cell)
     {
-        if(!IsMyTurn() && _matchPlayType == PLAY_TYPE.Multi) return;
+        if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
 
         if(currentCell != null)
             OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
@@ -58,7 +69,6 @@ public class MatchController : IDisposable
         _matchPlayType = matchPlayType;
         _isMatched = false;
         _isCancelMatch = false;
-        SetUIMode();
     }
 
     public void StartMatchMaking(){
@@ -79,8 +89,7 @@ public class MatchController : IDisposable
                 break;
             case PLAY_TYPE.Replay:
                 //Show Replay UI
-                UIManager.Instance.GetUI<ReplayGameBoardUIController>(UI_TYPE.Replay).Show();
-                //Replay Initialize
+                // UIManager.Instance.ShowUI<ReplayGameBoardUIController>(UI_TYPE.Replay);
                 break;
         }
     }
@@ -101,17 +110,10 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.BlackTurn;
 
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
-        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
-    }
 
-    void SetUIMode(){
-        //TODO: Replay, Game
-        if(_matchPlayType == PLAY_TYPE.Replay){
-            
-        }
-        else{
-
-        }
+        var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
+        gameBoardUIController.Show();
+        gameBoardUIController.StartMatch();
     }
 
     async UniTask FindMatching()
@@ -137,15 +139,66 @@ public class MatchController : IDisposable
         AIController aiController = new AIController();
         aiController.Initailize();
 
-        StartMatch();
-        
         _gameTypeController = aiController;
+
+        //AI정보 1,2,3
+        int tier = GameManager.Instance.playerDataController.UserInfo.tier;
+        //Mathf
+
+        //10~18 = 1
+        //5 ~ 9 = 2
+        //1 ~ 4 = 3
+        string aiId = "ai1";
+        if(tier >= 10 && tier <= 18)
+        {
+            //aiController.SetAILevel(1);
+            aiId = "ai1";
+            
+        }
+        else if(tier >= 5 && tier <= 9)
+        {
+            //aiController.SetAILevel(2);
+            aiId = "ai2";
+        }
+        else if(tier >= 1 && tier <= 4)
+        {
+            //aiController.SetAILevel(3);
+            aiId = "ai3";
+        }
+        
+        NetworkManage.Instance.LoadUserInfo(aiId, 
+            (userInfo) =>
+            {
+                _matchInfo.opponent = userInfo;
+                Debug.Log("AI 정보를 불러오는데 성공했습니다.");
+                
+                StartMatch();
+                
+            },
+            () =>
+            {
+                Debug.Log("AI 정보를 불러오는데 실패했습니다.");
+                //가짜 정보
+                _matchInfo.opponent = new UserInfo()
+                {
+                    userId = "FakeAI2025",
+                    nickname = "AI",
+                    tier = 10,
+                    winCount = 0,
+                    loseCount = 0,
+                    score = 0,
+                    profileIndex = 0,
+                };
+
+                StartMatch();
+            }
+        );
     }
 
-    void InitializeReplayController(int replayIndex)
+    public void InitializeReplayController(int replayIndex)
     {
         ReplayController replayController = new ReplayController();
-        replayController.Initailize(replayIndex);
+        replayController.Initialize(replayIndex);
         _matchInfo = replayController.GetMatchInfo();
 
         _gameTypeController = replayController;
@@ -234,25 +287,22 @@ public class MatchController : IDisposable
         _gameTypeController = multiplayController;
     }
 
-
     public void SetTurn()
     {
-            
         if (!currentCell.IsUnityNull())
         {
-            if(_gameTypeController is MultiplayController multiplayController)
+            if (_gameTypeController is MultiplayController multiplayController)
             {
                 multiplayController.SendEndTurn(currentCell.row, currentCell.col);
             }
-
+            
             SetTurn(currentCell.row, currentCell.col);
             currentCell = null;
         }
     }
     
-    public void SetTurn(int row, int col){
-        
-        
+    public void SetTurn(int row, int col)
+    {
         TurnData turnData = new TurnData(){
             row = row,
             col = col,
@@ -268,6 +318,19 @@ public class MatchController : IDisposable
         else{
             _matchState = MATCH_STATE.BlackTurn;
         }
+        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController aiController)
+        {
+            OperateCommand command = new OperateCommand();
+            command.turnData = turnData;
+            
+            aiController.Operate(command);
+        }
+        OnTurnEndUI?.Invoke();
+    }
+
+    public void Operate(OperateCommand command)
+    {
+        _gameTypeController.Operate(command);
     }
 
     public MATCH_STATE GetMatchState(){

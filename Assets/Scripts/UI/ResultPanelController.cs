@@ -125,16 +125,11 @@ public class ResultPanelController : PanelController
     // 이기거나 질 때 그려지는 Cell을 그리는 함수
     void DrawResultCell()
     {
-        // 점수가 더이상 떨어지지 않는 경우
-        if(_tier == 18 && _score <= -3 && _isWin == false)
-            return;
-        
-        //점수가 더이상 올라가지 않는 경우
-        if(_tier == 1 && _score >= 3 && _isWin)
-            return;
-        
         if (_isWin)
         {
+            if((_tier == 18 && _score < -3) || (_tier == 1 && _score >= 10))
+                return;
+            
             _score++;
             if (_tier is > 0 and <= 4)
             {
@@ -172,6 +167,9 @@ public class ResultPanelController : PanelController
         }
         else
         {
+            if ((_tier == 1 && _score > 10) || (_tier == 18 && _score <= -3))
+                return;
+            
             if (_tier is > 0 and <= 4)
             {
                 if(_score > 0)

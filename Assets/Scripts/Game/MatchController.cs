@@ -371,11 +371,13 @@ public class MatchController : IDisposable
         
         if(isBlackWin == IsClientBlack())
         {
+            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
             myPlayerDataController.Win();
             opponentPlayerDataController.Lose();
         }
         else
         {
+            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
             if(_matchPlayType == PLAY_TYPE.AI)
             {
                 myPlayerDataController.Lose();

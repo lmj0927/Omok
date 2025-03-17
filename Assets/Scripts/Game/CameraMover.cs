@@ -45,6 +45,7 @@ public class CameraMover : MonoBehaviour
         targetYRotation = currentYRotation = angles.x;
  
         targetDistance = currentDistance = Vector3.Distance(transform.position, target.position);
+        ResetCamera(8, 55, 0);
 
         UpdateCamera();
     }
@@ -75,7 +76,7 @@ public class CameraMover : MonoBehaviour
         {
             targetXRotation += Input.GetAxis("Mouse X") * rotationSpeed;
             targetYRotation -= Input.GetAxis("Mouse Y") * rotationSpeed;
-            
+
             targetYRotation = Mathf.Clamp(targetYRotation, minVerticalAngle, maxVerticalAngle);
         }
 
@@ -97,11 +98,12 @@ public class CameraMover : MonoBehaviour
 
         Vector3 targetPosition = target.position + targetOffset;
         Vector3 direction = rotation * Vector3.back;
+        Debug.DrawRay(targetPosition, direction * currentDistance, Color.red);
         Vector3 desiredPosition = targetPosition + direction * currentDistance;        
 
         transform.position = desiredPosition;
         transform.LookAt(targetPosition);
-    }    
+    }
 
     public void SetTarget(Transform newTarget, bool instant = false)
     {

@@ -10,7 +10,7 @@ public class LeaderBoardPanelController : PanelController
 {
     [Header("User Cell")]
     [SerializeField] private Image profileImage;
-    [SerializeField] private Sprite[] profileSprites;
+    private List<Sprite> _profileSprites = new List<Sprite>();
     [SerializeField] private TMP_Text userInfoText;
     [SerializeField] private TMP_Text userWinRateText;
     
@@ -23,8 +23,8 @@ public class LeaderBoardPanelController : PanelController
     
     private void Start()
     {
+        _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
         _userInfo = GameManager.Instance.playerDataController.UserInfo;
-        
         closeButton.onClick.AddListener(OnClickCloseButton);
         
         Show();
@@ -38,7 +38,7 @@ public class LeaderBoardPanelController : PanelController
     void InitUserCell(UserInfo userInfo,int rankIndex)
     {
         int index = userInfo.profileIndex;
-        profileImage.sprite = profileSprites[index];
+        profileImage.sprite = _profileSprites[index];
         
         float winRate = (float)userInfo.winCount / (userInfo.winCount + userInfo.loseCount) * 100f;
         userInfoText.text = $"{userInfo.tier}급 {userInfo.nickname}";
@@ -105,5 +105,6 @@ public class LeaderBoardPanelController : PanelController
     void OnClickCloseButton()
     {
         Hide();
+        GameManager.Instance.mainUIUpdate?.Invoke();
     }
 }

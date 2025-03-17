@@ -485,10 +485,10 @@ MonoBehaviour:
   winRateText: {fileID: 8104018114055671361}
   profileImage: {fileID: 4714774910243632730}
   profileSprites:
-  - {fileID: -1888288258, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
-  - {fileID: 691594874, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
-  - {fileID: 690878421, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
-  - {fileID: 1259537265, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
+  - {fileID: 21300000, guid: 46ea4f9d1de514c498ec79940e6d3237, type: 3}
+  - {fileID: 21300000, guid: 6a77e47bf29797647955dbe2a347f291, type: 3}
+  - {fileID: 21300000, guid: 62e119932c433844b887976568a7a5c7, type: 3}
+  - {fileID: 21300000, guid: 1132a3459f294294f88247f713a7eb3e, type: 3}
 --- !u!1 &8105454139630585409
 GameObject:
   m_ObjectHideFlags: 0

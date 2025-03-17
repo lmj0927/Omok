@@ -45,8 +45,13 @@ public class MainMenuController : MonoBehaviour, IGameUI
     {
         if (GameManager.Instance.coinController.Coin < Constants.CostPerGame)
         {
-            //TODO: 코인 부족 알림 popup
             Debug.Log("코인이 부족합니다.");
+            var confirmPanel = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
+            confirmPanel.Show("코인이 부족합니다.", () =>
+            {
+                //상점 UI 열기??
+                UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
+            });            
             return;
         }
         

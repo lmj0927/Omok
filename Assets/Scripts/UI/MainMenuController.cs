@@ -40,6 +40,18 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickStartButton()
     {
+        if (GameManager.Instance.coinController.Coin < Constants.CostPerGame)
+        {
+            Debug.Log("코인이 부족합니다.");
+            var confirmPanel = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
+            confirmPanel.Show("코인이 부족합니다.", () =>
+            {
+                UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
+            });            
+            return;
+        }
+        
+        GameManager.Instance.coinController.ConsumeCoin(Constants.CostPerGame);
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);
     }
 

@@ -9,6 +9,13 @@ public class GameManager : Singleton<GameManager>
     public MatchController matchController;
     public PlayerDataController playerDataController;
     public Action mainUIUpdate;
+    
+    public CoinController coinController;
+    
+    private void Start()
+    {
+        coinController = new CoinController();
+    }
 
     public void SetUserInfo(UserInfo userInfo)
     {

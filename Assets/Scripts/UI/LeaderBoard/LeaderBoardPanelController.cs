@@ -105,5 +105,6 @@ public class LeaderBoardPanelController : PanelController
     void OnClickCloseButton()
     {
         Hide();
+        GameManager.Instance.mainUIUpdate?.Invoke();
     }
 }

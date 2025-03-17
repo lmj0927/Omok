@@ -382,7 +382,7 @@ public class MatchController : IDisposable
                 opponentPlayerDataController.Win();
             }
         }
-
+        
         UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
         Dispose();
     }

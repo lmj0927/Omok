@@ -8,6 +8,7 @@ public class GameManager : Singleton<GameManager>
 {
     public MatchController matchController;
     public PlayerDataController playerDataController;
+    public Action mainUIUpdate;
 
     public void SetUserInfo(UserInfo userInfo)
     {

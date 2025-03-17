@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -5,13 +6,18 @@ using UnityEngine.UI;
 using static Constants;
 public class GameBoardUIController : MonoBehaviour
 {
+    //조작 버튼
+    [Header("Interaction Buttons")]
     public Button giveUpButton;
     public Button executeButton;
+    
     //상단 한줄 정보란
+    [Header("Head Description")]
     [SerializeField] private Image descriptionPanel;
     [SerializeField] private TMP_Text descriptionText;
 
     //턴 전환
+    [Header("Turn Change Components")]
     [SerializeField] private RectTransform blackTurnPanel;
     [SerializeField] private RectTransform blackTurnRect;
     [SerializeField] private RectTransform whiteTurnPanel;
@@ -25,6 +31,8 @@ public class GameBoardUIController : MonoBehaviour
     private const float UpScalePanel = 1.5f;
     private const float DownScalePanel = 0.5f;
 
+    //강조 효과
+    [Header("Highlight Effect")]
     [SerializeField] private RectTransform boardOutlineRect;
     private CanvasGroup boardOutlineFade;
     [SerializeField] private RectTransform circleEffectRect;
@@ -32,27 +40,37 @@ public class GameBoardUIController : MonoBehaviour
     
     private Image _excuteButtonImage;
     private TMP_Text _excuteButtonText;
+
+    private Action _onRepeatEffect;
     
     MATCH_STATE _currentState = MATCH_STATE.BlackTurn;
     public bool _isBlack = true;
     
     //유저 프로필
+    [Header("UserProfiles")]
     [SerializeField] private RectTransform userinfoPanel;
     [SerializeField] private RectTransform opponentinfoPanel;
     private Vector3 _downScaleInfo = new Vector3(0.75f, 0.75f, 0.75f);
     
     //타이머
+    [Header("Timer")]
     [SerializeField] private Image timerCircleImage;
     [SerializeField] private TMP_Text timerText;
     [SerializeField] private Color32[] timerColors;
     private RectTransform _timerHeadRect;
     private Image _timerHead;
     private Image _timerSeed;
+    private bool _isStartMatch = false;
     
     void Start()
     {
         giveUpButton.onClick.AddListener(OnClickGiveUpButton);
         executeButton.onClick.AddListener(OnClickExecuteButton);
+        
+        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+        
+        _onRepeatEffect += OnRepeatBoardEffect;
+        _onRepeatEffect += OnRepeatCircleEffect;
         
         _excuteButtonImage = executeButton.GetComponent<Image>();
         _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
@@ -66,29 +84,53 @@ public class GameBoardUIController : MonoBehaviour
         
         _blackOriginWidth = blackTurnPanel.sizeDelta.x;
         _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
-        
-        Initialize();
     }
 
     //임시 타이머 차감용
-    void Update()
+    void FixedUpdate()
     {
-        GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
-        OnTimerCircle();
+        if(_isStartMatch)
+        {
+            GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
+            OnTimerCircle(); 
+            
+            if (GameManager.Instance.matchController.TurnTime <= 0)
+            {
+                bool isMyTurn = false;
+                if(_isBlack && _currentState == MATCH_STATE.BlackTurn)
+                {
+                    isMyTurn = true;
+                }
+                else if(!_isBlack && _currentState == MATCH_STATE.WhiteTurn)
+                {
+                    isMyTurn = true;
+                }
+
+                if(isMyTurn)
+                {
+                    GameManager.Instance.matchController.Surrender();
+                }
+            }
+        }
+    }
+
+    void OnEnable()
+    {
+        Initialize();
     }
 
     private void Initialize()
     {
-        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+        _isStartMatch = false;
+    }
 
+    public void StartMatch()
+    {
         SetChangedTurn();
-        
-        //
         OnTimerCircle();
-        
-        //
-        if (GameManager.Instance.matchController.IsClientBlack()) _isBlack = true;
-        else _isBlack = false;
+ 
+        _isBlack = GameManager.Instance.matchController.IsClientBlack();
+        _isStartMatch = true;
     }
     
     public void OnClickGiveUpButton()
@@ -110,27 +152,27 @@ public class GameBoardUIController : MonoBehaviour
     {
         //시간 초기화
         GameManager.Instance.matchController.TurnTime = 30f;
-        
+
         //내가 흑돌인가?
-        if (GameManager.Instance.matchController.IsClientBlack()) _isBlack = true;
-        else _isBlack = false;
-        
+        _isBlack = GameManager.Instance.matchController.IsClientBlack();
+
         //현재 어느 턴인지?
         _currentState = GameManager.Instance.matchController.GetMatchState();
-        
+
+        //플레이어 턴이면 강조 이펙트 켜기
+        _onRepeatEffect?.Invoke();
+
         //턴 전환
         OnChangedTurn(_currentState);
     }
-    
+
     public void OnChangedTurn(MATCH_STATE currentState)
     {
-        //if (!_isBlack) OnRepeatYourTurnVFX();
-        
         //턴 전환 애니메이션
-        switch (currentState)
+        switch (currentState) 
         {
             case MATCH_STATE.BlackTurn:
-                if (!_isBlack)
+                if (_isBlack)
                 {
                     executeButton.interactable = true;
                     descriptionText.text = "당신의 턴";
@@ -170,7 +212,7 @@ public class GameBoardUIController : MonoBehaviour
                 whiteTurnFadeRect.DOFade(1, Duration);
                 break;
             case MATCH_STATE.WhiteTurn:
-                if (_isBlack)
+                if (!_isBlack)
                 {
                     executeButton.interactable = true;
                     descriptionText.text = "당신의 턴";
@@ -223,19 +265,35 @@ public class GameBoardUIController : MonoBehaviour
         timerText.text = $"{GameManager.Instance.matchController.TurnTime:F2}";
     }
 
-    void OnRepeatYourTurnVFX()
+    void OnRepeatCircleEffect()
     {
-        boardOutlineRect.DOScale(Vector3.one, 0);
-        boardOutlineFade.DOFade(1, 0);
-        
-        circleEffectRect.DOScale(Vector3.one, 0);
-        circleEffectFade.DOFade(1, 0);
-        
-        boardOutlineRect.DOScale(new Vector3(1.1f,1.1f,1.1f), 1);
-        circleEffectRect.DOScale(new Vector3(1.1f,1.1f,1.1f), 1);
-        boardOutlineFade.DOFade(0, 2);
-        circleEffectFade.DOFade(0, 2).OnComplete(OnRepeatYourTurnVFX);
-        
+        if ((_currentState == MATCH_STATE.BlackTurn && _isBlack) ||
+            (_currentState == MATCH_STATE.WhiteTurn && !_isBlack))
+        {
+            circleEffectRect.DOScale(Vector3.one, 0);
+            circleEffectFade.DOFade(1, 0);
+
+            circleEffectRect.DOScale(new Vector3(1.1f, 1.1f, 1.1f), 1);
+            circleEffectFade.DOFade(0, 2).OnComplete(OnRepeatCircleEffect);
+        }
+    }
+
+    void OnRepeatBoardEffect()
+    {
+        if ((_currentState == MATCH_STATE.BlackTurn && _isBlack) ||
+            (_currentState == MATCH_STATE.WhiteTurn && !_isBlack))
+        {
+            boardOutlineRect.DOScale(Vector3.one, 0);
+            boardOutlineFade.DOFade(1, 0);
+
+            boardOutlineRect.DOScale(new Vector3(1.05f, 1.05f, 1.05f), 1);
+            boardOutlineFade.DOFade(0, 2).OnComplete(OnRepeatBoardEffect);
+            //     () =>
+            // {
+            //     boardOutlineRect.DOScale(Vector3.one, 1);
+            //     boardOutlineFade.DOFade(1, 2).OnComplete(OnRepeatBoardEffect);
+            // });]
+        }
     }
 
     public void Show()

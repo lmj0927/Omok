@@ -40,12 +40,11 @@ public class MatchController : IDisposable
 
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
-    public delegate void OnTurnEndUIDelegate();
-    public OnTurnEndUIDelegate OnTurnEndUI;
+    public Action OnTurnEndUI;
     
     public void SetCurrentCell(Cell cell)
     {
-        if(!IsMyTurn() && _matchPlayType == PLAY_TYPE.Multi) return;
+        if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
 
         if(currentCell != null)
             OnDrawCell?.Invoke(new TurnData{ row = currentCell.row, col = currentCell.col }, CELL_TYPE.None);
@@ -70,7 +69,6 @@ public class MatchController : IDisposable
         _matchPlayType = matchPlayType;
         _isMatched = false;
         _isCancelMatch = false;
-        SetUIMode();
     }
 
     public void StartMatchMaking(){
@@ -112,17 +110,10 @@ public class MatchController : IDisposable
         _matchState = MATCH_STATE.BlackTurn;
 
         UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
-        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
-    }
 
-    void SetUIMode(){
-        //TODO: Replay, Game
-        if(_matchPlayType == PLAY_TYPE.Replay)
-        {
-        }
-        else{
-
-        }
+        var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
+        gameBoardUIController.Show();
+        gameBoardUIController.StartMatch();
     }
 
     async UniTask FindMatching()
@@ -148,9 +139,60 @@ public class MatchController : IDisposable
         AIController aiController = new AIController();
         aiController.Initailize();
 
-        StartMatch();
-        
         _gameTypeController = aiController;
+
+        //AI정보 1,2,3
+        int tier = GameManager.Instance.playerDataController.UserInfo.tier;
+        //Mathf
+
+        //10~18 = 1
+        //5 ~ 9 = 2
+        //1 ~ 4 = 3
+        string aiId = "ai1";
+        if(tier >= 10 && tier <= 18)
+        {
+            //aiController.SetAILevel(1);
+            aiId = "ai1";
+            
+        }
+        else if(tier >= 5 && tier <= 9)
+        {
+            //aiController.SetAILevel(2);
+            aiId = "ai2";
+        }
+        else if(tier >= 1 && tier <= 4)
+        {
+            //aiController.SetAILevel(3);
+            aiId = "ai3";
+        }
+        
+        NetworkManage.Instance.LoadUserInfo(aiId, 
+            (userInfo) =>
+            {
+                _matchInfo.opponent = userInfo;
+                Debug.Log("AI 정보를 불러오는데 성공했습니다.");
+                
+                StartMatch();
+                
+            },
+            () =>
+            {
+                Debug.Log("AI 정보를 불러오는데 실패했습니다.");
+                //가짜 정보
+                _matchInfo.opponent = new UserInfo()
+                {
+                    userId = "FakeAI2025",
+                    nickname = "AI",
+                    tier = 10,
+                    winCount = 0,
+                    loseCount = 0,
+                    score = 0,
+                    profileIndex = 0,
+                };
+
+                StartMatch();
+            }
+        );
     }
 
     public void InitializeReplayController(int replayIndex)
@@ -276,12 +318,12 @@ public class MatchController : IDisposable
         else{
             _matchState = MATCH_STATE.BlackTurn;
         }
-        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController)
+        if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController aiController)
         {
             OperateCommand command = new OperateCommand();
             command.turnData = turnData;
             
-            ((AIController)_gameTypeController).Operate(command);
+            aiController.Operate(command);
         }
         OnTurnEndUI?.Invoke();
     }
@@ -329,11 +371,13 @@ public class MatchController : IDisposable
         
         if(isBlackWin == IsClientBlack())
         {
+            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
             myPlayerDataController.Win();
             opponentPlayerDataController.Lose();
         }
         else
         {
+            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
             if(_matchPlayType == PLAY_TYPE.AI)
             {
                 myPlayerDataController.Lose();

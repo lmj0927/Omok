@@ -5,10 +5,13 @@ using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Random = System.Random;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 public class MCTS
 {
-    private static Random random = new Random();
+    public Action<TurnData> onSearchComplete;
     private Node rootNode;
 
     private int[,] board;
@@ -18,10 +21,9 @@ public class MCTS
     public MCTS()
     {
         board = new int[14, 14];
-    }
-    
+    }    
 
-    public async UniTask<(int, int)> RunSearch(int row, int col)
+    async public UniTask RunSearch(int row, int col)
     {
         board[row, col] = -1;
         rootNode = new Node(null, board, -1, (row, col));
@@ -29,15 +31,19 @@ public class MCTS
         for (int i = 0; i < iterations; i++)
         {
             if (i % 100 == 0) await UniTask.Yield();
+            
             Node node = Select(rootNode); // uct에 따라 leaf node 선택
-            int result = Simulate(node); // 다
+            int result = Simulate(node);
             Backpropagate(node, result);
         }
         
         Node bestchild = BestChild(rootNode);
         board[bestchild.move.Item1, bestchild.move.Item2] = 1;
         
-        return bestchild.move;
+        //이건.. UniTask말고 다른걸 사용해서 테스트할때 사용한 코드
+        UnityThread.executeInUpdate(() => {
+            onSearchComplete?.Invoke(new TurnData{row = bestchild.move.Item1, col = bestchild.move.Item2});
+        });
     }
 
     private Node Select(Node node)
@@ -46,6 +52,7 @@ public class MCTS
         {
             node = node.BestUCTChild(); // leaf에 도달할때까지 UCT에 따라 다음 수를 둔다
         }
+        
         return node.IsTerminal() ? node : node.Expand(); // leaf에 도달하면, 가능한 수 중에서 랜덤하게 선택한다
     }
 
@@ -65,7 +72,19 @@ public class MCTS
 
     private Node BestChild(Node node)
     {
-        return node.Children.OrderByDescending(n => n.Visits).FirstOrDefault();
+        Node bestNode = null;
+        int maxVisits = int.MinValue;
+
+        foreach (var child in node.Children)
+        {
+            if (child.Visits > maxVisits)
+            {
+                maxVisits = child.Visits;
+                bestNode = child;
+            }
+        }
+
+        return bestNode;
     }
 }
 
@@ -122,7 +141,9 @@ public class Node
 
     public int SimulateRandomPlay()
     {
-        int[,] tempBoard = (int[,])Board.Clone();
+        int[,] tempBoard = new int[Board.GetLength(0), Board.GetLength(1)];
+        Array.Copy(Board, tempBoard, Board.Length);
+
         int player = CurrentPlayer;
         List<(int, int)> possibleMoves = GetPossibleMoves(tempBoard);
         (int, int) move = this.move;
@@ -136,47 +157,77 @@ public class Node
         return CheckWin(tempBoard, move) ? (player == 1 ? 5 : -5) : 0;
     }
 
+
     public void Update(int result)
     {
         Visits++;
         Wins += result;
     }
-
     public Node BestUCTChild()
     {
-        return Children.OrderByDescending(n => (double)n.Wins / (n.Visits + 1e-6) + ExplorationParameter * Math.Sqrt(2 * Math.Log(Visits + 1) / (n.Visits + 1e-6))).FirstOrDefault();
+        double logParentVisits = Math.Log(Visits + 1);
+        Node bestNode = null;
+        double bestValue = double.NegativeInfinity;
+
+        foreach (var child in Children)
+        {
+            double winRate = (double)child.Wins / (child.Visits + 1e-6);
+            double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (child.Visits + 1e-6));
+            double uctValue = winRate + exploration;
+
+            if (uctValue > bestValue)
+            {
+                bestValue = uctValue;
+                bestNode = child;
+            }
+        }
+
+        return bestNode;
     }
+
+
+    // public Node BestUCTChild()
+    // {
+    //     return Children.OrderByDescending(n => (double)n.Wins / (n.Visits + 1e-6) + ExplorationParameter * Math.Sqrt(2 * Math.Log(Visits + 1) / (n.Visits + 1e-6))).FirstOrDefault();
+    // }
     
+    private static readonly (int, int)[] directions = 
+    {
+        (1, 0),
+        (0, 1),
+        (1, 1),
+        (1, -1)
+    };
+
     private static bool CheckWin(int[,] board, (int, int) lastMove)
     {
         int x = lastMove.Item1, y = lastMove.Item2;
         int player = board[x, y];
         if (player == 0) return false;
 
-        List<(int, int)> directions = new List<(int, int)>{ (1, 0), (0, 1), (1, 1), (1, -1) };
-
-        foreach (var dir in directions)
+        foreach (var (dx, dy) in directions)
         {
-            int count = 1;
-            for (int i = 1; i < 5; i++)
+            if (CountConsecutiveStones(board, x, y, dx, dy, player) + CountConsecutiveStones(board, x, y, -dx, -dy, player) - 1 >= 5)
             {
-                int nx = x + dir.Item1 * i, ny = y + dir.Item2 * i;
-                if (nx >= 0 && ny >= 0 && nx < board.GetLength(0) && ny < board.GetLength(1) && board[nx, ny] == player)
-                    count++;
-                else break;
+                return true;
             }
-
-            for (int i = 1; i < 5; i++)
-            {
-                int nx = x - dir.Item1 * i, ny = y - dir.Item2 * i;
-                if (nx >= 0 && ny >= 0 && nx < board.GetLength(0) && ny < board.GetLength(1) && board[nx, ny] == player)
-                    count++;
-                else break;
-            }
-
-            if (count >= 5) return true;
         }
         return false;
+    }
+
+    private static int CountConsecutiveStones(int[,] board, int x, int y, int dx, int dy, int player)
+    {
+        int count = 0;
+        int boardCount = board.GetLength(0);
+
+        while (x >= 0 && x < boardCount && y >= 0 && y < boardCount && board[x, y] == player)
+        {
+            count++;
+            x += dx;
+            y += dy;
+        }
+
+        return count;
     }
 
     private static bool CheckDirection(int[,] board, int x, int y, int dx, int dy)

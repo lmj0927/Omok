@@ -13,6 +13,11 @@ public struct SigninResult
     public UserInfo userInfo { get; set; }
 }
 
+public struct UserInfoResult
+{
+    public UserInfo userInfo { get; set; }
+}
+
 
 public struct UserInfos
 {

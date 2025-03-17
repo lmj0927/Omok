@@ -3235,6 +3235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 14
   height: 14
+  padding: {x: 24, y: 24}
   cellPrefab: {fileID: 3206435855631047135, guid: b9740aab1b03b4be98724955adf6b5e3, type: 3}
   cellParent: {fileID: 2473202341036271616}
 --- !u!114 &3353427529549419465

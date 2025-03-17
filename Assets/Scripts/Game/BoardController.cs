@@ -10,6 +10,7 @@ public class BoardController : MonoBehaviour
     public Cell[,] cells;
     public int width;
     public int height;
+    public Vector2 padding;
     public GameObject cellPrefab;
     public RectTransform cellParent;
     
@@ -36,7 +37,8 @@ public class BoardController : MonoBehaviour
 
     public void Initialize()
     {
-        cellParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2(cellParent.rect.width / width, cellParent.rect.height / height);
+        cellParent.GetComponent<GridLayoutGroup>().cellSize = new Vector2((cellParent.rect.width - padding.x) / width, (cellParent.rect.height - padding.y) / height);
+        cellParent.GetComponent<GridLayoutGroup>().padding = new RectOffset((int)padding.x / 2, (int)padding.x / 2, (int)padding.y / 2, (int)padding.y / 2);
 
         if(cells != null)
         {
@@ -79,6 +81,7 @@ public class BoardController : MonoBehaviour
         if (CheckGameResult(row, col))
         {
             GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
+            return;
         }
 
         if (state == MATCH_STATE.BlackTurn)

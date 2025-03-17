@@ -14,28 +14,37 @@ public class PlayerDataController
 
     public void SetProfile(int index)
     {
-        //TODO: 프로필 변경 요청
+        var info = UserInfo;
+        info.profileIndex = index;
+        UserInfo = info;
+
+        Save();
+
         OnChangedProfile?.Invoke(index);
     }
 
     public void Win()
     {
-        var info = UserInfo;
-        info.winCount++;
-        info.score++;
-        UserInfo = info;
-
-        Save();
+        NetworkManage.Instance.SendWinnerWrapper(UserInfo.userId,
+            (userInfo) =>{
+                UserInfo = userInfo;
+                Debug.Log("SendWinner Success " + userInfo.nickname + " tier" + userInfo.tier + " score" + userInfo.score);
+            },
+            () => {
+                Debug.Log("SendWinner Fail");
+            });
     }
 
     public void Lose()
     {
-        var info = UserInfo;
-        info.loseCount++;
-        info.score--;
-        UserInfo = info;
-
-        Save();
+        NetworkManage.Instance.SendLoserWrapper(UserInfo.userId,
+            (userInfo) =>{
+                UserInfo = userInfo;
+                Debug.Log("SendLoser Success " + userInfo.nickname + " tier" + userInfo.tier + " score" + userInfo.score);
+            },
+            () => {
+                Debug.Log("SendLoser Fail");
+            });
     }
 
     public void SetNickname(string nickname)
@@ -43,11 +52,13 @@ public class PlayerDataController
         var info = UserInfo;
         info.nickname = nickname;
         UserInfo = info;
+
+        Save();
     }
 
     public void Save()
     {
-        NetworkManage.Instance.SaveUserInfo(this.UserInfo,
+        NetworkManage.Instance.SaveUserInfoWrapper(this.UserInfo,
             () =>{
                 Debug.Log("Save Success");
             },

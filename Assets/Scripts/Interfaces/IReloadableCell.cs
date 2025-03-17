@@ -1,4 +1,4 @@
 ﻿public interface IReloadableCell<in T>
 {
-    public void SetData(T data);
+    public void SetData(T data, int index);
 }

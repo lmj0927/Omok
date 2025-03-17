@@ -13,7 +13,7 @@ public class RankInfoCell : MonoBehaviour, IReloadableCell<UserInfo>
     [SerializeField] Image profileImage;
     [SerializeField] Sprite[] profileSprites;
     private UserInfo _userInfo;
-    public void SetData(UserInfo userInfo)
+    public void SetData(UserInfo userInfo, int idx)
     {
         _userInfo = userInfo;
         

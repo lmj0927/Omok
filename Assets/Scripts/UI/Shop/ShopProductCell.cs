@@ -61,7 +61,7 @@ public class ShopProductCell: MonoBehaviour, IReloadableCell<ProductData>
         priceText.text = $"{price:N0} 원";
     }
 
-    public void SetData(ProductData data)
+    public void SetData(ProductData data, int index)
     {
         SetProductType(data.productType);
         SetReward(data.reward);

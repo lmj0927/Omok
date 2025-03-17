@@ -22,7 +22,7 @@ public class NotationUIController : MonoBehaviour, IGameUI
 
     private void OnEnable()
     {
-        var matchInfos = GameManager.Instance.playerDataController.matchInfos;
+        var matchInfos = MatchInfoUtil.LoadMatchInfoList();
         notationScrollRect.Reload(matchInfos, notationCellPrefab);
     }
 

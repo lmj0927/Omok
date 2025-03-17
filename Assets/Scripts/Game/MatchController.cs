@@ -374,6 +374,7 @@ public class MatchController : IDisposable
             UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
             myPlayerDataController.Win();
             opponentPlayerDataController.Lose();
+            _matchInfo.isWin = true;
         }
         else
         {
@@ -382,6 +383,7 @@ public class MatchController : IDisposable
             {
                 myPlayerDataController.Lose();
                 opponentPlayerDataController.Win();
+                _matchInfo.isWin = false;
             }
         }
 

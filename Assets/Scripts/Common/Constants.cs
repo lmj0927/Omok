@@ -1,3 +1,6 @@
+using System.IO;
+using UnityEngine;
+
 public class Constants
 {   
     
@@ -27,6 +30,11 @@ public class Constants
 
     #endregion
 
+    #region Setting
+    public static readonly string MatchInfoFilePath = Path.Combine(Application.persistentDataPath, "matchData.json");
+
+    #endregion
+    
     public enum MultiplayManagerState
     {
         CreateRoom,

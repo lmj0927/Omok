@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System.Linq;
-using static Constants;
 
 public static class MatchInfoUtil
 {
@@ -10,8 +9,7 @@ public static class MatchInfoUtil
     public static void SaveMatchInfoToFile(List<MatchInfo> matchInfoList)
     {
         var jsonData = JsonUtility.ToJson(new MatchInfoWrapper { matches = matchInfoList });
-        var path = Path.Combine(Application.persistentDataPath, "matchData.json");
-        File.WriteAllText(path, jsonData);
+        File.WriteAllText(Constants.MatchInfoFilePath, jsonData);
     }
 
     // MatchInfo 리스트 불러오기
@@ -44,7 +42,7 @@ public static class MatchInfoUtil
 
     public static void ClearAllMatchInfo()
     {
-        PlayerPrefs.DeleteKey(MATCH_INFO_KEY);
+        PlayerPrefs.DeleteKey(Constants.MATCH_INFO_KEY);
         PlayerPrefs.Save();
     }
 

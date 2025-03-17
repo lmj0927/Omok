@@ -8,14 +8,15 @@ using UnityEngine.UI;
 
 public class LeaderBoardPanelController : PanelController
 {
+    [Header("User Cell")]
     [SerializeField] private Image profileImage;
     [SerializeField] private Sprite[] profileSprites;
     [SerializeField] private TMP_Text userInfoText;
     [SerializeField] private TMP_Text userWinRateText;
     
+    [Header("Rank Cells")]
     [SerializeField] private GameObject rankCellPrefab;
-    [SerializeField] private RectTransform contentTransform;
-    [SerializeField] private float cellSize; //140
+    [SerializeField] private ReloadableScrollRect scrollRect;
     
     [SerializeField] private Button closeButton;
     UserInfo _userInfo;
@@ -31,17 +32,7 @@ public class LeaderBoardPanelController : PanelController
 
     void OnEnable()
     {
-        //기존 셀 삭제.
-        if (contentTransform.GetComponentsInChildren<Transform>() != null)
-        {
-            var cells = contentTransform.GetComponentsInChildren<Transform>();
-            foreach (var cell in cells)
-            {
-                if(cell != contentTransform) Destroy(cell.gameObject);
-            }
-        }
-        
-        CreateRankCell();
+        ReloadCell();
     }
 
     void InitUserCell(UserInfo userInfo,int rankIndex)
@@ -54,24 +45,31 @@ public class LeaderBoardPanelController : PanelController
         userWinRateText.text = $"{rankIndex}위 | {userInfo.winCount}승 {userInfo.loseCount}패 ({winRate:F0}%)";
     }
 
-    void CreateRankCell()
+    void ReloadCell()
     {
         StartCoroutine(NetworkManage.Instance.GetLeaderboard((userinfos) =>
         {
             List<UserInfo> userInfoList = new List<UserInfo>();
             userInfoList.AddRange(userinfos.userInfos);
-            
+
             //티어, 승률 순으로 정렬
             userInfoList.OrderBy(a => a.tier)
-                .ThenByDescending(x=>(x.winCount + x.loseCount) == 0 ? 0 :(float)x.winCount / (x.winCount + x.loseCount) * 100f)
+                .ThenByDescending(x =>
+                    (x.winCount + x.loseCount) == 0 ? 0 : (float)x.winCount / (x.winCount + x.loseCount) * 100f)
                 .ToList();
             
-            var rank = 1;
-            foreach (var userinfo in userInfoList)
+            //오브젝트 생성 및 데이터 업데이트
+            scrollRect.Reload(userInfoList,rankCellPrefab);
+            
+            //랭크에 따른 추가 구현
+            var cells = scrollRect.content.GetComponentsInChildren<RankInfoCell>();
+
+            int rank = 1;
+            foreach (var cell in cells)
             {
-                var cell = Instantiate(rankCellPrefab, contentTransform); 
-                cell.GetComponent<RankInfoCell>().SetRankInfo(userinfo, rank);
-                    
+                //랭킹 적용
+                cell.SetRank(rank);
+                
                 //1,2,3등 강조 표시
                 switch (rank)
                 {
@@ -85,18 +83,19 @@ public class LeaderBoardPanelController : PanelController
                         cell.GetComponentsInChildren<Image>()[0].DOColor(new Color32(255,228,83,255),0);
                         break;
                 }
-
-                //랭킹 내 정보가 내 정보면 강조 표시.
-                if (_userInfo.userId == userinfo.userId)
+                
+                //최상단의 플레이어 본인의 정보 업데이트 및 리더보드내 본인 강조표시
+                var cellInfo = cell.GetInfo();
+                
+                if (cellInfo.userId == _userInfo.userId)
                 {
                     cell.GetComponentsInChildren<TMP_Text>()[1].DOColor(Color.blue, 0);
-                    InitUserCell(userinfo, rank);
+                    InitUserCell(cellInfo, rank);
                 }
-                    
-                contentTransform.sizeDelta = new Vector2(0, cellSize*rank);
                 
                 rank++;
             }
+
         }, () =>
         {
             Debug.Log("Failed to create rank cell");

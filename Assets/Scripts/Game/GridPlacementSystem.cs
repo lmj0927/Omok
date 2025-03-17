@@ -248,6 +248,9 @@ public class GridPlacementSystem : MonoBehaviour
 
         int x = Mathf.RoundToInt(relativePosition.x / gridSize);
         int z = Mathf.RoundToInt(relativePosition.z / gridSize);
+        
+        x = Mathf.Clamp(x, 0, gridCountX);
+        z = Mathf.Clamp(z, 0, gridCountY);
 
         return new Vector3Int(x, 0, z);
     }

@@ -93,11 +93,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   infoText: {fileID: 7259479051652746637}
   profileImage: {fileID: 2716590911207115173}
-  profileSprites:
-  - {fileID: 21300000, guid: 46ea4f9d1de514c498ec79940e6d3237, type: 3}
-  - {fileID: 21300000, guid: 6a77e47bf29797647955dbe2a347f291, type: 3}
-  - {fileID: 21300000, guid: 62e119932c433844b887976568a7a5c7, type: 3}
-  - {fileID: 21300000, guid: 1132a3459f294294f88247f713a7eb3e, type: 3}
+  _profileSprites: []
 --- !u!114 &1682265670105010175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,8 +194,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

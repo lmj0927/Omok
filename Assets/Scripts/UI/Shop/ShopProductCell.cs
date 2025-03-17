@@ -30,8 +30,7 @@ public class ShopProductCell: MonoBehaviour, IReloadableCell<ProductData>
 
     private void OnClickProductButton()
     {
-        //TODO: 코인 reward만큼 더하기
-        Debug.Log($"{_price:N0}원 결제: {_reward:N0}개 보상");
+        GameManager.Instance.coinController.AddCoin(_reward);
     }
 
     private void SetProductType(ProductType productType)

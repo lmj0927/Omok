@@ -20,11 +20,11 @@ public class ResultPanelController : PanelController
     [SerializeField] private TMP_Text minusPointText; 
     [SerializeField] private TMP_Text tierText; 
     
-    public int _tier;
-    public int _score;
+    private int _tier;
+    private int _score;
     
     private RectTransform _rectTransform;
-    public bool _isWin;
+    private bool _isWin;
 
     private List<GameObject> _cells;
     private UserInfo _userInfo;
@@ -44,7 +44,7 @@ public class ResultPanelController : PanelController
         _userInfo = userInfo;
         
         _score = _userInfo.score;
-        _tier = _userInfo.tier;
+        _tier = _userInfo.tier == 0 ? 18 : _userInfo.tier;
         
         var original = _rectTransform.anchoredPosition;
         _rectTransform.anchoredPosition = new Vector2(Screen.width, original.y);

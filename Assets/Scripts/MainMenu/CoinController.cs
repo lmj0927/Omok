@@ -3,21 +3,26 @@ using UnityEngine;
 
 public class CoinController
 {
-    public int Coin { get; private set; } = PlayerPrefs.GetInt(Constants.OwnCoin);
-    public event Action OnCoinChanged;
+    public int Coin { get; private set; }
+    public event Action<int> OnCoinChanged;
 
+    public CoinController()
+    {
+        Coin = PlayerPrefs.GetInt("Coin", 0);
+    }
+    
     public void AddCoin(int amount)
     {
         Coin += amount;
         SaveCoin();
-        OnCoinChanged?.Invoke();
+        OnCoinChanged?.Invoke(Coin);
     }
 
     public void ConsumeCoin(int amount)
     {
         Coin -= amount;
         SaveCoin();
-        OnCoinChanged?.Invoke();
+        OnCoinChanged?.Invoke(Coin);
     }
 
     private void SaveCoin()

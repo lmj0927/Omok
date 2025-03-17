@@ -130,7 +130,7 @@ public class ResultPanelController : PanelController
             return;
         
         //점수가 더이상 올라가지 않는 경우
-        if(_tier == 1 && _score >= 3 && _isWin)
+        if(_tier == 1 && _score >= 10 && _isWin)
             return;
         
         if (_isWin)

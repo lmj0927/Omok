@@ -2,13 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
 public class CoinPanel : MonoBehaviour
 {
-    [SerializeField] TMP_Text coinText;
-
+    [SerializeField] private TMP_Text coinText;
+    [SerializeField] private float animationDuration = 0.5f;
+    private int _currentCoin;
+    
     private async void Start()
     {
         await UniTask.WaitUntil(() => GameManager.Instance.coinController != null);
@@ -22,6 +25,13 @@ public class CoinPanel : MonoBehaviour
 
     private void SetCoinText(int coin)
     {
-        coinText.text = coin.ToString();
+        DOTween.To(() => _currentCoin, x => {
+                _currentCoin = x;
+                coinText.text = x.ToString();
+            }, coin, animationDuration)
+            .SetEase(Ease.OutQuad).OnComplete(() =>
+            {
+                _currentCoin = coin;
+            });
     }
 }

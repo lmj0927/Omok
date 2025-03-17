@@ -49,7 +49,6 @@ public class MainMenuController : MonoBehaviour, IGameUI
             var confirmPanel = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
             confirmPanel.Show("코인이 부족합니다.", () =>
             {
-                //상점 UI 열기??
                 UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
             });            
             return;

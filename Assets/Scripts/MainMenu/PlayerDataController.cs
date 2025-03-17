@@ -29,6 +29,8 @@ public class PlayerDataController
             (userInfo) =>{
                 UserInfo = userInfo;
                 Debug.Log("SendWinner Success " + userInfo.nickname + " tier" + userInfo.tier + " score" + userInfo.score);
+                
+                GameManager.Instance.mainUIUpdate?.Invoke();
             },
             () => {
                 Debug.Log("SendWinner Fail");
@@ -41,6 +43,8 @@ public class PlayerDataController
             (userInfo) =>{
                 UserInfo = userInfo;
                 Debug.Log("SendLoser Success " + userInfo.nickname + " tier" + userInfo.tier + " score" + userInfo.score);
+                
+                GameManager.Instance.mainUIUpdate?.Invoke();
             },
             () => {
                 Debug.Log("SendLoser Fail");
@@ -61,6 +65,8 @@ public class PlayerDataController
         NetworkManage.Instance.SaveUserInfoWrapper(this.UserInfo,
             () =>{
                 Debug.Log("Save Success");
+                
+                GameManager.Instance.mainUIUpdate?.Invoke();
             },
             () => {
                 Debug.Log("Save Fail");

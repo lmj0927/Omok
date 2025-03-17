@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//TODO: 더 이상 사용하지 않음.
 public class ProfilePanel : MonoBehaviour
 {
     [SerializeField] Image profileImage;

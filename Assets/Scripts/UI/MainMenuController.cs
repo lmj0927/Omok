@@ -22,23 +22,20 @@ public class MainMenuController : MonoBehaviour, IGameUI
         leaderboardButton.onClick.AddListener(OnClickLeaderboardButton);
         shopButton.onClick.AddListener(OnClickShopButton);
         settingButton.onClick.AddListener(OnClickSettingButton);
-
-        //TODO: ~로 부터 userinfo를 받아온다.
-        //_userInfo = GameManger.Instance.GetUserInfo();
         
-        //Initialize(_userInfo);
+        GameManager.Instance.mainUIUpdate = UpdateUserInfo;
+        Initialize();
     }
 
-    void Initialize(UserInfo userInfo)
+    void Initialize()
     {
-        //userInfoPanel.SetUserInfo(userInfo);
         UpdateUserInfo();
     }
 
     void UpdateUserInfo()
     {
-        //_userInfo = GameManger.Instance.GetUserInfo();
-        //coinPanel.SetCoinText(userInfo.text);
+        _userInfo = GameManager.Instance.GetUserInfo();
+        userInfoPanel.SetUserInfo(_userInfo);
     }
 
     void OnClickStartButton()

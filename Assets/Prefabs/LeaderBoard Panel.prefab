@@ -526,10 +526,10 @@ MonoBehaviour:
   panelRectTransform: {fileID: 2016697588392623410}
   profileImage: {fileID: 5295168812124979762}
   profileSprites:
-  - {fileID: -1888288258, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
-  - {fileID: 691594874, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
-  - {fileID: 690878421, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
-  - {fileID: 1259537265, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
+  - {fileID: 21300000, guid: 46ea4f9d1de514c498ec79940e6d3237, type: 3}
+  - {fileID: 21300000, guid: 6a77e47bf29797647955dbe2a347f291, type: 3}
+  - {fileID: 21300000, guid: 62e119932c433844b887976568a7a5c7, type: 3}
+  - {fileID: 21300000, guid: 1132a3459f294294f88247f713a7eb3e, type: 3}
   userInfoText: {fileID: 1037854641003591559}
   userWinRateText: {fileID: 4900749961709963446}
   rankCellPrefab: {fileID: 5451997987312329532, guid: 2bd84f99b657e4f46966031ae5ae679e, type: 3}
@@ -794,7 +794,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1888288258, guid: 02e2e877916cd7b4abf800ad13497bc8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 46ea4f9d1de514c498ec79940e6d3237, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

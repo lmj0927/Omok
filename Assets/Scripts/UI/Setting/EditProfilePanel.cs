@@ -7,18 +7,21 @@ using UnityEngine.UI;
 
 public class EditProfilePanel : PanelController
 {
-    [SerializeField] Button[] profileImage;
+    [SerializeField] List<Button> profileImage;
+    private List<Sprite> _profileSprites = new List<Sprite>();
     private int _profileIndex;
     
     UserInfo _userInfo;
     
     void Start()
     {
+        _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
+        for (int i = 0; i < profileImage.Count; i++)
+        {
+            profileImage[i].GetComponent<Image>().sprite = _profileSprites[i];
+        }
+        
         Show();
-        
-        //TODO: userinfo 받기.
-        
-        //_userInfo = GameManger.Instance.GetUserInfo();
     }
     
     public void OnClickProfile(int index)

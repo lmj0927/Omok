@@ -34,7 +34,7 @@ public class ReloadableScrollRect : ScrollRect
             {
                 if(_cells[i].TryGetComponent<IReloadableCell<T>>(out var cellComponent))
                 {
-                    cellComponent.SetData(items[i]);
+                    cellComponent.SetData(items[i], i);
                 }
             }
         }

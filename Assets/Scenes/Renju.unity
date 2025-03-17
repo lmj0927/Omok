@@ -517,6 +517,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiPrefabs:
     _serializedList:
+    - Key: 5
+      Value: {fileID: 7899895706644332628, guid: 28d4441571787e045a0e7af720a870b2, type: 3}
+    - Key: 3
+      Value: {fileID: 5103688367538078618, guid: 574e97b591449ab45860daf6ec375d7d, type: 3}
     - Key: 4
       Value: {fileID: 8192463108357986988, guid: 12a626be845e04c1dbb5bbdd93a63db0, type: 3}
     - Key: 6
@@ -533,6 +537,8 @@ MonoBehaviour:
       Value: {fileID: 1418229856139745092, guid: 9f0a1fc40b442d443a3cbe868485e613, type: 3}
     - Key: 1
       Value: {fileID: 8192463108357986988, guid: cdfc8ec662b748f4bbc68d0cbfaa6075, type: 3}
+    - Key: 2
+      Value: {fileID: 1884797727949913602, guid: fe54834a756b46f4385a541a58271dc5, type: 3}
 --- !u!1 &2128811467
 GameObject:
   m_ObjectHideFlags: 0

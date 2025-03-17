@@ -14,7 +14,7 @@ public class ReplayController : IBaseGameTypeController
         cursor = 0;
         isOperating = false;
         
-        _matchInfo = GameManager.Instance.playerDataController.matchInfos[replayIndex];
+        _matchInfo = MatchInfoUtil.LoadMatchInfoList()[replayIndex];
         var replayGameBoardUIController = UIManager.Instance.ShowUI<ReplayGameBoardUIController>(UI_TYPE.Replay);
 
         var blackPlayer = _matchInfo.isBlack ? GameManager.Instance.playerDataController.UserInfo : _matchInfo.opponent;

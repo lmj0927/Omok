@@ -8,16 +8,17 @@ public class UserInfoPanel : MonoBehaviour
 {
     [SerializeField] TMP_Text infoText;
     [SerializeField] Image profileImage;
-    [SerializeField] List<Sprite> profileSprites;
+    [SerializeField] private List<Sprite> _profileSprites = new List<Sprite>();
     private UserInfo _userInfo;
 
     private void Awake()
     {
-        SetUserInfo(GameManager.Instance.GetUserInfo());
+        _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
     }
-
+    
     private void Start()
     {
+        SetUserInfo(GameManager.Instance.GetUserInfo());
         GameManager.Instance.playerDataController.OnChangedProfile += SetProfileImage;
     }
 
@@ -42,13 +43,13 @@ public class UserInfoPanel : MonoBehaviour
     
     public void SetProfileImage(int idx)
     {
-        if (idx < 0 || idx >= profileSprites.Count)
+        if (idx < 0 || idx >= _profileSprites.Count)
         {
-            Debug.Log("PRCNT"+profileSprites.Count);
+            Debug.Log("PRCNT"+_profileSprites.Count);
             Debug.LogError("Profile Index out of range." + idx);
             return;
         }
         
-        profileImage.sprite = profileSprites[idx];
+        profileImage.sprite = _profileSprites[idx];
     }
 }

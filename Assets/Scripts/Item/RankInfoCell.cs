@@ -11,14 +11,20 @@ public class RankInfoCell : MonoBehaviour, IReloadableCell<UserInfo>
     [SerializeField] TMP_Text infoText;
     [SerializeField] TMP_Text winRateText;
     [SerializeField] Image profileImage;
-    [SerializeField] Sprite[] profileSprites;
+    private List<Sprite> _profileSprites = new List<Sprite>();
     private UserInfo _userInfo;
+
+    private void Awake()
+    {
+        _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
+    }
+    
     public void SetData(UserInfo userInfo, int idx)
     {
         _userInfo = userInfo;
         
         int index = _userInfo.profileIndex;
-        profileImage.sprite = profileSprites[index];
+        profileImage.sprite = _profileSprites[index];
         
         float winRate = (float)_userInfo.winCount / (_userInfo.winCount + _userInfo.loseCount) * 100f;
         infoText.text = $"{_userInfo.tier}급 {_userInfo.nickname}";

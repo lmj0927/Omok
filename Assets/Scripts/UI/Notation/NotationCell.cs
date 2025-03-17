@@ -29,9 +29,9 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
         GameManager.Instance.matchController.InitializeReplayController(matchIndex);
     }
 
-    public void SetData(MatchInfo data)
+    public void SetData(MatchInfo data, int index)
     {
-        matchIndex = data.index;
+        matchIndex = index;
         SetTurn(data.isBlack);
         SetOpponentName(data.opponent.nickname);
         SetGameResult(data.isWin);

@@ -664,6 +664,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiPrefabs:
     _serializedList:
+    - Key: 5
+      Value: {fileID: 7899895706644332628, guid: 28d4441571787e045a0e7af720a870b2, type: 3}
     - Key: 3
       Value: {fileID: 5103688367538078618, guid: 574e97b591449ab45860daf6ec375d7d, type: 3}
     - Key: 12

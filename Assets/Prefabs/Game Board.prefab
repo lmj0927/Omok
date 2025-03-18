@@ -3238,6 +3238,7 @@ MonoBehaviour:
   padding: {x: 24, y: 24}
   cellPrefab: {fileID: 3206435855631047135, guid: b9740aab1b03b4be98724955adf6b5e3, type: 3}
   cellParent: {fileID: 2473202341036271616}
+  gameSystemPrefab: {fileID: 3765154071522546467, guid: e79c2e5fd96a04330950cf11f9106f0a, type: 3}
 --- !u!114 &3353427529549419465
 MonoBehaviour:
   m_ObjectHideFlags: 0

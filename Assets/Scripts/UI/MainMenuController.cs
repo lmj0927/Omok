@@ -22,27 +22,36 @@ public class MainMenuController : MonoBehaviour, IGameUI
         leaderboardButton.onClick.AddListener(OnClickLeaderboardButton);
         shopButton.onClick.AddListener(OnClickShopButton);
         settingButton.onClick.AddListener(OnClickSettingButton);
-
-        //TODO: ~로 부터 userinfo를 받아온다.
-        //_userInfo = GameManger.Instance.GetUserInfo();
         
-        //Initialize(_userInfo);
+        GameManager.Instance.mainUIUpdate = UpdateUserInfo;
+        Initialize();
     }
 
-    void Initialize(UserInfo userInfo)
+    void Initialize()
     {
-        //userInfoPanel.SetUserInfo(userInfo);
         UpdateUserInfo();
     }
 
     void UpdateUserInfo()
     {
-        //_userInfo = GameManger.Instance.GetUserInfo();
-        //coinPanel.SetCoinText(userInfo.text);
+        _userInfo = GameManager.Instance.GetUserInfo();
+        userInfoPanel.SetUserInfo(_userInfo);
     }
 
     void OnClickStartButton()
     {
+        if (GameManager.Instance.coinController.Coin < Constants.CostPerGame)
+        {
+            Debug.Log("코인이 부족합니다.");
+            var confirmPanel = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
+            confirmPanel.Show("코인이 부족합니다.", () =>
+            {
+                UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
+            });            
+            return;
+        }
+        
+        GameManager.Instance.coinController.ConsumeCoin(Constants.CostPerGame);
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);
     }
 
@@ -68,11 +77,11 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     public void Show()
     {
-        throw new System.NotImplementedException();
+        gameObject.SetActive(true);
     }
 
     public void Hide()
     {
-        throw new System.NotImplementedException();
+        gameObject.SetActive(false);
     }
 }

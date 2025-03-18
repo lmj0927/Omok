@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -12,7 +14,14 @@ public class SignupPanelController : MonoBehaviour
     [SerializeField] private TMP_InputField _passwordInputField;
     [SerializeField] private TMP_InputField _confirmPasswordInputField;
     
-    public void OnClickConfirmButton()
+    [SerializeField] private AsnycButton _signupButton;
+
+    private void Awake()
+    {
+        _signupButton.AddListener(OnClickConfirmButton);
+    }
+
+    public async UniTask OnClickConfirmButton()
     {
         var username = _usernameInputField.text;
         var nickname = _nicknameInputField.text;
@@ -35,18 +44,16 @@ public class SignupPanelController : MonoBehaviour
             signupData.username = username;
             signupData.nickname = nickname;
             signupData.password = password;
-            
-            // 서버로 SignupData 전달하면서 회원가입 진행
-            StartCoroutine(NetworkManage.Instance.Signup(signupData, () =>
+
+            try
             {
+                await SignupAsync(signupData);
                 Destroy(gameObject);
-            }, () =>
+            }
+            catch (Exception e)
             {
-                _usernameInputField.text = "";
-                _nicknameInputField.text = "";
-                _passwordInputField.text = "";
-                _confirmPasswordInputField.text = "";
-            }));
+                Debug.LogException(e);
+            }
         }
         else
         {
@@ -56,6 +63,25 @@ public class SignupPanelController : MonoBehaviour
                 _confirmPasswordInputField.text = "";
             });
         }
+    }
+
+    private async UniTask SignupAsync(SignupData signupData)
+    {
+        var tcs = new UniTaskCompletionSource();
+        
+        StartCoroutine(NetworkManage.Instance.Signup(signupData, () =>
+        {
+            tcs.TrySetResult();
+        }, () =>
+        {
+            _usernameInputField.text = "";
+            _nicknameInputField.text = "";
+            _passwordInputField.text = "";
+            _confirmPasswordInputField.text = "";
+            tcs.TrySetException(new Exception("회원가입 실패"));
+        }));
+
+        await tcs.Task;
     }
 
     public void OnClickCancelButton()

@@ -64,26 +64,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     
     void Start()
     {
-        giveUpButton.onClick.AddListener(OnClickGiveUpButton);
-        executeButton.onClick.AddListener(OnClickExecuteButton);
         
-        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
-        
-        _onRepeatEffect += OnRepeatBoardEffect;
-        _onRepeatEffect += OnRepeatCircleEffect;
-        
-        _excuteButtonImage = executeButton.GetComponent<Image>();
-        _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
-        
-        _timerSeed = timerCircleImage.GetComponentsInChildren<Image>()[1];
-        _timerHead = timerCircleImage.GetComponentsInChildren<Image>()[^1];
-        _timerHeadRect = timerCircleImage.GetComponentsInChildren<RectTransform>()[^1];
-        
-        boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
-        circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
-        
-        _blackOriginWidth = blackTurnPanel.sizeDelta.x;
-        _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
     }
 
     //임시 타이머 차감용
@@ -114,13 +95,37 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
     }
 
-    void OnEnable()
-    {
-        Initialize();
-    }
+    // void OnEnable()
+    // {
+    //     Initialize();
+    // }
 
-    private void Initialize()
+    public void Initialize()
     {
+        giveUpButton.onClick.AddListener(OnClickGiveUpButton);
+        executeButton.onClick.AddListener(OnClickExecuteButton);
+        
+        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+        
+        _onRepeatEffect += OnRepeatBoardEffect;
+        _onRepeatEffect += OnRepeatCircleEffect;
+        
+        _excuteButtonImage = executeButton.GetComponent<Image>();
+        _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
+        
+        _timerSeed = timerCircleImage.GetComponentsInChildren<Image>()[1];
+        _timerHead = timerCircleImage.GetComponentsInChildren<Image>()[^1];
+        _timerHeadRect = timerCircleImage.GetComponentsInChildren<RectTransform>()[^1];
+        
+        boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
+        circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
+        
+        if(_blackOriginWidth == 0)
+        {
+            _blackOriginWidth = blackTurnPanel.sizeDelta.x;
+            _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
+        }
+        
         _isStartMatch = false;
     }
 

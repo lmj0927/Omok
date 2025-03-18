@@ -14,7 +14,7 @@ public class QuadBackground : MonoBehaviour
     {
         if (_main == null) return;
 
-        transform.position = _main.transform.position + _main.transform.forward * 10f;
+        transform.position = _main.transform.position + _main.transform.forward * 20f;
 
         transform.rotation = _main.transform.rotation;
     }

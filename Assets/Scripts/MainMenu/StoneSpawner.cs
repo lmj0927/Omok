@@ -1,38 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class StoneSpawner : MonoBehaviour
 {
     [SerializeField] GameObject[] stonePrefab;
-    
-    Coroutine _spawnRoutine;
+    CancellationTokenSource _spawnCts;
+
 
     public void StartSpawn()
     {
-        if(_spawnRoutine != null)
-        {
-            StopCoroutine(_spawnRoutine);
-        }
-        _spawnRoutine = StartCoroutine(SpawnStoneRoutine());
+        _spawnCts = new CancellationTokenSource();
+        SpawnStoneAsync().Forget();        
     }
 
     public void StopSpawn()
     {
-        StopCoroutine(_spawnRoutine);
-    }
-
-
-    IEnumerator SpawnStoneRoutine()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(0.02f);
-            
-            SpawnStone(Random.Range(0, stonePrefab.Length), new Vector3(Random.Range(-1f, 1f), transform.position.y, Random.Range(-1f, 1f)));
+        if(_spawnCts != null){
+            _spawnCts.Cancel();
+            _spawnCts = null;
         }
     }
 
+    async UniTask SpawnStoneAsync()
+    {
+        while(_spawnCts != null && !_spawnCts.Token.IsCancellationRequested)
+        {
+            await UniTask.Delay(20);
+            SpawnStone(Random.Range(0, stonePrefab.Length), new Vector3(Random.Range(-1f, 1f), transform.position.y, Random.Range(-1f, 1f)));
+        }
+    }
 
     public void SpawnStone(int index, Vector3 position)
     {

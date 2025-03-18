@@ -120,8 +120,12 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
         circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
         
-        _blackOriginWidth = blackTurnPanel.sizeDelta.x;
-        _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
+        if(_blackOriginWidth == 0)
+        {
+            _blackOriginWidth = blackTurnPanel.sizeDelta.x;
+            _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
+        }
+        
         _isStartMatch = false;
     }
 

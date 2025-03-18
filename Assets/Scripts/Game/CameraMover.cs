@@ -128,6 +128,14 @@ public class CameraMover : MonoBehaviour
                 UpdateCamera();
             }
         }
+        ResetCamera(8, 40, 20);
+    }
+
+    public void SetCamera(Vector3 rotation, float distance)
+    {
+        targetXRotation = rotation.y;
+        targetYRotation = rotation.x;
+        targetDistance =  distance;
     }
     
     public void ResetCamera(float newDistance = 15f, float xRotation = 45f, float yRotation = 30f)

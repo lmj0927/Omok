@@ -151,8 +151,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectPrefab:
-  - {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
-  - {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
+    _serializedList:
+    - Key: 0
+      Value: {fileID: 0}
+    - Key: 1
+      Value: {fileID: 3928392095050592808, guid: 46f03b1b615b74c91ac2bce95f3ae5ea, type: 3}
+    - Key: 2
+      Value: {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
+    - Key: 3
+      Value: {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
+    - Key: 4
+      Value: {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
+    - Key: 5
+      Value: {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
   gridSize: 0.242
   defaultMaterial: {fileID: 0}
   previewMaterial: {fileID: 2100000, guid: 1a963d23062554db0afed9de739bd23b, type: 2}

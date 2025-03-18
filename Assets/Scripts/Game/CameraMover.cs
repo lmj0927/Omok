@@ -45,7 +45,8 @@ public class CameraMover : MonoBehaviour
         targetYRotation = currentYRotation = angles.x;
  
         targetDistance = currentDistance = Vector3.Distance(transform.position, target.position);
-        ResetCamera(8, 55, 0);
+        //ResetCamera(8, 55, 0);
+        ResetCamera(8, 40, 20);
 
         UpdateCamera();
     }
@@ -62,6 +63,11 @@ public class CameraMover : MonoBehaviour
     
     void HandleInput()
     {
+        if(target == null)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(1))
         {
             isRotating = true;
@@ -90,6 +96,12 @@ public class CameraMover : MonoBehaviour
     
     void UpdateCamera()
     {
+        if(target == null)
+        {
+            return;
+        }
+
+
         currentXRotation = Mathf.Lerp(currentXRotation, targetXRotation, Time.deltaTime * rotationDampening);
         currentYRotation = Mathf.Lerp(currentYRotation, targetYRotation, Time.deltaTime * rotationDampening);
         currentDistance = Mathf.Lerp(currentDistance, targetDistance, Time.deltaTime * movementDampening);
@@ -98,7 +110,7 @@ public class CameraMover : MonoBehaviour
 
         Vector3 targetPosition = target.position + targetOffset;
         Vector3 direction = rotation * Vector3.back;
-        Debug.DrawRay(targetPosition, direction * currentDistance, Color.red);
+
         Vector3 desiredPosition = targetPosition + direction * currentDistance;        
 
         transform.position = desiredPosition;
@@ -116,6 +128,14 @@ public class CameraMover : MonoBehaviour
                 UpdateCamera();
             }
         }
+        ResetCamera(8, 40, 20);
+    }
+
+    public void SetCamera(Vector3 rotation, float distance)
+    {
+        targetXRotation = rotation.y;
+        targetYRotation = rotation.x;
+        targetDistance =  distance;
     }
     
     public void ResetCamera(float newDistance = 15f, float xRotation = 45f, float yRotation = 30f)

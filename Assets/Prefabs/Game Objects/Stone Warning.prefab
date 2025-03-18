@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5487584933915368178}
   - component: {fileID: 1848371203506302720}
   m_Layer: 0
-  m_Name: Stone Black
+  m_Name: Stone Warning
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 576872832d2d74e709e34c4ef2573d60, type: 2}
+  - {fileID: 2100000, guid: 2cb5b59f72f044500af44463c41abdcd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

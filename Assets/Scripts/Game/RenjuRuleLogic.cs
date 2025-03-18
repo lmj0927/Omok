@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class RenjuRuleLogic
 {   
-    enum StoneState
+    public enum StoneState
     {
         Black = 0,
         White = 1,
@@ -287,11 +287,66 @@ public static class RenjuRuleLogic
             new TurnData { row = 7, col = 5 },
         };
         
-        
+        List<TurnData> doubleTreePattern_fake = new List<TurnData>
+        {
+            //new TurnData{row = 7, col = 7},  // 중앙
+            new TurnData{row = 7, col = 7},
+            new TurnData{row = 7, col = 8},
+            new TurnData{row = 9, col = 8},
+            new TurnData{row = 10, col = 5},  // 세로 방향
+            new TurnData{row = 10, col = 9},
+            // 착점 위치: (7, 6) - 이 위치에 두면 삼삼과 장목이 동시에 발생
+        };
+
+        List<TurnData> doubleTreePattern_fake1 = new List<TurnData>
+        {
+            //new TurnData{row = 7, col = 7},  // 중앙
+            new TurnData{row = 7, col = 7},
+            new TurnData{row = 7, col = 8},
+            new TurnData{row = 9, col = 8},
+            new TurnData{row = 10, col = 5},  // 세로 방향
+            new TurnData{row = 10, col = 9},
+            new TurnData{row = 10, col = 7},
+            // 착점 위치: (7, 6) - 이 위치에 두면 삼삼과 장목이 동시에 발생
+        };
+
+
+        List<TurnData> FakeDoubleThreePattern = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 7 },
+            new TurnData { row = 8, col = 7 },
+            new TurnData { row = 9, col = 7 },
+            new TurnData { row = 10, col = 6 },
+            new TurnData { row = 6, col = 8 },
+            new TurnData { row = 7, col = 9 },
+            new TurnData { row = 8, col = 9 },
+        };
+
+        List<TurnData> FakeDoubleThreePattern_White = new List<TurnData>
+        {
+            new TurnData { row = 5, col = 6 },
+            new TurnData { row = 6, col = 6 },
+            new TurnData { row = 7, col = 6 },
+            new TurnData { row = 9, col = 6 },
+            
+            new TurnData { row = 6, col = 7 },
+            new TurnData { row = 7, col = 8 },
+            new TurnData { row = 6, col = 9 },
+            
+        };
 
         // 테스트 패턴 추가
         testPatterns.Add("DoubleTreePattern_overlinePattern", doubleTreePattern_overlinePattern);
         testWhitePatterns.Add("DoubleTreePattern_overlinePattern_White", doubleTreePattern_overlinePattern_White);
+
+        testPatterns.Add("doubleTreePattern_fake", doubleTreePattern_fake);
+        testWhitePatterns.Add("None-1", noneWhite);
+
+        testPatterns.Add("doubleTreePattern_fake1", doubleTreePattern_fake1);
+        testWhitePatterns.Add("None-2", noneWhite);
+
+        testPatterns.Add("FakeDoubleThreePattern", FakeDoubleThreePattern);
+        testWhitePatterns.Add("FakeDoubleThreePattern_White", FakeDoubleThreePattern_White);
         
         testPatterns.Add("DoubleTreePattern_overlinePattern1", doubleTreePattern_overlinePattern1);
         testWhitePatterns.Add("DoubleTreePattern_overlinePattern_White1", doubleTreePattern_overlinePattern_White1);
@@ -347,8 +402,26 @@ public static class RenjuRuleLogic
         
    }
 
-    public static bool IsRenjuRuleViolation(int x, int y)
+    public static (bool, int, int) IsRenjuRuleViolation(int x, int y)
     {
+        //CountThreeFour
+        (int threeCount, int fourCount) = CountThreeFour(x, y);
+        
+        if(threeCount >= 2 || fourCount >= 2){
+            Debug.Log("TreeCount: " + threeCount + " FourCount: " + fourCount);
+            return (true, threeCount, fourCount);
+        }
+        
+        // 장목(6목 이상) 체크
+        if (CheckOverline(x, y))
+        {
+            return (true, 0, 0);
+        }
+        
+        return (false, 0, 0);
+    }
+
+    public static bool IsRenjuRuleFakeViolation(int x, int y){
         //CountThreeFour
         (int threeCount, int fourCount) = CountThreeFour(x, y);
         
@@ -371,8 +444,12 @@ public static class RenjuRuleLogic
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
     }
 
+    public static void SetBoard(int x, int y, StoneState state){
+        board[x, y] = state;
+    }
 
-    static (int, int) CountThreeFour(int x, int y)
+
+    static (int, int) CountThreeFour(int x, int y, StoneState originState = StoneState.Empty)
     {
         int threeCount = 0;
         int fourCount = 0;
@@ -387,7 +464,7 @@ public static class RenjuRuleLogic
             fourCount += four;
         }
         
-        board[x, y] = StoneState.Empty;
+        board[x, y] = originState;
         
         return (threeCount, fourCount);
     }
@@ -512,6 +589,8 @@ public static class RenjuRuleLogic
         {
             //PrintBoard();
             foreach(var (nx, ny) in empty_list){
+                //IsRenjuRuleFakeViolation(nx, ny);
+
                 if(IsOpenFourChecker(nx, ny, dx, dy)){
                     threeCount++;
                     break;

@@ -426,7 +426,7 @@ public class BoardController : MonoBehaviour
     public void TestRenjuOperate(){
         RenjuRuleLogic.SetBoard(cells);
 
-        List<(int, int)> forbiddenPoints = new List<(int, int)>();
+        List<(int, int, int, int)> forbiddenPoints = new List<(int, int, int, int)>();
 
         for (int row = 0; row < width; row++)
         {
@@ -434,17 +434,45 @@ public class BoardController : MonoBehaviour
             {
                 if(cells[row, col].GetCellType() != CELL_TYPE.None)
                     continue;
-                bool isForbidden = RenjuRuleLogic.IsRenjuRuleViolation(row, col);
+                (bool isForbidden, int threeCount, int fourCount) = RenjuRuleLogic.IsRenjuRuleViolation(row, col);
                 if (isForbidden)
                 {
-                    forbiddenPoints.Add((row, col));
-                }      
+                    forbiddenPoints.Add((row, col, threeCount, fourCount));
+                }
             }
         }
 
         //forbiddenPoints = GetForbiddenPoints();
 
+        List<(int, int)> newForbiddenPoints = new List<(int, int)>();
+        
         foreach (var point in forbiddenPoints)
+        {
+            int count = 0;
+            if(point.Item3 >= 2){
+                count += point.Item3;
+            }
+            if(point.Item4 >= 2){
+                count += point.Item4;
+            }
+
+            if(count > 2){
+                RenjuRuleLogic.SetBoard(point.Item1, point.Item2, RenjuRuleLogic.StoneState.White);
+                newForbiddenPoints.Add((point.Item1, point.Item2));
+            }
+        }
+
+        foreach (var point in forbiddenPoints)
+        {
+            bool isForbidden = RenjuRuleLogic.IsRenjuRuleFakeViolation(point.Item1, point.Item2);
+            if (isForbidden)
+            {
+                newForbiddenPoints.Add((point.Item1, point.Item2));
+            }
+        }
+
+
+        foreach (var point in newForbiddenPoints)
         {
             TurnData t = new TurnData()
             {

@@ -5,11 +5,23 @@ using UnityEngine;
 public class StoneSpawner : MonoBehaviour
 {
     [SerializeField] GameObject[] stonePrefab;
+    
+    Coroutine _spawnRoutine;
 
-    void Start()
+    public void StartSpawn()
     {
-        StartCoroutine(SpawnStoneRoutine());
+        if(_spawnRoutine != null)
+        {
+            StopCoroutine(_spawnRoutine);
+        }
+        _spawnRoutine = StartCoroutine(SpawnStoneRoutine());
     }
+
+    public void StopSpawn()
+    {
+        StopCoroutine(_spawnRoutine);
+    }
+
 
     IEnumerator SpawnStoneRoutine()
     {

@@ -8,6 +8,9 @@ public class GameManager : Singleton<GameManager>
 {
     public MatchController matchController;
     public PlayerDataController playerDataController;
+    [SerializeField] public CameraMover cameraMover;
+    [SerializeField] public StoneSpawner StoneSpawner;
+    
     public Action mainUIUpdate;
     
     public CoinController coinController;
@@ -27,7 +30,10 @@ public class GameManager : Singleton<GameManager>
         return playerDataController.UserInfo;
     }
 
-    public void StartGame(PLAY_TYPE playType){
+    public void StartGame(PLAY_TYPE playType)
+    {
+        StoneSpawner.StopSpawn();
+
         if(matchController == null){
             matchController = new MatchController();
         }

@@ -13,6 +13,8 @@ public class BoardController : MonoBehaviour
     public Vector2 padding;
     public GameObject cellPrefab;
     public RectTransform cellParent;
+    [SerializeField] GameObject gameSystemPrefab;
+    GameObject _gameSystem;
     
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
@@ -32,8 +34,22 @@ public class BoardController : MonoBehaviour
     void OnEnable()
     {
         Initialize();
+
+        if(_gameSystem == null)
+        {
+            _gameSystem = Instantiate(gameSystemPrefab);
+        }
+
+        GameManager.Instance.cameraMover.SetTarget(_gameSystem.GetComponent<GridPlacementSystem>().cameraTarget);
     }
-    
+
+    void OnDisable()
+    {
+        if(_gameSystem != null)
+        {
+            Destroy(_gameSystem);
+        }
+    }
 
     public void Initialize()
     {

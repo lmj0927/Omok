@@ -9,6 +9,7 @@ public class GridPlacementSystem : MonoBehaviour
     [SerializeField] Material previewMaterial;
     [SerializeField] Transform gridParent;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] public Transform cameraTarget;
     
     Dictionary<Vector3Int, GameObject> placedObjects = new Dictionary<Vector3Int, GameObject>();
     Camera mainCamera;

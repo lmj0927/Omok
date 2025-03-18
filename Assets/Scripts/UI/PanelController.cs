@@ -9,28 +9,18 @@ using DG.Tweening;
 [RequireComponent(typeof(CanvasGroup))]
 public class PanelController : MonoBehaviour, IGameUI
 {
-    [SerializeField] private RectTransform panelRectTransform;      // 팝업창
+    [SerializeField] protected RectTransform panelRectTransform;
     
-    private CanvasGroup _backgroundCanvasGroup;                     // 뒤에 시커먼 배경
-    
-    public delegate void PanelControllerHideDelegate();
-    
-    protected virtual void Awake()
-    {
-        _backgroundCanvasGroup = GetComponent<CanvasGroup>();
-    }
-
     /// <summary>
     /// Panel 표시 함수
     /// </summary>
     public virtual void Show()
     {
-        _backgroundCanvasGroup.alpha = 0;
-        panelRectTransform.localScale = Vector3.zero;
+        var original = panelRectTransform.anchoredPosition;
+        panelRectTransform.anchoredPosition = new Vector2(Screen.width, original.y);
+
         gameObject.SetActive(true);
-        
-        _backgroundCanvasGroup.DOFade(1, 0.3f).SetEase(Ease.Linear);
-        panelRectTransform.DOScale(1, 0.3f).SetEase(Ease.OutBack);
+        panelRectTransform.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
     }
     
     /// <summary>
@@ -38,28 +28,12 @@ public class PanelController : MonoBehaviour, IGameUI
     /// </summary>
     public virtual void Hide()
     {
-        HideAsync().Forget();
-    }
-    
-    public async void Hide(PanelControllerHideDelegate hideDelegate)
-    {
-        await HideAsync();
-        hideDelegate?.Invoke();
-    }
-    
-    protected async UniTask HideAsync()
-    {
-        _backgroundCanvasGroup.alpha = 1;
-        panelRectTransform.localScale = Vector3.one;
-    
-        var sequence = DOTween.Sequence();
-        sequence.Join(_backgroundCanvasGroup.DOFade(0, 0.3f).SetEase(Ease.Linear))
-            .Join(panelRectTransform.DOScale(0, 0.3f).SetEase(Ease.InBack))
-            .OnComplete(() =>
-            {
-                gameObject.SetActive(false);
-            });
+        var original = panelRectTransform.anchoredPosition;
 
-        await sequence.AsyncWaitForCompletion();
+        panelRectTransform.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
+        {
+            gameObject.SetActive(false);
+            panelRectTransform.anchoredPosition = original;
+        });
     }
 }

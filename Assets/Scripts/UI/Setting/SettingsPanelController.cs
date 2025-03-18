@@ -11,14 +11,6 @@ public class SettingsPanelController : PanelController
     [SerializeField] private GameObject editIconPanel;
     [SerializeField] private UserInfoPanel userInfoPanel;
 
-    private RectTransform _settingsPanel;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        _settingsPanel = GetComponent<RectTransform>();
-    }
-
     void Start()
     {
         profileButton.onMouseEnter += () => { editIconPanel.SetActive(true); };
@@ -37,12 +29,12 @@ public class SettingsPanelController : PanelController
     /// <summary>
     /// X 버튼 클릭시 호출되는 함수
     /// </summary>
-    public void OnClickCloseButton()
+    private void OnClickCloseButton()
     {
         Hide();
     }
 
-    public void OnClickLogoutButton()
+    private void OnClickLogoutButton()
     {
         UnityWebRequest.ClearCookieCache();
         PlayerPrefs.SetString(Constants.SID, null); 
@@ -50,25 +42,5 @@ public class SettingsPanelController : PanelController
         
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
         UIManager.Instance.ShowUI<SigninPanelController>(UI_TYPE.SignIn);
-    }
-
-    public override void Show()
-    {
-        var original = _settingsPanel.anchoredPosition;
-        _settingsPanel.anchoredPosition = new Vector2(Screen.width, original.y);
-
-        gameObject.SetActive(true);
-        _settingsPanel.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
-    }
-    
-    public override void Hide()
-    {
-        var original = _settingsPanel.anchoredPosition;
-
-        _settingsPanel.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
-        {
-            gameObject.SetActive(false);
-            _settingsPanel.anchoredPosition = original;
-        });
     }
 }

@@ -146,6 +146,7 @@ GameObject:
   - component: {fileID: 7919888968123146335}
   - component: {fileID: 1008861940824552208}
   - component: {fileID: 3406544579921831568}
+  - component: {fileID: 557824830525312075}
   m_Layer: 5
   m_Name: Shop Panel
   m_TagString: Untagged
@@ -224,6 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f332c4f578704a2a81d81ee048981e4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panelRectTransform: {fileID: 6906702384512519681}
   content: {fileID: 5388338562381292399}
   itemCellPrefab: {fileID: 9034679154983347179, guid: a8efa08a98a324349ac476c4b1b190f2, type: 3}
   backButton: {fileID: 8495565283220335663}
@@ -241,6 +243,18 @@ MonoBehaviour:
   - productType: 2
     reward: 10000
     price: 2500
+--- !u!225 &557824830525312075
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884797727949913602}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2476695250142204125
 GameObject:
   m_ObjectHideFlags: 0

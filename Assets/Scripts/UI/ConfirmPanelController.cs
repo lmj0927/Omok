@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using TMPro;
 
-public class ConfirmPanelController : PanelController
+public class ConfirmPanelController : PopupController
 {
     [SerializeField] private TMP_Text messageText;
 

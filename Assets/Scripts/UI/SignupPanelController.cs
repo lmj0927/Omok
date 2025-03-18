@@ -7,8 +7,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 
-public class SignupPanelController : MonoBehaviour
-{
+public class SignupPanelController : PanelController
+{ 
     [SerializeField] private TMP_InputField _usernameInputField;
     [SerializeField] private TMP_InputField _nicknameInputField;
     [SerializeField] private TMP_InputField _passwordInputField;

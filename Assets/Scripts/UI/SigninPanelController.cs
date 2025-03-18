@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 
 
-public class SigninPanelController : MonoBehaviour, IGameUI
+public class SigninPanelController : PanelController
 {
     [SerializeField] private TMP_InputField _usernameInputField;
     [SerializeField] private TMP_InputField _passwordInputField;
@@ -90,12 +90,12 @@ public class SigninPanelController : MonoBehaviour, IGameUI
         UIManager.Instance.GetUI<SignupPanelController>(UI_TYPE.SignUp);
     }
 
-    public void Show()
+    public override void Show()
     {
         gameObject.SetActive(true);
     }
 
-    public void Hide()
+    public override void Hide()
     {
         _usernameInputField.text = "";
         _passwordInputField.text = "";

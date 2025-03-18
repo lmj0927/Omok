@@ -5,7 +5,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NotationUIController : MonoBehaviour, IGameUI
+public class NotationUIController : PanelController
 {
     [Header("UI Elements")]
     [SerializeField] private ReloadableScrollRect notationScrollRect;
@@ -24,25 +24,5 @@ public class NotationUIController : MonoBehaviour, IGameUI
     {
         var matchInfos = MatchInfoUtil.LoadMatchInfoList();
         notationScrollRect.Reload(matchInfos, notationCellPrefab);
-    }
-
-    public void Show()
-    {
-        var original = _notationPanel.anchoredPosition;
-        _notationPanel.anchoredPosition = new Vector2(Screen.width, original.y);
-
-        gameObject.SetActive(true);
-        _notationPanel.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
-    }
-    
-    public void Hide()
-    {
-        var original = _notationPanel.anchoredPosition;
-
-        _notationPanel.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
-        {
-            gameObject.SetActive(false);
-            _notationPanel.anchoredPosition = original;
-        });
     }
 }

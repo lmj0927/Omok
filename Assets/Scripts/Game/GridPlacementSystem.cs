@@ -166,11 +166,11 @@ public class GridPlacementSystem : MonoBehaviour
 
         if(currentTurn == CELL_TYPE.Black)
         {
-            color = new Color(0.2f, 0.2f, 0.2f, 0.1f);
+            color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
         }
         else if(currentTurn == CELL_TYPE.White)
         {
-            color = new Color(0.8f, 0.8f, 0.8f, 0.1f);
+            color = new Color(0.8f, 0.8f, 0.8f, 0.5f);
         }
         else
         {
@@ -205,6 +205,17 @@ public class GridPlacementSystem : MonoBehaviour
             GameObject stone = Instantiate(objectPrefab[cellType]);
             stone.transform.position = position;
             placedObjects.Add(gridPosition, stone);
+
+            if(cellType == CELL_TYPE.PreviewBlack || cellType == CELL_TYPE.PreviewWhite)
+            {
+                Renderer[] renderers = stone.GetComponentsInChildren<Renderer>();
+                foreach (Renderer renderer in renderers)
+                {
+                    Material previewMat = new Material(previewMaterial);
+                    previewMat.color = new Color(0.1f, 0.8f, 0.1f, 0.5f);
+                    renderer.material = previewMat;
+                }
+            }
         }
 
         UpdatePreview();

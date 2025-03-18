@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -84,7 +85,7 @@ public class BoardController : MonoBehaviour
         var col = turnData.col;
         
         //마지막에 둔 Cell위에 표시
-        MoveToLastCellFlag(row, col);
+        MoveToLastCellFlag(row, col, state);
         
         if (CheckGameResult(row, col))
         {
@@ -122,9 +123,13 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    private void MoveToLastCellFlag(int row, int col)
+    private void MoveToLastCellFlag(int row, int col, MATCH_STATE state)
     {
         if(!lastCellFlag.gameObject.activeSelf) lastCellFlag.gameObject.SetActive(true);
+        
+        var flagColor =  lastCellFlag.GetComponentInChildren<Image>();
+        flagColor.DOColor(state == MATCH_STATE.BlackTurn ? Color.white : Color.black, 0);
+
         var currentCellPosition = cells[row,col].GetComponent<RectTransform>().anchoredPosition;
         lastCellFlag.anchoredPosition = currentCellPosition;
     }

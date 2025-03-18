@@ -74,7 +74,7 @@ public class UIManager : Singleton<UIManager>
     public void HideUI<T>(UI_TYPE type) where T : Component, IGameUI
     {
         var ui = GetUI<T>(type);
-        ui.Show();
+        ui.Hide();
     }
     
     public T GetUI<T>(UI_TYPE type) where T : Component

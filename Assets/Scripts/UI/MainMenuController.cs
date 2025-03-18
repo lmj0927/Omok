@@ -27,6 +27,11 @@ public class MainMenuController : MonoBehaviour, IGameUI
         Initialize();
     }
 
+    void OnEnable()
+    {
+        GameManager.Instance.StoneSpawner.StartSpawn();
+    }
+
     void Initialize()
     {
         UpdateUserInfo();
@@ -82,6 +87,6 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     public void Hide()
     {
-        gameObject.SetActive(false);
+        gameObject.SetActive(false);        
     }
 }

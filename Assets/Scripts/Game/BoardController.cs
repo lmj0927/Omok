@@ -16,8 +16,11 @@ public class BoardController : MonoBehaviour
     public GameObject cellPrefab;
     public RectTransform cellParent;
     public RectTransform lastCellFlag;
-    public Action endCellTransforms;
-    [SerializeField] List<Cell> fiveCells = new();
+    [SerializeField] GameObject gameSystemPrefab;
+    GameObject _gameSystem;
+    GridPlacementSystem _gridPlacementSystem;
+
+    List<Cell> fiveCells = new();
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
     {
@@ -36,8 +39,29 @@ public class BoardController : MonoBehaviour
     void OnEnable()
     {
         Initialize();
+
+        if(gameSystemPrefab != null)
+        {
+            if(_gameSystem == null)
+            {
+                _gameSystem = Instantiate(gameSystemPrefab, new Vector3(0, 2f, 0), Quaternion.identity);
+            }
+            _gridPlacementSystem = _gameSystem.GetComponent<GridPlacementSystem>();
+            GameManager.Instance.cameraMover.SetTarget(_gridPlacementSystem.cameraTarget);
+            _gridPlacementSystem.OnSetCurrentCell += SetCurrentCell;
+            
+        }
     }
-    
+
+    void OnDisable()
+    {
+        if(_gameSystem != null)
+        {
+            GameManager.Instance.cameraMover.SetTarget(null);
+            _gridPlacementSystem.ClearStones();
+            Destroy(_gameSystem);
+        }
+    }
 
     public void Initialize()
     {
@@ -77,8 +101,19 @@ public class BoardController : MonoBehaviour
         var row = turnData.row;
         var col = turnData.col;
         cells[row, col].SetCellType(type);
+        
+        if(_gridPlacementSystem != null)
+        {
+            _gridPlacementSystem.PlaceStone(row, col, type);
+        }
     }
     
+    void SetCurrentCell(TurnData data)
+    {
+        Cell cell = cells[data.row, data.col];
+
+        GameManager.Instance.matchController.SetCurrentCell(cell);
+    }
     
 
     private void EndTurn(TurnData turnData, MATCH_STATE state)
@@ -145,7 +180,7 @@ public class BoardController : MonoBehaviour
         var cellType = cells[row, col].GetCellType();
         
         int count = 0; //count가 4이상이면 오목완성(SetTurn후 불리기에 현재 위치는 자기자신)
-        
+       
         foreach (var dirs in directions)
         {
             fiveCells.Add(cells[row, col]);
@@ -167,9 +202,9 @@ public class BoardController : MonoBehaviour
                 if(count >= 4)
                     return true;
             }
-            fiveCells.Clear();
             count = 0;
         }
+        
         return false;
     }
 

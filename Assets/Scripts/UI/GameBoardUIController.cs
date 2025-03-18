@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
-public class GameBoardUIController : MonoBehaviour
+public class GameBoardUIController : MonoBehaviour, IGameUI
 {
     //조작 버튼
     [Header("Interaction Buttons")]
@@ -46,8 +46,7 @@ public class GameBoardUIController : MonoBehaviour
     
     MATCH_STATE _currentState = MATCH_STATE.BlackTurn;
     public bool _isBlack = true;
-
-    [SerializeField] private RectTransform gameboardTransform;
+    
     private List<GameObject> _endMarkerObjects = new();
     
     //유저 프로필
@@ -69,29 +68,7 @@ public class GameBoardUIController : MonoBehaviour
     
     void Start()
     {
-        giveUpButton.onClick.AddListener(OnClickGiveUpButton);
-        executeButton.onClick.AddListener(OnClickExecuteButton);
         
-        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
-        GameManager.Instance.matchController.OnGameEndUI = GameEnded;
-        
-        _onRepeatEffect += OnRepeatBoardEffect;
-        _onRepeatEffect += OnRepeatCircleEffect;
-        
-        _opponentInfo = opponentinfoPanel.GetComponent<UserInfoPanel>();
-        
-        _excuteButtonImage = executeButton.GetComponent<Image>();
-        _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
-        
-        _timerSeed = timerCircleImage.GetComponentsInChildren<Image>()[1];
-        _timerHead = timerCircleImage.GetComponentsInChildren<Image>()[^1];
-        _timerHeadRect = timerCircleImage.GetComponentsInChildren<RectTransform>()[^1];
-        
-        boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
-        circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
-        
-        _blackOriginWidth = blackTurnPanel.sizeDelta.x;
-        _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
     }
 
     //임시 타이머 차감용
@@ -122,34 +99,46 @@ public class GameBoardUIController : MonoBehaviour
         }
     }
 
-    void OnEnable()
-    {
-        Initialize();
-    }
+    // void OnEnable()
+    // {
+    //     Initialize();
+    // }
 
-    private void Initialize()
+    public void Initialize()
     {
-        _isStartMatch = false;
-        
-        giveUpButton.interactable = true;
-        
-        executeButton.onClick.RemoveAllListeners();
+        giveUpButton.onClick.AddListener(OnClickGiveUpButton);
         executeButton.onClick.AddListener(OnClickExecuteButton);
-
-        if (_endMarkerObjects != null)
+        
+        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+        GameManager.Instance.matchController.OnGameEndUI = GameEnded;
+        
+        _opponentInfo = opponentinfoPanel.GetComponent<UserInfoPanel>();
+        
+        _onRepeatEffect += OnRepeatBoardEffect;
+        _onRepeatEffect += OnRepeatCircleEffect;
+        
+        _excuteButtonImage = executeButton.GetComponent<Image>();
+        _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
+        
+        _timerSeed = timerCircleImage.GetComponentsInChildren<Image>()[1];
+        _timerHead = timerCircleImage.GetComponentsInChildren<Image>()[^1];
+        _timerHeadRect = timerCircleImage.GetComponentsInChildren<RectTransform>()[^1];
+        
+        boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
+        circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
+        
+        if(_blackOriginWidth == 0)
         {
-            foreach (var obj in _endMarkerObjects)
-            {
-                obj.SetActive(false);
-            }
+            _blackOriginWidth = blackTurnPanel.sizeDelta.x;
+            _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
         }
+        
+        _isStartMatch = false;
     }
 
     public void StartMatch()
     {
         _isBlack = GameManager.Instance.matchController.IsClientBlack();
-        _opponentInfo.SetUserInfo(GameManager.Instance.matchController.GetMatchInfo().opponent);
-        
         _isStartMatch = true;
         
         SetChangedTurn();
@@ -208,30 +197,28 @@ public class GameBoardUIController : MonoBehaviour
                 i++;
             }
         }
-        
+    
         //TODO: 게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
         _isStartMatch = false;
         giveUpButton.interactable = false;
-            
+        
         descriptionPanel.DOColor(isBlackWin ? Color.black : Color.white, Duration);
         descriptionText.DOColor(isBlackWin ? Color.white : Color.black, Duration);
         descriptionText.text = isBlackWin ? "흑의 승리 입니다!" : "백의  승리입니다!";
-        
+    
         //TODO: EndMatch가 호출되면 기권 버튼을 Disable 하고 착수 버튼을 퇴장 버튼으로 바꾼다.
-        
+    
         _excuteButtonText.text = "퇴장";
         _excuteButtonText.DOColor(Color.white, Duration);
         _excuteButtonImage.DOColor(timerColors[1], Duration);
-        
+    
         executeButton.onClick.RemoveAllListeners();
         executeButton.onClick.AddListener(() => OnClickEndButton(onComplete));
         executeButton.interactable = true;
     }
-    
+
     public void SetChangedTurn()
     {
-        if (!_isStartMatch) return;
-        
         //시간 초기화
         GameManager.Instance.matchController.TurnTime = 30f;
 
@@ -251,7 +238,7 @@ public class GameBoardUIController : MonoBehaviour
     public void OnChangedTurn(MATCH_STATE currentState)
     {
         //턴 전환 애니메이션
-        switch (currentState) 
+        switch (currentState)
         {
             case MATCH_STATE.BlackTurn:
                 descriptionText.text = _isBlack ? "당신의 턴" : "상대방의 턴";
@@ -264,22 +251,26 @@ public class GameBoardUIController : MonoBehaviour
                 _excuteButtonImage.DOColor(_isBlack ? Color.black : timerColors[0], Duration);
 
                 giveUpButton.interactable = _isBlack;
-                
+
                 timerCircleImage.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerSeed.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerHead.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
-                
-                blackTurnPanel.DOSizeDelta(new Vector2(_blackOriginWidth*UpScalePanel, blackTurnPanel.sizeDelta.y), Duration)
-                    .OnUpdate(() => LayoutRebuilder.ForceRebuildLayoutImmediate(blackTurnPanel.parent as RectTransform));
-                whiteTurnPanel.DOSizeDelta(new Vector2(_whiteOriginWidth*DownScalePanel, whiteTurnPanel.sizeDelta.y), Duration)
-                    .OnUpdate(() => LayoutRebuilder.ForceRebuildLayoutImmediate(whiteTurnPanel.parent as RectTransform));;
-                
-                blackTurnRect.DOScale(new Vector3(UpScalePanel, 1f,1f), Duration);
-                whiteTurnRect.DOScale(new Vector3(DownScalePanel, 1f,1f), Duration);
-                
+
+                blackTurnPanel.DOSizeDelta(new Vector2(_blackOriginWidth * UpScalePanel, blackTurnPanel.sizeDelta.y),
+                        Duration)
+                    .OnUpdate(() =>
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(blackTurnPanel.parent as RectTransform));
+                whiteTurnPanel.DOSizeDelta(new Vector2(_whiteOriginWidth * DownScalePanel, whiteTurnPanel.sizeDelta.y),
+                        Duration)
+                    .OnUpdate(() =>
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(whiteTurnPanel.parent as RectTransform));
+
+                blackTurnRect.DOScale(new Vector3(UpScalePanel, 1f, 1f), Duration);
+                whiteTurnRect.DOScale(new Vector3(DownScalePanel, 1f, 1f), Duration);
+
                 userinfoPanel.DOScale(Vector3.one, Duration);
                 opponentinfoPanel.DOScale(_downScaleInfo, Duration);
-                
+
                 blackTurnFadeRect.DOFade(0, Duration);
                 whiteTurnFadeRect.DOFade(1, Duration);
                 break;
@@ -287,28 +278,32 @@ public class GameBoardUIController : MonoBehaviour
                 descriptionText.text = !_isBlack ? "당신의 턴" : "상대방의 턴";
                 descriptionText.DOColor(Color.white, Duration);
                 descriptionPanel.DOColor(Color.black, Duration);
-                
+
                 executeButton.interactable = !_isBlack ? true : false;
                 _excuteButtonText.text = !_isBlack ? "착수" : "대기중";
                 _excuteButtonText.DOColor(!_isBlack ? Color.black : Color.black, Duration);
                 _excuteButtonImage.DOColor(!_isBlack ? Color.white : timerColors[0], Duration);
-                
+
                 giveUpButton.interactable = !_isBlack;
-                
+
                 timerCircleImage.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerSeed.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerHead.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
-                
-                blackTurnPanel.DOSizeDelta(new Vector2(_blackOriginWidth*DownScalePanel, blackTurnPanel.sizeDelta.y), Duration)
-                    .OnUpdate(() => LayoutRebuilder.ForceRebuildLayoutImmediate(blackTurnPanel.parent as RectTransform));
-                whiteTurnPanel.DOSizeDelta(new Vector2(_whiteOriginWidth*UpScalePanel, whiteTurnPanel.sizeDelta.y), Duration)
-                    .OnUpdate(() => LayoutRebuilder.ForceRebuildLayoutImmediate(whiteTurnPanel.parent as RectTransform));;
-                
+
+                blackTurnPanel.DOSizeDelta(new Vector2(_blackOriginWidth * DownScalePanel, blackTurnPanel.sizeDelta.y),
+                        Duration)
+                    .OnUpdate(() =>
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(blackTurnPanel.parent as RectTransform));
+                whiteTurnPanel.DOSizeDelta(new Vector2(_whiteOriginWidth * UpScalePanel, whiteTurnPanel.sizeDelta.y),
+                        Duration)
+                    .OnUpdate(() =>
+                        LayoutRebuilder.ForceRebuildLayoutImmediate(whiteTurnPanel.parent as RectTransform));
+
                 blackTurnRect.DOScale(new Vector3(DownScalePanel, 1f), Duration);
                 whiteTurnRect.DOScale(new Vector3(UpScalePanel, 1f), Duration);
                 userinfoPanel.DOScale(_downScaleInfo, Duration);
                 opponentinfoPanel.DOScale(Vector3.one, Duration);
-                
+
                 blackTurnFadeRect.DOFade(1, Duration);
                 whiteTurnFadeRect.DOFade(0, Duration);
                 break;

@@ -1,14 +1,18 @@
 using UnityEngine;
 using System.Collections.Generic;
+using static Constants;
+using AYellowpaper.SerializedCollections;
+using System;
 
 public class GridPlacementSystem : MonoBehaviour
 {
-    [SerializeField] GameObject[] objectPrefab;
+    [SerializeField] SerializedDictionary<CELL_TYPE, GameObject> objectPrefab;
     [SerializeField] float gridSize = 0.2f;
     [SerializeField] Material defaultMaterial;
     [SerializeField] Material previewMaterial;
     [SerializeField] Transform gridParent;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] public Transform cameraTarget;
     
     Dictionary<Vector3Int, GameObject> placedObjects = new Dictionary<Vector3Int, GameObject>();
     Camera mainCamera;
@@ -21,17 +25,26 @@ public class GridPlacementSystem : MonoBehaviour
     
     int selectedPrefabType = 0;
     
+    CELL_TYPE currentTurn = CELL_TYPE.None;
+
+    public Action<TurnData> OnSetCurrentCell;
+    
     void Start()
     {
         mainCamera = Camera.main;
-        CreatePreviewObject();
+        //CreatePreviewObject();
     }
     
     void CreatePreviewObject()
     {
-        if (objectPrefab.Length == 0)
+        if (objectPrefab.Keys.Count == 0)
         {
             Debug.LogError("프리팹이 없습니다.");
+            return;
+        }
+
+        if(!GameManager.Instance.matchController.IsMyTurn())
+        {
             return;
         }
 
@@ -39,8 +52,8 @@ public class GridPlacementSystem : MonoBehaviour
         {
             Destroy(previewObject);
         }
-
-        previewObject = Instantiate(objectPrefab[selectedPrefabType]);
+        
+        previewObject = Instantiate(objectPrefab[currentTurn]);
         
 
         Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
@@ -63,43 +76,48 @@ public class GridPlacementSystem : MonoBehaviour
     
     void Update()
     {
+        if(!GameManager.Instance.matchController.IsMyTurn())
+        {
+            return;
+        }
+
+        if(GameManager.Instance.matchController.GetMatchState() == MATCH_STATE.BlackTurn)
+        {
+            currentTurn = CELL_TYPE.Black;
+        }
+        else if(GameManager.Instance.matchController.GetMatchState() == MATCH_STATE.WhiteTurn)
+        {
+            currentTurn = CELL_TYPE.White;
+        }
+        else
+        {
+            currentTurn = CELL_TYPE.None;
+        }
+
+        
         UpdatePreview();
         
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            isReplacing = !isReplacing;
-
-            if (previewObject.activeSelf)
-            {
-                UpdatePreviewState();
-            }
-        }
         
         if (Input.GetMouseButtonDown(0))
         {
             PlaceStone();
         }
-
-        if(Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            selectedPrefabType = Mathf.Clamp(selectedPrefabType - 1, 0, objectPrefab.Length - 1);
-            CreatePreviewObject();
-        }
-
-        if(Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            selectedPrefabType = Mathf.Clamp(selectedPrefabType + 1, 0, objectPrefab.Length - 1);
-            CreatePreviewObject();
-        }
     }
     
     void UpdatePreview()
     {
+        if(previewObject == null)
+        {
+            CreatePreviewObject();
+            if(previewObject == null)
+            {
+                return;
+            }
+        }
+
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        
-        int layerMask = ~(1 << previewObject.layer);
-        
+                
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
         {
             Vector3 worldPosition = hit.point;
@@ -144,20 +162,21 @@ public class GridPlacementSystem : MonoBehaviour
     {
         Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
         Color color;
-        
-        if (canPlace)
+ 
+
+        if(currentTurn == CELL_TYPE.Black)
         {
-            color = new Color(0.2f, 0.8f, 0.2f, 0.5f);
+            color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
+        }
+        else if(currentTurn == CELL_TYPE.White)
+        {
+            color = new Color(0.8f, 0.8f, 0.8f, 0.5f);
         }
         else
         {
-            color = new Color(0.8f, 0.2f, 0.2f, 0.5f);
+            color = new Color(0.5f, 0.5f, 0.5f, 0f);
         }
 
-        if (isReplacing && canPlace)
-        {
-            color = new Color(0.2f, 0.7f, 0.7f, 0.5f);
-        }
         
         foreach (Renderer renderer in renderers)
         {
@@ -165,6 +184,43 @@ public class GridPlacementSystem : MonoBehaviour
         }
     }
     
+    public void SetCurrentCell(int row, int col){
+        OnSetCurrentCell?.Invoke(new TurnData(){row = row, col = col});
+    }
+
+    public void PlaceStone(int row, int col, CELL_TYPE cellType)
+    {
+        Vector3Int gridPosition = new Vector3Int(row, 0, col);
+        Vector3 position = GridToWorld(gridPosition);        
+
+
+        if (placedObjects.TryGetValue(gridPosition, out GameObject existingStone))
+        {
+            Destroy(existingStone);
+            placedObjects.Remove(gridPosition);
+        }
+
+        if(cellType != CELL_TYPE.None)
+        {
+            GameObject stone = Instantiate(objectPrefab[cellType]);
+            stone.transform.position = position;
+            placedObjects.Add(gridPosition, stone);
+
+            if(cellType == CELL_TYPE.PreviewBlack || cellType == CELL_TYPE.PreviewWhite)
+            {
+                Renderer[] renderers = stone.GetComponentsInChildren<Renderer>();
+                foreach (Renderer renderer in renderers)
+                {
+                    Material previewMat = new Material(previewMaterial);
+                    previewMat.color = new Color(0.1f, 0.8f, 0.1f, 0.5f);
+                    renderer.material = previewMat;
+                }
+            }
+        }
+
+        UpdatePreview();
+    }
+
     void PlaceStone()
     {
         if (!previewObject.activeSelf || !canPlace)
@@ -183,12 +239,33 @@ public class GridPlacementSystem : MonoBehaviour
             return;
         }
         
-        Vector3 position = GridToWorld(currentGridPosition);
-        GameObject stone = Instantiate(objectPrefab[selectedPrefabType]);
-        stone.transform.position = position;        
-     
+        SetCurrentCell(currentGridPosition.x, currentGridPosition.z);
+
         
-        placedObjects.Add(currentGridPosition, stone);
+        UpdatePreview();
+    }
+
+    public void RemoveStone(int row, int col)
+    {
+        Vector3Int gridPosition = new Vector3Int(row, 0, col);
+        
+        if (placedObjects.TryGetValue(gridPosition, out GameObject stone))
+        {
+            Destroy(stone);
+            placedObjects.Remove(gridPosition);
+            
+            UpdatePreview();
+        }
+    }
+
+    public void ClearStones()
+    {
+        foreach (var stone in placedObjects.Values)
+        {
+            Destroy(stone);
+        }
+        
+        placedObjects.Clear();
         
         UpdatePreview();
     }

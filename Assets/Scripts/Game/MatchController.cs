@@ -41,9 +41,8 @@ public class MatchController : IDisposable
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public Action OnTurnEndUI;
-    public Action<bool, Action> OnGameEndUI;
-    public List<Cell> FiveCells = new();
-    
+
+
     public void SetCurrentCell(Cell cell)
     {
         if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
@@ -77,7 +76,7 @@ public class MatchController : IDisposable
         switch(_matchPlayType){
             case PLAY_TYPE.Multi:
                 //Show MatchMaking Loading UI
-                UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Show();
+                UIManager.Instance.ShowUI<MatchMakingController>(UI_TYPE.MatchMaking);
                 //Multiplay Initialize
                 InitializeMultiController();
                 //waiting thread
@@ -85,7 +84,7 @@ public class MatchController : IDisposable
                 break;
             case PLAY_TYPE.AI:
                 //Show GameBoard UI
-                UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
+                //UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
                 //AI Initialize
                 InitializeAIController();
                 break;
@@ -109,12 +108,37 @@ public class MatchController : IDisposable
         _matchMakingCts?.Cancel();
         _isMatched = true;
         _isCancelMatch = false;
-        _matchState = MATCH_STATE.BlackTurn;
 
-        UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
+        UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
+        UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
+
+
+        _matchState = MATCH_STATE.BlackTurn;
+        var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
+        gameBoardUIController.Initialize();
+        gameBoardUIController.Show();
+        gameBoardUIController.StartMatch();
+    }
+
+    //StartMatch Delay
+    async UniTask StartMatchDelayed(){
+        _matchMakingCts?.Cancel();
+        _isMatched = true;
+        _isCancelMatch = false;
+
+        UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
+        UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
 
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
+        gameBoardUIController.Initialize();
         gameBoardUIController.Show();
+        
+        await UniTask.Delay(200);
+        GameManager.Instance.cameraMover.SetCamera(new Vector3(65, 0, 0), 8);
+        await UniTask.Delay(500);
+        
+        _matchState = MATCH_STATE.BlackTurn;
+        
         gameBoardUIController.StartMatch();
     }
 
@@ -173,8 +197,8 @@ public class MatchController : IDisposable
             {
                 _matchInfo.opponent = userInfo;
                 Debug.Log("AI 정보를 불러오는데 성공했습니다.");
-                
-                StartMatch();
+
+                _ = StartMatchDelayed();
                 
             },
             () =>
@@ -192,7 +216,7 @@ public class MatchController : IDisposable
                     profileIndex = 0,
                 };
 
-                StartMatch();
+                _ = StartMatchDelayed();
             }
         );
     }
@@ -236,7 +260,7 @@ public class MatchController : IDisposable
                         {
                             Debug.LogError("데이터가 UserInfo 형식이 아닙니다.");
                         }
-                        StartMatch();
+                        _ = StartMatchDelayed();
                         Debug.Log("## Start Game: " + _matchInfo.opponent.userId);
                     }
                     catch(Exception err)
@@ -339,11 +363,6 @@ public class MatchController : IDisposable
         return _matchState;
     }
 
-    public MatchInfo GetMatchInfo()
-    {
-        return _matchInfo;
-    }
-
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
     }
@@ -378,22 +397,14 @@ public class MatchController : IDisposable
         
         if(isBlackWin == IsClientBlack())
         {
-            OnGameEndUI?.Invoke(isBlackWin, () =>
-            {
-                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
-            });
-            
+            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
             myPlayerDataController.Win();
             opponentPlayerDataController.Lose();
             _matchInfo.isWin = true;
         }
         else
         {
-            OnGameEndUI?.Invoke(isBlackWin, () =>
-            {
-                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
-            });
-            
+            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
             if(_matchPlayType == PLAY_TYPE.AI)
             {
                 myPlayerDataController.Lose();
@@ -401,10 +412,11 @@ public class MatchController : IDisposable
                 _matchInfo.isWin = false;
             }
         }
-        FiveCells.Clear();
-        
+
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         
+        UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
         Dispose();
     }
 }

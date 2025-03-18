@@ -75,6 +75,11 @@ public class Cell : MonoBehaviour
         }
     }
 
+    public void SetCellTypeTemporary(CELL_TYPE cellType)
+    {
+        _cellType = cellType;
+    }
+
     public CELL_TYPE GetCellType()
     {
         return _cellType;

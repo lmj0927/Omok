@@ -164,63 +164,221 @@ public class BoardController : MonoBehaviour
     #endregion
 
     #region RenjunRule
-
+    //
+    // private List<(int, int)> GetForbiddenPoints()
+    // {
+    //     List<(int, int)> forbidden = new List<(int, int)>();
+    //
+    //     return forbidden;
+    // }
+    //
+    // private int GetStoneCount()
+    // {
+    //     
+    //     return 0;
+    // }
+    //
+    // private bool FindEmpty(int row, int col, CELL_TYPE cellType, (int , int) direction)
+    // {
+    //     int newRow = row + direction.Item1;
+    //     int newCol = col + direction.Item2;
+    //     while (true)
+    //     {
+    //         if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == cellType)
+    //         {
+    //             break;
+    //         }
+    //     }
+    //     if (cells[newRow, newCol].GetCellType() == CELL_TYPE.None)
+    //     {
+    //         return true;
+    //     }
+    //     return false;
+    // }
+    //
+    // private bool CheckOpenThree()
+    // {
+    //     return false;
+    // }
+    //
+    // private bool CheckOpenFour()
+    // {
+    //     return false;
+    // }
+    //
+    // private bool CheckFive()
+    // {
+    //     return false;    
+    // }
+    //
+    // private bool CheckDoubleThree()
+    // {
+    //     return false;
+    // }
+    //
+    // private bool CheckDoubleFour()
+    // {
+    //     return false;
+    // }
+    
+    
     private List<(int, int)> GetForbiddenPoints()
     {
         List<(int, int)> forbiddenPoints = new List<(int, int)>();
-    
+        
+        
         for (int row = 0; row < width; row++)
         {
             for (int col = 0; col < height; col++)
             {
                 if (cells[row, col].GetCellType() != CELL_TYPE.None)
                     continue;
-
-                int threeCount = 0;
-                int fourCount = 0;
-                bool isOverline = false;
-            
-                foreach (var dirs in directions)
+    
+                if (CheckDoubleThrees(row, col))
                 {
-                    
-                    bool isOpen = true;
-                    int lineCount = 1;
-                    foreach (var dir in dirs)
-                    {
-                        for (int i = 1; i < 5; i++)
-                        {
-                            int newRow = row + dir.Item1 * i;
-                            int newCol = col + dir.Item2 * i;
-                            
-                            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White)
-                            {
-                                if (i < 4)
-                                {
-                                    isOpen = false;
-                                }
-                                break;
-                            }
-                            if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
-                            {
-                                lineCount++;
-                            }
-                        }
-                    }
-                    if (lineCount == 3 && isOpen)
-                        threeCount++;
-                    if (lineCount == 4)
-                        fourCount++;
-                    if (lineCount > 5)
-                        isOverline = true;
+                    forbiddenPoints.Add((row, col));
                 }
-            
-                if (threeCount >= 2 || fourCount >= 2 || isOverline)
+    
+                if (CheckDoubleFours(row, col))
+                {
+                    forbiddenPoints.Add((row, col));
+                }
+    
+                if (CheckLong(row, col))
                 {
                     forbiddenPoints.Add((row, col));
                 }
             }
         }
         return forbiddenPoints;
+    }
+    
+    private bool CheckDoubleThrees(int row, int col)
+    {
+        int threeCount = 0;
+        foreach (var dirs in directions)
+        {
+            int noneCount = 0;
+            int lineCount = 1;
+            bool isFirstNone = false;
+            bool isOpen = true;
+            foreach (var dir in dirs)
+            {
+                bool isBlacked = true;
+                for (int i = 1; i < 5; i++)
+                {
+                    int newRow = row + dir.Item1 * i;
+                    int newCol = col + dir.Item2 * i;
+    
+                    if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White || cells[newRow, newCol].GetCellType() == CELL_TYPE.Warning)
+                    {
+                        if(isBlacked)
+                            isOpen = false;
+                        break;
+                    }
+    
+                    if (cells[newRow, newCol].GetCellType() == CELL_TYPE.None )
+                    {
+                        isBlacked = false;
+                        
+                        if(i == 1 && isFirstNone == false)
+                            isFirstNone = true;
+                        if(i == 1 && isFirstNone)
+                            break;
+                        
+                        noneCount++;
+                        if (noneCount == 2)
+                        {
+                            noneCount = 0;
+                            break;
+                        }
+                    }
+                    
+                    if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
+                    {
+                        lineCount++;
+                        isBlacked = true;
+                    }
+                }
+    
+                if (lineCount == 3 && isOpen) // 이때 거짓 금수 판별
+                {
+                    threeCount++;
+                    lineCount = 1;
+                } 
+            }
+        }
+        if (threeCount >= 2 )
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    private bool CheckDoubleFours(int row, int col)
+    {
+        int fourCount = 0;
+        foreach (var dirs in directions)
+        {
+            int lineCount = 1;
+            int isOpen = 0;
+            foreach (var dir in dirs)
+            {
+                bool isBlacked = true;
+                for (int i = 1; i < 5; i++)
+                {
+                    int newRow = row + dir.Item1 * i;
+                    int newCol = col + dir.Item2 * i;
+    
+                    if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White)
+                    {
+                        if(isBlacked)
+                            isOpen++;
+                        break;
+                    }
+    
+                    isBlacked = false;
+                    
+                    if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
+                    {
+                        isBlacked = true;
+                        lineCount++;
+                    }
+                }
+            }
+            if (lineCount == 4 && isOpen < 2)
+                fourCount++;
+        }
+        if (fourCount >= 2 )
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    private bool CheckLong(int row, int col)
+    {
+        foreach (var dirs in directions)
+        {
+            int lineCount = 1;
+            foreach (var dir in dirs)
+            {
+                for (int i = 1; i < 5; i++)
+                {
+                    int newRow = row + dir.Item1 * i;
+                    int newCol = col + dir.Item2 * i;
+                    if(IsValidPosition(newRow, newCol) && cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
+                        lineCount++;
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            if(lineCount >= 6)
+                return true;
+        }
+        return false;
     }
 
     private bool IsValidPosition(int row, int col)
@@ -283,8 +441,6 @@ public class BoardController : MonoBehaviour
         // }
 
         forbiddenPoints = GetForbiddenPoints();
-
-        
 
         foreach (var point in forbiddenPoints)
         {

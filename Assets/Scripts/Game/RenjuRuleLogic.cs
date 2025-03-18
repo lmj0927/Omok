@@ -23,7 +23,7 @@ public static class RenjuRuleLogic
     };
 
     public static Dictionary<string, List<TurnData>> testPatterns = new Dictionary<string, List<TurnData>>();
-
+    public static Dictionary<string, List<TurnData>> testWhitePatterns = new Dictionary<string, List<TurnData>>();
     
     public static void SetBoard(Cell[,] board){
         RenjuRuleLogic.board = new StoneState[BOARD_SIZE, BOARD_SIZE];
@@ -44,32 +44,58 @@ public static class RenjuRuleLogic
     }
 
    // 테스트용 렌주룰 위반 패턴 초기화
-    public static void InitializeTestPatterns()
-    {
-        testPatterns.Clear();
-        // 1. 삼삼(쌍삼) 패턴들
+   public static void InitializeTestPatterns()
+   {
+       testPatterns.Clear();
+       testWhitePatterns.Clear();
+       // 1. 삼삼(쌍삼) 패턴들
 
-        //테스트 삼삼
+       List<TurnData> noneWhite = new List<TurnData>()
+       {
+
+       };
+
+   //테스트 삼삼
         List<TurnData> doubleTreePattern_overlinePattern = new List<TurnData>
         {
             //new TurnData{row = 7, col = 7},  // 중앙
-            new TurnData{row = 7, col = 8},  // 가로 방향
-            new TurnData{row = 7, col = 9},
-            new TurnData{row = 7, col = 12},
+            new TurnData{row = 7, col = 8},  
+            new TurnData{row = 7, col = 6},
+            //new TurnData{row = 7, col = 12},
             new TurnData{row = 8, col = 7},  // 세로 방향
             new TurnData{row = 9, col = 7},
             // 착점 위치: (7, 6) - 이 위치에 두면 삼삼과 장목이 동시에 발생
         };
 
+        List<TurnData> doubleTreePattern_overlinePattern_White = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 5 },
+        };
+        
+        List<TurnData> doubleTreePattern_overlinePattern1 = new List<TurnData>
+        {
+            //new TurnData{row = 7, col = 7},  // 중앙
+            new TurnData{row = 7, col = 8},  
+            new TurnData{row = 7, col = 6},
+            //new TurnData{row = 7, col = 12},
+            new TurnData{row = 8, col = 7},  // 세로 방향
+            new TurnData{row = 9, col = 7},
+            // 착점 위치: (7, 6) - 이 위치에 두면 삼삼과 장목이 동시에 발생
+        };
+
+        List<TurnData> doubleTreePattern_overlinePattern_White1 = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 4 },
+        };
         
         // 삼삼 패턴 1: 가로-세로 방향 삼삼
         List<TurnData> doubleThreePattern1 = new List<TurnData>
         {
             //new TurnData{row = 7, col = 7},  // 중앙
-            new TurnData{row = 7, col = 8},  // 가로 방향
-            new TurnData{row = 7, col = 9},
-            new TurnData{row = 8, col = 7},  // 세로 방향
-            new TurnData{row = 9, col = 7},
+            new TurnData{row = 7, col = 10},  // 가로 방향
+            new TurnData{row = 7, col = 11},
+            new TurnData{row = 10, col = 7},  // 세로 방향
+            new TurnData{row = 11, col = 7},
             // 착점 위치: (7, 6) - 이 위치에 두면 삼삼 발생
         };
         
@@ -120,10 +146,15 @@ public static class RenjuRuleLogic
             // 착점 위치: (6, 7) - 이 위치에 두면 사사 발생
         };
         
+        List<TurnData> doubleFourPattern_White = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 5 },
+            new TurnData { row = 7, col = 11 },
+        };
+        
         // 사사 패턴 2: 대각선 방향 사사
         List<TurnData> doubleFourPattern2 = new List<TurnData>
         {
-            new TurnData{row = 7, col = 7},  // 중앙
             new TurnData{row = 8, col = 8},  // 대각선 ↗
             new TurnData{row = 9, col = 9},
             new TurnData{row = 10, col = 10},
@@ -154,7 +185,7 @@ public static class RenjuRuleLogic
             new TurnData{row = 7, col = 2},
             new TurnData{row = 7, col = 3},
             new TurnData{row = 7, col = 4},
-            new TurnData{row = 7, col = 5},
+            new TurnData{row = 7, col = 1},
             new TurnData{row = 7, col = 7},
             // 착점 위치: (7, 6) - 이 위치에 두면 장목 발생
         };
@@ -186,7 +217,7 @@ public static class RenjuRuleLogic
         // 복합 패턴 1: 삼삼+장목
         List<TurnData> complexPattern1 = new List<TurnData>
         {
-            new TurnData{row = 7, col = 7},  // 중앙
+            new TurnData{row = 7, col = 6},  // 중앙
             new TurnData{row = 7, col = 8},  // 가로 방향
             new TurnData{row = 7, col = 9},
             new TurnData{row = 7, col = 10},
@@ -209,25 +240,91 @@ public static class RenjuRuleLogic
             new TurnData{row = 9, col = 9},
             // 착점 위치: (6, 6) - 이 위치에 두면 사사와 삼삼이 동시에 발생
         };
+        
+        // 좌우 삼삼
+        List<TurnData> DoubleThreePattern5 = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 8 },
+            new TurnData { row = 7, col = 10 },
+            new TurnData { row = 7, col = 6 },
+            new TurnData { row = 7, col = 4 },
+
+        };
+        
+        List<TurnData> DoubleFourPattern5 = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 8 },
+            new TurnData { row = 7, col = 10 },
+            new TurnData { row = 7, col = 11 },
+            new TurnData { row = 7, col = 5 },
+            new TurnData { row = 7, col = 4 },
+
+        };
+        
+        List<TurnData> DoubleFourPattern6 = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 8 },
+            new TurnData { row = 7, col = 9 },
+            new TurnData { row = 7, col = 11 },
+            new TurnData { row = 7, col = 5 },
+        };
+        
+        
 
         // 테스트 패턴 추가
         testPatterns.Add("DoubleTreePattern_overlinePattern", doubleTreePattern_overlinePattern);
+        testWhitePatterns.Add("DoubleTreePattern_overlinePattern_White", doubleTreePattern_overlinePattern_White);
+        
+        testPatterns.Add("DoubleTreePattern_overlinePattern1", doubleTreePattern_overlinePattern1);
+        testWhitePatterns.Add("DoubleTreePattern_overlinePattern_White1", doubleTreePattern_overlinePattern_White1);
+        
         testPatterns.Add("DoubleThreePattern1", doubleThreePattern1);
+        testWhitePatterns.Add("None1", noneWhite);
+        
         testPatterns.Add("DoubleThreePattern2", doubleThreePattern2);
+        testWhitePatterns.Add("None2", noneWhite);
+        
         testPatterns.Add("DoubleThreePattern3", doubleThreePattern3);
+        testWhitePatterns.Add("None3", noneWhite);
+        
         testPatterns.Add("DoubleThreePattern4", doubleThreePattern4);
-
+        testWhitePatterns.Add("None4", noneWhite);
+        
         testPatterns.Add("DoubleFourPattern1", doubleFourPattern1);
+        testWhitePatterns.Add("doubleFourPattern_White", doubleFourPattern_White);
+        
         testPatterns.Add("DoubleFourPattern2", doubleFourPattern2);
+        testWhitePatterns.Add("None6", noneWhite);
+        
         testPatterns.Add("DoubleFourPattern3", doubleFourPattern3);
-
+        testWhitePatterns.Add("None7", noneWhite);
+        
         testPatterns.Add("OverlinePattern1", overlinePattern1);
+        testWhitePatterns.Add("None8", noneWhite);
+        
         testPatterns.Add("OverlinePattern2", overlinePattern2);
+        testWhitePatterns.Add("None9", noneWhite);
+        
         testPatterns.Add("OverlinePattern3", overlinePattern3);
-
+        testWhitePatterns.Add("None10", noneWhite);
+        
         testPatterns.Add("ComplexPattern1", complexPattern1);
+        testWhitePatterns.Add("None11", noneWhite);
+        
+        
         testPatterns.Add("ComplexPattern2", complexPattern2);
-    }
+        testWhitePatterns.Add("None12", noneWhite);
+        
+        testPatterns.Add("DoubleThreePattern5", DoubleThreePattern5);
+        testWhitePatterns.Add("None13", noneWhite);
+        
+        testPatterns.Add("DoubleFourPattern5", DoubleFourPattern5);
+        testWhitePatterns.Add("None14", noneWhite);
+        
+        testPatterns.Add("DoubleFourPattern6", DoubleFourPattern6);
+        testWhitePatterns.Add("None15", noneWhite);
+        
+   }
 
     public static bool IsRenjuRuleViolation(int x, int y)
     {

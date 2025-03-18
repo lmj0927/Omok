@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
+using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
 public static class RenjuRuleLogic
@@ -119,6 +121,22 @@ public static class RenjuRuleLogic
             new TurnData{row = 8, col = 8},  // 대각선 방향
             new TurnData{row = 9, col = 9},
             // 착점 위치: (6, 6) - 이 위치에 두면 삼삼 발생
+        };
+
+        //가짜 삼삼
+        List<TurnData> doubleThreeFake = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 7},
+            new TurnData { row = 7, col = 8},
+            new TurnData { row = 8, col = 9},
+            new TurnData { row = 9, col = 9},
+            new TurnData { row = 7, col = 4},
+
+        };
+
+        List<TurnData> doubleThreeFake_White = new List<TurnData>
+        {
+            new TurnData { row = 7, col = 11 },
         };
 
         // 삼삼 패턴 4: 한칸 떨어진 삼삼
@@ -277,6 +295,9 @@ public static class RenjuRuleLogic
         
         testPatterns.Add("DoubleTreePattern_overlinePattern1", doubleTreePattern_overlinePattern1);
         testWhitePatterns.Add("DoubleTreePattern_overlinePattern_White1", doubleTreePattern_overlinePattern_White1);
+
+        testPatterns.Add("DoubleThreeFake", doubleThreeFake);
+        testWhitePatterns.Add("DoubleThreeFake_White", doubleThreeFake_White);
         
         testPatterns.Add("DoubleThreePattern1", doubleThreePattern1);
         testWhitePatterns.Add("None1", noneWhite);
@@ -328,15 +349,11 @@ public static class RenjuRuleLogic
 
     public static bool IsRenjuRuleViolation(int x, int y)
     {
-        // 삼삼 체크
-        if (CountDoubleThrees(x, y) >= 2)
-        {
-            return true;
-        }
+        //CountThreeFour
+        (int threeCount, int fourCount) = CountThreeFour(x, y);
         
-        // 사사 체크
-        if (CountOpenFours(x, y) >= 2)
-        {
+        if(threeCount >= 2 || fourCount >= 2){
+            Debug.Log("TreeCount: " + threeCount + " FourCount: " + fourCount);
             return true;
         }
         
@@ -354,47 +371,68 @@ public static class RenjuRuleLogic
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
     }
 
-    // 삼삼(쌍삼) 개수 세기
-    static int CountDoubleThrees(int x, int y)
+
+    static (int, int) CountThreeFour(int x, int y)
     {
-        int count = 0;
+        int threeCount = 0;
+        int fourCount = 0;
         
-        // 임시로 돌 놓기
         board[x, y] = StoneState.Black;
         
-        // 각 방향에 대해 세 개 연속 돌(삼) 체크
         foreach (var (dx, dy) in directions)
         {
-            if (IsOpenThree(x, y, dx, dy))
-            {
-                count++;
-            }
+            (int three, int four)= CheckThreeFour(x, y, dx, dy);
 
-            if(IsOpenThree(x, y, -dx, -dy)){
-                count++;
-            }
+            threeCount += three;
+            fourCount += four;
         }
         
-        // 임시 돌 제거
         board[x, y] = StoneState.Empty;
         
-        // 같은 방향의 양쪽을 중복 계산했으므로 2로 나눔
-        return count /2;
+        return (threeCount, fourCount);
+    }
+
+    //Debug Print Board
+    static void PrintBoard(){
+        string line = "";
+        for (int i = 0; i < BOARD_SIZE; i++)
+        {
+            for (int j = 0; j < BOARD_SIZE; j++)
+            {
+                line += GetDebugStr(board[i, j]);
+            }
+            line += "\n";
+        }
+
+        Debug.Log(line);
+    }
+
+    static string GetDebugStr(StoneState state){
+        if(state == StoneState.Black){
+            return "O";
+        }else if(state == StoneState.White){
+            return "X";
+        }else{
+            return "Z";
+        }
     }
  
-    // 열린 삼(한쪽이 뚫린 세 개 연속 돌) 체크
-    static bool IsOpenThree(int x, int y, int dx, int dy)
+    
+    static (int, int) CheckThreeFour(int x, int y, int dx, int dy)
     {
-        // 구현: 열린 삼인지 체크하는 로직
-        // 완전한 구현을 위해서는 다양한 패턴 체크 필요
-        
-        // 간단한 구현 예시
-        int count = 1; // 현재 위치 포함
+        int count = 1;
         int emptyBefore = 0;
         int emptyAfter = 0;
+
+        bool prevIsEmpty = false;
+
+        List<(int, int)> black_list = new List<(int, int)>();
+        List<(int, int)> empty_list = new List<(int, int)>();
+
+        black_list.Add((x, y));
         
-        // 해당 방향으로 연속된 같은 돌 세기
-        for (int i = 1; i <= 3; i++)
+        int i = 1;
+        while(true)
         {
             int nx = x + dx * i;
             int ny = y + dy * i;
@@ -404,21 +442,35 @@ public static class RenjuRuleLogic
                 if (board[nx, ny] == StoneState.Black)
                 {
                     count++;
+                    prevIsEmpty = false;
+                    black_list.Add((nx, ny));
                 }
                 else if (board[nx, ny] == StoneState.Empty)
                 {
                     emptyAfter++;
-                    break;
+                    
+                    if(prevIsEmpty){
+                        break;
+                    }
+                    empty_list.Add((nx, ny));
+                    prevIsEmpty = true;
                 }
                 else
                 {
                     break;
                 }
             }
+            else{
+                break;
+            }
+
+            i++;
         }
         
-        // 반대 방향으로 연속된 같은 돌 세기
-        for (int i = 1; i <= 3; i++)
+        prevIsEmpty = false;
+
+        i = 1;
+        while(true)
         {
             int nx = x - dx * i;
             int ny = y - dy * i;
@@ -428,56 +480,104 @@ public static class RenjuRuleLogic
                 if (board[nx, ny] == StoneState.Black)
                 {
                     count++;
+                    prevIsEmpty = false;
+                    black_list.Add((nx, ny));
                 }
                 else if (board[nx, ny] == StoneState.Empty)
                 {
                     emptyBefore++;
-                    break;
+                    
+                    if(prevIsEmpty){
+                        break;
+                    }
+                    empty_list.Add((nx, ny));
+                    prevIsEmpty = true;
                 }
                 else
                 {
                     break;
                 }
             }
+            else
+            {
+                break;
+            }
+
+            i++;
         }
+      
         
-        // 열린 삼: 정확히 3개의 돌이 있고, 양쪽이 모두 비어있어야 함
-        return count == 3 && emptyBefore > 0 && emptyAfter > 0;
+        int threeCount = 0;
+        if(count == 3 && emptyBefore > 0 && emptyAfter > 0)
+        {
+            //PrintBoard();
+            foreach(var (nx, ny) in empty_list){
+                if(IsOpenFourChecker(nx, ny, dx, dy)){
+                    threeCount++;
+                    break;
+                }
+            }
+        }
+
+        int fourCount = 0;
+        List<List<(int, int)>> five_list = new List<List<(int, int)>>();
+
+        if(count >= 4 && (emptyBefore > 0 || emptyAfter > 0))
+        {
+            foreach(var (nx, ny) in empty_list){
+                //PrintBoard();
+                List<(int, int)> five = IsFiveChecker(nx, ny, dx, dy);
+                
+                bool isExist = false;
+                foreach(var item in five_list){
+                    if(item.SequenceEqual(five.OrderBy(t => t.Item1).ThenBy(t => t.Item2))){
+                        Debug.Log("Exist");
+                        isExist = true;
+                        break;
+                    }
+                }
+
+                if(five.Count == 4 && !isExist){
+                    five_list.Add(five.OrderBy(t => t.Item1).ThenBy(t => t.Item2).ToList());
+                }
+            }
+        }
+
+        fourCount = five_list.Count;
+
+        return (threeCount, fourCount);
     }
-    
-    // 사사(쌍사) 개수 세기
-    static int CountOpenFours(int x, int y)
-    {
-        int count = 0;
+
+    static bool IsOpenFourChecker(int x, int y, int dx, int dy){
+        bool ret = false;
         
         // 임시로 돌 놓기
         board[x, y] = StoneState.Black;
-        
-        // 각 방향에 대해 4개 연속 돌(사) 체크
-        foreach (var (dx, dy) in directions)
-        {
-            if (IsOpenFour(x, y, dx, dy))
-            {
-                count++;
-            }
+
+        if(IsOpenFour(x, y, dx, dy)){
+            ret = true;
         }
-        
-        // 임시 돌 제거
+
         board[x, y] = StoneState.Empty;
-        
-        return count;
+
+        return ret;
     }
 
+    static List<(int, int)> IsFiveChecker(int x, int y, int dx, int dy){
+        board[x, y] = StoneState.Black;
+        List<(int, int)> black_list = CheckFive(x, y, dx, dy);
+        board[x, y] = StoneState.Empty;
+
+        return black_list;
+    }    
     
-    // 열린 사(한쪽이 뚫린 네 개 연속 돌) 체크
+
     static bool IsOpenFour(int x, int y, int dx, int dy)
     {
-        // 임시 구현: 열린 4인지 체크하는 로직
-        
-        int count = 1; // 현재 위치 포함
+        int count = 1;
         bool isOpen = false;
+        bool prevIsEmpty = false;
         
-        // 정방향으로 연속된 같은 돌 세기
         for (int i = 1; i <= 4; i++)
         {
             int nx = x + dx * i;
@@ -487,21 +587,38 @@ public static class RenjuRuleLogic
             {
                 if (board[nx, ny] == StoneState.Black)
                 {
+                    if(prevIsEmpty){
+                        isOpen = false; //장목
+                        break;
+                    }
                     count++;
                 }
                 else if (board[nx, ny] == StoneState.Empty)
                 {
+                    if(prevIsEmpty){
+                        break;
+                    }
+                    prevIsEmpty = true;
                     isOpen = true;
-                    break;
                 }
                 else
                 {
+                    if(prevIsEmpty){
+                        break;
+                    }
+                    isOpen = false;
                     break;
                 }
             }
         }
         
-        // 반대 방향으로도 체크
+        if(!isOpen){
+            return false;
+        }
+
+        prevIsEmpty = false;
+
+        
         for (int i = 1; i <= 4; i++)
         {
             int nx = x - dx * i;
@@ -511,11 +628,51 @@ public static class RenjuRuleLogic
             {
                 if (board[nx, ny] == StoneState.Black)
                 {
+                    if(prevIsEmpty){
+                        isOpen = false; // 장목
+                        break;
+                    }
                     count++;
                 }
-                else if (board[nx, ny] == StoneState.Empty && count == 4)
+                else if (board[nx, ny] == StoneState.Empty)
                 {
+                    if(prevIsEmpty){
+                        break;
+                    }
+                    prevIsEmpty = true;
                     isOpen = true;
+                }
+                else
+                {
+                    if(prevIsEmpty){
+                        break;
+                    }
+                    isOpen = false;
+                    break;
+                }
+            }
+        }
+        
+        return count == 4 && isOpen;
+    }
+
+    static List<(int, int)> CheckFive(int x, int y, int dx, int dy)
+    {
+        List<(int, int)> black_list = new List<(int, int)>();
+        
+        for (int i = 1; i <= 5; i++)
+        {
+            int nx = x + dx * i;
+            int ny = y + dy * i;
+            
+            if (IsValidPosition(nx, ny))
+            {
+                if (board[nx, ny] == StoneState.Black)
+                {
+                    black_list.Add((nx, ny));
+                }
+                else if (board[nx, ny] == StoneState.Empty)
+                {
                     break;
                 }
                 else
@@ -525,9 +682,36 @@ public static class RenjuRuleLogic
             }
         }
         
-        // 열린 사: 정확히 4개의 돌이 있고, 한쪽이 비어있어야 함
-        return count == 4 && isOpen;
+        
+        for (int i = 1; i <= 5; i++)
+        {
+            int nx = x - dx * i;
+            int ny = y - dy * i;
+            
+            if (IsValidPosition(nx, ny))
+            {
+                if (board[nx, ny] == StoneState.Black)
+                {
+                    black_list.Add((nx, ny));
+                }
+                else if (board[nx, ny] == StoneState.Empty)
+                {
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        if(black_list.Count != 4){
+            black_list.Clear();
+        }
+        
+        return black_list;
     }
+
     
     // 장목(6목 이상) 체크
     static bool CheckOverline(int x, int y)

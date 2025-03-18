@@ -428,19 +428,21 @@ public class BoardController : MonoBehaviour
 
         List<(int, int)> forbiddenPoints = new List<(int, int)>();
 
-        // for (int row = 0; row < width; row++)
-        // {
-        //     for (int col = 0; col < height; col++)
-        //     {
-        //         bool isForbidden = RenjuRuleLogic.IsRenjuRuleViolation(row, col);
-        //         if (isForbidden)
-        //         {
-        //             forbiddenPoints.Add((row, col));
-        //         }      
-        //     }
-        // }
+        for (int row = 0; row < width; row++)
+        {
+            for (int col = 0; col < height; col++)
+            {
+                if(cells[row, col].GetCellType() != CELL_TYPE.None)
+                    continue;
+                bool isForbidden = RenjuRuleLogic.IsRenjuRuleViolation(row, col);
+                if (isForbidden)
+                {
+                    forbiddenPoints.Add((row, col));
+                }      
+            }
+        }
 
-        forbiddenPoints = GetForbiddenPoints();
+        //forbiddenPoints = GetForbiddenPoints();
 
         foreach (var point in forbiddenPoints)
         {

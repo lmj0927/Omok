@@ -75,7 +75,7 @@ public class MatchController : IDisposable
         switch(_matchPlayType){
             case PLAY_TYPE.Multi:
                 //Show MatchMaking Loading UI
-                UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Show();
+                UIManager.Instance.ShowUI<MatchMakingController>(UI_TYPE.MatchMaking);
                 //Multiplay Initialize
                 InitializeMultiController();
                 //waiting thread
@@ -83,7 +83,7 @@ public class MatchController : IDisposable
                 break;
             case PLAY_TYPE.AI:
                 //Show GameBoard UI
-                UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Show();
+                UIManager.Instance.ShowUI<GameBoardUIController>(UI_TYPE.Game);
                 //AI Initialize
                 InitializeAIController();
                 break;
@@ -109,7 +109,7 @@ public class MatchController : IDisposable
         _isCancelMatch = false;
         _matchState = MATCH_STATE.BlackTurn;
 
-        UIManager.Instance.GetUI<MatchMakingController>(UI_TYPE.MatchMaking).Hide();
+        UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
 
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
         gameBoardUIController.Show();

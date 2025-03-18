@@ -21,7 +21,12 @@ public class MCTS
     public MCTS()
     {
         board = new int[14, 14];
-    }    
+    }
+
+    public void SetIterations(int iter)
+    {
+        iterations = iter;
+    }
 
     async public UniTask RunSearch(int row, int col)
     {
@@ -184,8 +189,7 @@ public class Node
 
         return bestNode;
     }
-
-
+    
     // public Node BestUCTChild()
     // {
     //     return Children.OrderByDescending(n => (double)n.Wins / (n.Visits + 1e-6) + ExplorationParameter * Math.Sqrt(2 * Math.Log(Visits + 1) / (n.Visits + 1e-6))).FirstOrDefault();

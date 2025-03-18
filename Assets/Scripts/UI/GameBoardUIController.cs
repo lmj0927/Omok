@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static Constants;
-public class GameBoardUIController : MonoBehaviour
+public class GameBoardUIController : MonoBehaviour, IGameUI
 {
     //조작 버튼
     [Header("Interaction Buttons")]

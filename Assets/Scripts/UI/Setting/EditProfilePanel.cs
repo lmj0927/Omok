@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EditProfilePanel : PanelController
+public class EditProfilePanel : PopupController
 {
     [SerializeField] List<Button> profileImage;
     private List<Sprite> _profileSprites = new List<Sprite>();

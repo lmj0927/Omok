@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -45,11 +46,15 @@ public class GameBoardUIController : MonoBehaviour
     
     MATCH_STATE _currentState = MATCH_STATE.BlackTurn;
     public bool _isBlack = true;
+
+    [SerializeField] private RectTransform gameboardTransform;
+    private List<GameObject> _endMarkerObjects = new();
     
     //유저 프로필
     [Header("UserProfiles")]
     [SerializeField] private RectTransform userinfoPanel;
     [SerializeField] private RectTransform opponentinfoPanel;
+    private UserInfoPanel _opponentInfo;
     private Vector3 _downScaleInfo = new Vector3(0.75f, 0.75f, 0.75f);
     
     //타이머
@@ -68,9 +73,12 @@ public class GameBoardUIController : MonoBehaviour
         executeButton.onClick.AddListener(OnClickExecuteButton);
         
         GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+        GameManager.Instance.matchController.OnGameEndUI = GameEnded;
         
         _onRepeatEffect += OnRepeatBoardEffect;
         _onRepeatEffect += OnRepeatCircleEffect;
+        
+        _opponentInfo = opponentinfoPanel.GetComponent<UserInfoPanel>();
         
         _excuteButtonImage = executeButton.GetComponent<Image>();
         _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
@@ -122,15 +130,30 @@ public class GameBoardUIController : MonoBehaviour
     private void Initialize()
     {
         _isStartMatch = false;
+        
+        giveUpButton.interactable = true;
+        
+        executeButton.onClick.RemoveAllListeners();
+        executeButton.onClick.AddListener(OnClickExecuteButton);
+
+        if (_endMarkerObjects != null)
+        {
+            foreach (var obj in _endMarkerObjects)
+            {
+                obj.SetActive(false);
+            }
+        }
     }
 
     public void StartMatch()
     {
+        _isBlack = GameManager.Instance.matchController.IsClientBlack();
+        _opponentInfo.SetUserInfo(GameManager.Instance.matchController.GetMatchInfo().opponent);
+        
+        _isStartMatch = true;
+        
         SetChangedTurn();
         OnTimerCircle();
- 
-        _isBlack = GameManager.Instance.matchController.IsClientBlack();
-        _isStartMatch = true;
     }
     
     public void OnClickGiveUpButton()
@@ -147,9 +170,68 @@ public class GameBoardUIController : MonoBehaviour
     {
         GameManager.Instance.matchController.SetTurn();
     }
-
+    
+    //매치 정상 완료 후, 퇴장 버튼
+    void OnClickEndButton(Action onComplete)
+    {
+        UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("로비로 돌아갑니다.", () =>
+        {
+            onComplete?.Invoke();
+            UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
+        });
+    }
+    
+    void GameEnded(bool isBlackWin, Action onComplete)
+    {
+        //TODO: 게임이 바로 종료 되지 않고 완성된 오목 한줄을 강조함.
+        if (_endMarkerObjects != null)
+        {
+            foreach (var cell in GameManager.Instance.matchController.FiveCells)
+            {
+                var cellTr = cell.GetComponent<RectTransform>();
+                var markerBg = new GameObject("OmokDot", typeof(Image));
+                markerBg.transform.SetParent(cellTr, false);
+                markerBg.GetComponent<Image>().sprite = ResourceManager.Instance.endMarker;
+                markerBg.GetComponent<RectTransform>().localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                _endMarkerObjects.Add(markerBg);
+            }
+        }
+        else
+        {
+            int i = 0;
+            foreach (var cell in GameManager.Instance.matchController.FiveCells)
+            {
+                var cellTr = cell.GetComponent<RectTransform>();
+                _endMarkerObjects[i].SetActive(true);
+                _endMarkerObjects[i].transform.SetParent(cellTr);
+                _endMarkerObjects[i].GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                i++;
+            }
+        }
+        
+        //TODO: 게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
+        _isStartMatch = false;
+        giveUpButton.interactable = false;
+            
+        descriptionPanel.DOColor(isBlackWin ? Color.black : Color.white, Duration);
+        descriptionText.DOColor(isBlackWin ? Color.white : Color.black, Duration);
+        descriptionText.text = isBlackWin ? "흑의 승리 입니다!" : "백의  승리입니다!";
+        
+        //TODO: EndMatch가 호출되면 기권 버튼을 Disable 하고 착수 버튼을 퇴장 버튼으로 바꾼다.
+        
+        _excuteButtonText.text = "퇴장";
+        _excuteButtonText.DOColor(Color.white, Duration);
+        _excuteButtonImage.DOColor(timerColors[1], Duration);
+        
+        executeButton.onClick.RemoveAllListeners();
+        executeButton.onClick.AddListener(() => OnClickEndButton(onComplete));
+        executeButton.interactable = true;
+    }
+    
     public void SetChangedTurn()
     {
+        if (!_isStartMatch) return;
+        
         //시간 초기화
         GameManager.Instance.matchController.TurnTime = 30f;
 
@@ -172,30 +254,20 @@ public class GameBoardUIController : MonoBehaviour
         switch (currentState) 
         {
             case MATCH_STATE.BlackTurn:
-                if (_isBlack)
-                {
-                    executeButton.interactable = true;
-                    descriptionText.text = "당신의 턴";
-                    _excuteButtonText.text = "착수";
-                    _excuteButtonText.DOColor(Color.white, Duration);
-                    _excuteButtonImage.DOColor(Color.black, Duration);
-                    timerCircleImage.DOColor(timerColors[0], Duration);
-                    _timerSeed.DOColor(timerColors[0], Duration);
-                    _timerHead.DOColor(timerColors[0], Duration);
-                }
-                else
-                {
-                    executeButton.interactable = false;
-                    descriptionText.text = "상대방의 턴";
-                    _excuteButtonText.text = "대기중";
-                    _excuteButtonText.DOColor(Color.black, Duration);
-                    _excuteButtonImage.DOColor(timerColors[0], Duration);
-                    timerCircleImage.DOColor(timerColors[1], Duration);
-                    _timerSeed.DOColor(timerColors[1], Duration);
-                    _timerHead.DOColor(timerColors[1], Duration);
-                }
-                descriptionPanel.DOColor(Color.black, Duration);
+                descriptionText.text = _isBlack ? "당신의 턴" : "상대방의 턴";
                 descriptionText.DOColor(Color.white, Duration);
+                descriptionPanel.DOColor(Color.black, Duration);
+
+                executeButton.interactable = _isBlack;
+                _excuteButtonText.text = _isBlack ? "착수" : "대기중";
+                _excuteButtonText.DOColor(_isBlack ? Color.white : Color.black, Duration);
+                _excuteButtonImage.DOColor(_isBlack ? Color.black : timerColors[0], Duration);
+
+                giveUpButton.interactable = _isBlack;
+                
+                timerCircleImage.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
+                _timerSeed.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
+                _timerHead.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
                 
                 blackTurnPanel.DOSizeDelta(new Vector2(_blackOriginWidth*UpScalePanel, blackTurnPanel.sizeDelta.y), Duration)
                     .OnUpdate(() => LayoutRebuilder.ForceRebuildLayoutImmediate(blackTurnPanel.parent as RectTransform));
@@ -212,31 +284,20 @@ public class GameBoardUIController : MonoBehaviour
                 whiteTurnFadeRect.DOFade(1, Duration);
                 break;
             case MATCH_STATE.WhiteTurn:
-                if (!_isBlack)
-                {
-                    executeButton.interactable = true;
-                    descriptionText.text = "당신의 턴";
-                    _excuteButtonText.text = "착수";
-                    _excuteButtonText.DOColor(Color.black, Duration);
-                    _excuteButtonImage.DOColor(Color.white, Duration);
-                    timerCircleImage.DOColor(timerColors[0], Duration);
-                    _timerSeed.DOColor(timerColors[0], Duration);
-                    _timerHead.DOColor(timerColors[0], Duration);
-                }
-                else
-                {
-                    executeButton.interactable = false;
-                    descriptionText.text = "상대방의 턴";
-                    _excuteButtonText.text = "대기중";
-                    _excuteButtonText.DOColor(Color.black, Duration);
-                    _excuteButtonImage.DOColor(timerColors[0], Duration);
-                    timerCircleImage.DOColor(timerColors[1], Duration);
-                    _timerSeed.DOColor(timerColors[1], Duration);
-                    _timerHead.DOColor(timerColors[1], Duration);
-                }
+                descriptionText.text = !_isBlack ? "당신의 턴" : "상대방의 턴";
+                descriptionText.DOColor(Color.white, Duration);
+                descriptionPanel.DOColor(Color.black, Duration);
                 
-                descriptionPanel.DOColor(Color.white, Duration);
-                descriptionText.DOColor(Color.black, Duration);
+                executeButton.interactable = !_isBlack ? true : false;
+                _excuteButtonText.text = !_isBlack ? "착수" : "대기중";
+                _excuteButtonText.DOColor(!_isBlack ? Color.black : Color.black, Duration);
+                _excuteButtonImage.DOColor(!_isBlack ? Color.white : timerColors[0], Duration);
+                
+                giveUpButton.interactable = !_isBlack;
+                
+                timerCircleImage.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
+                _timerSeed.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
+                _timerHead.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
                 
                 blackTurnPanel.DOSizeDelta(new Vector2(_blackOriginWidth*DownScalePanel, blackTurnPanel.sizeDelta.y), Duration)
                     .OnUpdate(() => LayoutRebuilder.ForceRebuildLayoutImmediate(blackTurnPanel.parent as RectTransform));

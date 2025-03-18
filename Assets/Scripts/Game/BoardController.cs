@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -15,6 +16,8 @@ public class BoardController : MonoBehaviour
     public GameObject cellPrefab;
     public RectTransform cellParent;
     public RectTransform lastCellFlag;
+    public Action endCellTransforms;
+    [SerializeField] List<Cell> fiveCells = new();
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
     {
@@ -89,6 +92,7 @@ public class BoardController : MonoBehaviour
         
         if (CheckGameResult(row, col))
         {
+            if(fiveCells != null) GameManager.Instance.matchController.FiveCells.AddRange(fiveCells);
             GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
             return;
         }
@@ -141,15 +145,17 @@ public class BoardController : MonoBehaviour
         var cellType = cells[row, col].GetCellType();
         
         int count = 0; //count가 4이상이면 오목완성(SetTurn후 불리기에 현재 위치는 자기자신)
-       
+        
         foreach (var dirs in directions)
         {
+            fiveCells.Add(cells[row, col]);
             foreach (var dir in dirs)
             {
                 for (int i = 1; i < 5; i++)
                 {
                     if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, cellType))
                     {
+                        fiveCells.Add(cells[row + dir.Item1 * i, col + dir.Item2 * i]);
                         count++;
                     }
                     else
@@ -161,9 +167,9 @@ public class BoardController : MonoBehaviour
                 if(count >= 4)
                     return true;
             }
+            fiveCells.Clear();
             count = 0;
         }
-        
         return false;
     }
 

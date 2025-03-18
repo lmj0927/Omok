@@ -41,6 +41,8 @@ public class MatchController : IDisposable
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public Action OnTurnEndUI;
+    public Action<bool, Action> OnGameEndUI;
+    public List<Cell> FiveCells = new();
     
     public void SetCurrentCell(Cell cell)
     {
@@ -337,6 +339,11 @@ public class MatchController : IDisposable
         return _matchState;
     }
 
+    public MatchInfo GetMatchInfo()
+    {
+        return _matchInfo;
+    }
+
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
     }
@@ -371,14 +378,22 @@ public class MatchController : IDisposable
         
         if(isBlackWin == IsClientBlack())
         {
-            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+            OnGameEndUI?.Invoke(isBlackWin, () =>
+            {
+                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+            });
+            
             myPlayerDataController.Win();
             opponentPlayerDataController.Lose();
             _matchInfo.isWin = true;
         }
         else
         {
-            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+            OnGameEndUI?.Invoke(isBlackWin, () =>
+            {
+                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+            });
+            
             if(_matchPlayType == PLAY_TYPE.AI)
             {
                 myPlayerDataController.Lose();
@@ -386,10 +401,10 @@ public class MatchController : IDisposable
                 _matchInfo.isWin = false;
             }
         }
-
+        FiveCells.Clear();
+        
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         
-        UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
         Dispose();
     }
 }

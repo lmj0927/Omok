@@ -26,8 +26,6 @@ public class LeaderBoardPanelController : PanelController
         _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
         _userInfo = GameManager.Instance.playerDataController.UserInfo;
         closeButton.onClick.AddListener(OnClickCloseButton);
-        
-        Show();
     }
 
     void OnEnable()

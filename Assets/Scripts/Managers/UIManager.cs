@@ -48,7 +48,7 @@ public class UIManager : Singleton<UIManager>
         
 
         //초기화
-        GetUI<SigninPanelController>(UI_TYPE.SignIn); 
+        ShowUI<SigninPanelController>(UI_TYPE.SignIn); 
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

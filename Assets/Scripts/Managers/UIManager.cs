@@ -92,8 +92,6 @@ public class UIManager : Singleton<UIManager>
     private T CreateUI<T>(UI_TYPE type) where T : Component
     {
         var ui = _uiPrefabs[type];
-
-
         if (ui == null) return null;
         
         var instance = Instantiate(ui, _mainCanvas.transform).GetComponent<T>();

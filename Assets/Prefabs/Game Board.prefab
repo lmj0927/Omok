@@ -1880,7 +1880,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -3436,6 +3436,7 @@ MonoBehaviour:
   cellPrefab: {fileID: 3206435855631047135, guid: b9740aab1b03b4be98724955adf6b5e3, type: 3}
   cellParent: {fileID: 2473202341036271616}
   lastCellFlag: {fileID: 3734767280100582910}
+  fiveCells: []
 --- !u!114 &3353427529549419465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3491,6 +3492,7 @@ MonoBehaviour:
   boardOutlineRect: {fileID: 8804695528548973190}
   circleEffectRect: {fileID: 3759784226077335578}
   _isBlack: 1
+  gameboardTransform: {fileID: 0}
   userinfoPanel: {fileID: 3052760932208508518}
   opponentinfoPanel: {fileID: 3842052639576089559}
   timerCircleImage: {fileID: 3432314489990681518}
@@ -3499,7 +3501,7 @@ MonoBehaviour:
   - serializedVersion: 2
     rgba: 4282892799
   - serializedVersion: 2
-    rgba: 8224125
+    rgba: 4279642695
 --- !u!1001 &390832254045540590
 PrefabInstance:
   m_ObjectHideFlags: 0

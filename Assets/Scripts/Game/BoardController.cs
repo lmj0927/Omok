@@ -13,7 +13,7 @@ public class BoardController : MonoBehaviour
     public Vector2 padding;
     public GameObject cellPrefab;
     public RectTransform cellParent;
-    
+    public RectTransform lastCellFlag;
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
     {
@@ -64,6 +64,8 @@ public class BoardController : MonoBehaviour
         }
         GameManager.Instance.matchController.OnDrawCell = OnDrawCell;
         GameManager.Instance.matchController.TurnEnded = EndTurn;
+        
+        lastCellFlag.gameObject.SetActive(false);
     }
 
     private void OnDrawCell(TurnData turnData, CELL_TYPE type)
@@ -72,12 +74,18 @@ public class BoardController : MonoBehaviour
         var col = turnData.col;
         cells[row, col].SetCellType(type);
     }
+    
+    
 
     private void EndTurn(TurnData turnData, MATCH_STATE state)
     {
         OnDrawCell(turnData, state == MATCH_STATE.BlackTurn ? CELL_TYPE.Black : CELL_TYPE.White);
         var row = turnData.row;
         var col = turnData.col;
+        
+        //마지막에 둔 Cell위에 표시
+        MoveToLastCellFlag(row, col);
+        
         if (CheckGameResult(row, col))
         {
             GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
@@ -112,6 +120,13 @@ public class BoardController : MonoBehaviour
                 OnDrawCell(t, CELL_TYPE.Warning);
             }
         }
+    }
+
+    private void MoveToLastCellFlag(int row, int col)
+    {
+        if(!lastCellFlag.gameObject.activeSelf) lastCellFlag.gameObject.SetActive(true);
+        var currentCellPosition = cells[row,col].GetComponent<RectTransform>().anchoredPosition;
+        lastCellFlag.anchoredPosition = currentCellPosition;
     }
 
     #region GameResult

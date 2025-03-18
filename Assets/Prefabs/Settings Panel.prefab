@@ -3746,7 +3746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0330557cb76aa024f8cf1ed38c52c328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelRectTransform: {fileID: 7257350694580994433}
+  panelRectTransform: {fileID: 7213178117652655525}
   profileButton: {fileID: 2674043839771559931}
   closeButton: {fileID: 7925350500008031377}
   logoutButton: {fileID: 4792250021380177533}

@@ -44,12 +44,12 @@ public class SettingsPanelController : PanelController
 
     public void OnClickLogoutButton()
     {
-        
         UnityWebRequest.ClearCookieCache();
         PlayerPrefs.SetString(Constants.SID, null); 
         Hide();
         
-        UIManager.Instance.GetUI<SigninPanelController>(UI_TYPE.SignIn);
+        UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
+        UIManager.Instance.ShowUI<SigninPanelController>(UI_TYPE.SignIn);
     }
 
     public override void Show()

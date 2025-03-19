@@ -409,8 +409,9 @@ public class MatchController : IDisposable
             {
                 myPlayerDataController.Lose();
                 opponentPlayerDataController.Win();
-                _matchInfo.isWin = false;
             }
+
+            _matchInfo.isWin = false;
         }
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);

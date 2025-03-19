@@ -8,7 +8,13 @@ public class GameManager : Singleton<GameManager>
 {
     public MatchController matchController;
     public PlayerDataController playerDataController;
-    [SerializeField] public CameraMover cameraMover;
+
+    [Header("Camera")]
+    [SerializeField] public CameraMover cameraMover;    
+    [SerializeField] List<Vector3Int> cameraPreset = new List<Vector3Int>();
+    int _currentCameraPresetIndex = 0;
+
+    [Header("Main UI")]
     [SerializeField] public StoneSpawner StoneSpawner;
     
     public Action mainUIUpdate;
@@ -46,6 +52,23 @@ public class GameManager : Singleton<GameManager>
     {   
         matchController.Surrender();
     }
+
+    public void ChangeView()
+    {
+        if(cameraPreset.Count == 0)
+        {
+            return;
+        }
+
+        int nextIndex = _currentCameraPresetIndex + 1;
+        if(nextIndex >= cameraPreset.Count)
+        {
+            nextIndex = 0;
+        }
+        cameraMover.SetCamera(new Vector3(cameraPreset[nextIndex].y, cameraPreset[nextIndex].z, 0), cameraPreset[nextIndex].x);
+        _currentCameraPresetIndex = nextIndex;
+    }
+
 
     public new void OnDestroy()
     {

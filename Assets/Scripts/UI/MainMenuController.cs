@@ -30,6 +30,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
     void OnEnable()
     {
         GameManager.Instance.StoneSpawner.StartSpawn();
+        GameManager.Instance.cameraMover.ResetCamera(cameraMoverInitDistance, cameraMoverInitRotateX, cameraMoverInitRotateY); 
     }
 
     void Initialize()

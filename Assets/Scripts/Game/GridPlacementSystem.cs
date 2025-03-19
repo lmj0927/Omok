@@ -230,13 +230,11 @@ public class GridPlacementSystem : MonoBehaviour
             //마지막 수 표시.
             if (_lastPlacedObject == null && (cellType == CELL_TYPE.Black || cellType == CELL_TYPE.White))
             {
-                Debug.Log("LastPlaced");
                 _lastPlacedObject = Instantiate(objectPrefab[CELL_TYPE.LastPlace], stone.transform);
                 placedStoneList.Add(stone.transform);
             }
             else if (cellType == CELL_TYPE.Black || cellType == CELL_TYPE.White)
             {
-                Debug.Log("CELLT"+cellType);
                 _lastPlacedObject.transform.SetParent(stone.transform);
                 _lastPlacedObject.transform.position = stone.transform.position;
                 placedStoneList.Add(stone.transform);

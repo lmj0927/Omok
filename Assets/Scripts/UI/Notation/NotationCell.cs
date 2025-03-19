@@ -25,6 +25,9 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
 
     private void OnClickNotation()
     {
+        UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
+        UIManager.Instance.HideUI<NotationUIController>(UI_TYPE.Notation);
+        
         GameManager.Instance.StartGame(Constants.PLAY_TYPE.Replay);
         GameManager.Instance.matchController.InitializeReplayController(matchIndex);
     }

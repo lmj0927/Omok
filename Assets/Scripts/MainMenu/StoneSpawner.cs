@@ -22,6 +22,8 @@ public class StoneSpawner : MonoBehaviour
             _spawnCts.Cancel();
             _spawnCts = null;
         }
+        
+        gameObject.SetActive(false);
     }
 
     async UniTask SpawnStoneAsync()

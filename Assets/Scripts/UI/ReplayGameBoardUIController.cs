@@ -30,6 +30,9 @@ public class ReplayGameBoardUIController : MonoBehaviour, IGameUI
 
     private void OnClickExitButton()
     {
+        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+        UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation);
+        
         Hide();
     }
 

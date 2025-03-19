@@ -21,6 +21,7 @@ public class ReplayController : IBaseGameTypeController
         var whitePlayer = _matchInfo.isBlack ? _matchInfo.opponent : GameManager.Instance.playerDataController.UserInfo;
 
         replayGameBoardUIController.Initialize(blackPlayer, whitePlayer);
+        GameManager.Instance.cameraMover.SetCamera(new Vector3(65, 0, 0), 8);
     }
 
     public MatchInfo GetMatchInfo()

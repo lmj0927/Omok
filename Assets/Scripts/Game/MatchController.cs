@@ -180,20 +180,24 @@ public class MatchController : IDisposable
         string aiId = "ai1";
         if(tier >= 10 && tier <= 18)
         {
-            //aiController.SetAILevel(1);
+            // easy
             aiId = "ai1";
-            
+            aiController.SetAILevel(aiId);
         }
         else if(tier >= 5 && tier <= 9)
         {
-            //aiController.SetAILevel(2);
+            // mid
             aiId = "ai2";
+            aiController.SetAILevel(aiId);
         }
         else if(tier >= 1 && tier <= 4)
         {
-            //aiController.SetAILevel(3);
+            // hard
             aiId = "ai3";
+            aiController.SetAILevel(aiId);
         }
+        
+        
         
         NetworkManage.Instance.LoadUserInfo(aiId, 
             (userInfo) =>

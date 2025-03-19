@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ResultPanelController : PanelController
+public class ResultPanelController : PopupController
 {
     [SerializeField] private TMP_Text resultText;
     [SerializeField] private Button closeButton;
@@ -29,25 +29,28 @@ public class ResultPanelController : PanelController
     private List<GameObject> _cells;
     private UserInfo _userInfo;
 
-    protected void Awake()
+    protected new void Awake()
     {
+        base.Awake();
         _rectTransform = gameObject.GetComponent<RectTransform>();
         closeButton.onClick.AddListener(Hide);
     }
 
     public void Show(bool isWin, UserInfo userInfo)
     {
+        base.Show();
+
         _isWin = isWin;
         _userInfo = userInfo;
         
         _score = _userInfo.score;
         _tier = _userInfo.tier == 0 ? 18 : _userInfo.tier;
         
-        var original = _rectTransform.anchoredPosition;
-        _rectTransform.anchoredPosition = new Vector2(Screen.width, original.y);
+        // var original = _rectTransform.anchoredPosition;
+        // _rectTransform.anchoredPosition = new Vector2(Screen.width, original.y);
 
-        gameObject.SetActive(true);
-        _rectTransform.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
+        //gameObject.SetActive(true);
+        // _rectTransform.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
 
         if (_isWin)
         {
@@ -63,16 +66,16 @@ public class ResultPanelController : PanelController
         ChangeTier();
     }
 
-    public override void Hide()
-    {
-        var original = _rectTransform.anchoredPosition;
+    // public override void Hide()
+    // {
+    //     var original = _rectTransform.anchoredPosition;
 
-        _rectTransform.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
-        {
-            gameObject.SetActive(false);
-            _rectTransform.anchoredPosition = original;
-        });
-    }
+    //     _rectTransform.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
+    //     {
+    //         gameObject.SetActive(false);
+    //         _rectTransform.anchoredPosition = original;
+    //     });
+    // }
     
     // 초기 점수 세팅 함수
     private void SetCell()

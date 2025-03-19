@@ -9,18 +9,19 @@ public class ReplayController : IBaseGameTypeController
     private int cursor;
     private bool isOperating;
 
-    public void Initialize(int replayIndex)
+    public async void Initialize(int replayIndex)
     {
         cursor = 0;
         isOperating = false;
         
         _matchInfo = MatchInfoUtil.LoadMatchInfoList()[replayIndex];
-        var replayGameBoardUIController = UIManager.Instance.ShowUI<ReplayGameBoardUIController>(UI_TYPE.Replay);
+        var replayGameBoardUIController = await UIManager.Instance.ShowUI<ReplayGameBoardUIController>(UI_TYPE.Replay);
 
         var blackPlayer = _matchInfo.isBlack ? GameManager.Instance.playerDataController.UserInfo : _matchInfo.opponent;
         var whitePlayer = _matchInfo.isBlack ? _matchInfo.opponent : GameManager.Instance.playerDataController.UserInfo;
 
         replayGameBoardUIController.Initialize(blackPlayer, whitePlayer);
+        GameManager.Instance.cameraMover.SetCamera(new Vector3(65, 0, 0), 8);
     }
 
     public MatchInfo GetMatchInfo()

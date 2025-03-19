@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using Unity.VisualScripting;
@@ -32,7 +33,10 @@ public class ResultPanelController : PanelController
     protected void Awake()
     {
         _rectTransform = gameObject.GetComponent<RectTransform>();
-        closeButton.onClick.AddListener(Hide);
+        closeButton.onClick.AddListener(() =>
+        {
+            Hide();
+        });
     }
 
     public void Show(bool isWin, UserInfo userInfo)
@@ -63,15 +67,20 @@ public class ResultPanelController : PanelController
         ChangeTier();
     }
 
-    public override void Hide()
+    public override UniTask Hide()
     {
         var original = _rectTransform.anchoredPosition;
 
+        var tcs = new UniTaskCompletionSource();
+        
         _rectTransform.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
         {
             gameObject.SetActive(false);
             _rectTransform.anchoredPosition = original;
+            tcs.TrySetResult();
         });
+        
+        return tcs.Task;
     }
     
     // 초기 점수 세팅 함수

@@ -246,7 +246,7 @@ public class GridPlacementSystem : MonoBehaviour
 
     void PlaceStone()
     {
-        if (!previewObject.activeSelf || !canPlace)
+        if (previewObject == null || !previewObject.activeSelf || !canPlace)
         {
             return;
         }

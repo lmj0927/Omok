@@ -32,6 +32,18 @@ public class MainMenuController : MonoBehaviour, IGameUI
     {
         GameManager.Instance.StoneSpawner.StartSpawn();
         GameManager.Instance.cameraMover.ResetCamera(cameraMoverInitDistance, cameraMoverInitRotateX, cameraMoverInitRotateY); 
+
+        PlayIntro().Forget();
+    }
+
+    void OnDisable()
+    {
+        GameManager.Instance.StoneSpawner?.DisableSpawner();
+    }
+
+    async UniTask PlayIntro(){
+        await UniTask.Delay(5000);
+        GameManager.Instance.cameraMover.SetCamera(new Vector3(cameraMoverIntroRotateX, cameraMoverIntroRotateY, 0), cameraMoverIntroDistance);
     }
 
     void Initialize()
@@ -92,5 +104,10 @@ public class MainMenuController : MonoBehaviour, IGameUI
     {
         gameObject.SetActive(false);        
         return UniTask.CompletedTask;
+    }
+
+    void Dispose()
+    {
+
     }
 }

@@ -371,7 +371,19 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 
     public UniTask Hide()
     {
+        Dispose();
         gameObject.SetActive(false);
         return UniTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        descriptionText.text = "불러오기 중";
+        _excuteButtonText.text = "대기";
+        blackTurnPanel.sizeDelta = new Vector2(_blackOriginWidth, blackTurnPanel.sizeDelta.y);
+        whiteTurnPanel.sizeDelta = new Vector2(_whiteOriginWidth, whiteTurnPanel.sizeDelta.y);
+
+        var emptyUserInfo = new UserInfo();
+        _opponentInfo.SetUserInfo(emptyUserInfo);
     }
 }

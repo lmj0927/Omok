@@ -57,7 +57,8 @@ public class MainMenuController : MonoBehaviour, IGameUI
             });            
             return;
         }
-        
+
+        AudioManager.Instance.PlaySFX(2);
         GameManager.Instance.coinController.ConsumeCoin(Constants.CostPerGame);
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);
     }

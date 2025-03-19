@@ -131,6 +131,8 @@ public class BoardController : MonoBehaviour
         MoveToLastCellFlag(row, col, state);
         
         placeCellList.Add(cells[row, col]);
+
+        AudioManager.Instance.PlaySFX(0);
         
         if (CheckGameResult(row, col))
         {
@@ -167,6 +169,8 @@ public class BoardController : MonoBehaviour
                 OnDrawCell(t, CELL_TYPE.Warning);
             }
         }
+        
+        
     }
 
     private void MoveToLastCellFlag(int row, int col, MATCH_STATE state)

@@ -76,7 +76,7 @@ public class MatchController : IDisposable
         switch(_matchPlayType){
             case PLAY_TYPE.Multi:
                 //Show MatchMaking Loading UI
-                UIManager.Instance.ShowUI<MatchMakingController>(UI_TYPE.MatchMaking);
+                _ = UIManager.Instance.ShowUI<MatchMakingController>(UI_TYPE.MatchMaking);
                 //Multiplay Initialize
                 InitializeMultiController();
                 //waiting thread
@@ -131,7 +131,7 @@ public class MatchController : IDisposable
 
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
         gameBoardUIController.Initialize();
-        gameBoardUIController.Show();
+        gameBoardUIController.Show().Forget();
         
         await UniTask.Delay(200);
         GameManager.Instance.cameraMover.SetCamera(new Vector3(65, 0, 0), 8);
@@ -417,7 +417,7 @@ public class MatchController : IDisposable
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         
         UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu).Forget();
         Dispose();
     }
 }

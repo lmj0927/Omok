@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -30,10 +31,11 @@ public class ReplayGameBoardUIController : MonoBehaviour, IGameUI
 
     private void OnClickExitButton()
     {
-        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
-        UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation);
-        
-        Hide();
+        UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation, () =>
+        {
+            UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu).Forget();
+            Hide();
+        }).Forget();
     }
 
     private void OnClickNextButton()
@@ -56,13 +58,15 @@ public class ReplayGameBoardUIController : MonoBehaviour, IGameUI
         GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.DrawAll });
     }
 
-    public void Show()
+    public UniTask Show()
     {
         gameObject.SetActive(true);
+        return UniTask.CompletedTask;
     }
 
-    public void Hide()
+    public UniTask Hide()
     {
         gameObject.SetActive(false);
+        return UniTask.CompletedTask;
     }   
 }

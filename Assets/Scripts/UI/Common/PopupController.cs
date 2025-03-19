@@ -16,26 +16,47 @@ public class PopupController: MonoBehaviour, IGameUI
         _backgroundCanvasGroup = GetComponent<CanvasGroup>();
     }
 
-    public void Show()
+    public UniTask Show()
     {
         _backgroundCanvasGroup.alpha = 0;
         panelRectTransform.localScale = Vector3.zero;
         gameObject.SetActive(true);
         
+        var tcs = new UniTaskCompletionSource();
+        
         _backgroundCanvasGroup.DOFade(1, 0.3f).SetEase(Ease.Linear);
-        panelRectTransform.DOScale(1, 0.3f).SetEase(Ease.OutBack);
+        panelRectTransform.DOScale(1, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
+        {
+            tcs.TrySetResult();
+        });
+        
+        return tcs.Task;
     }
 
-    public virtual void Hide()
+    public virtual UniTask Hide()
     {
-        HideAsync().Forget();
+        _backgroundCanvasGroup.alpha = 1;
+        panelRectTransform.localScale = Vector3.one;
+        
+        var tcs = new UniTaskCompletionSource();
+    
+        var sequence = DOTween.Sequence();
+        sequence.Join(_backgroundCanvasGroup.DOFade(0, 0.3f).SetEase(Ease.Linear))
+            .Join(panelRectTransform.DOScale(0, 0.3f).SetEase(Ease.InBack))
+            .OnComplete(() =>
+            {
+                gameObject.SetActive(false);
+                tcs.TrySetResult();
+            });
+
+        return tcs.Task;
     }
     
-    public async void Hide(PanelControllerHideDelegate hideDelegate)
-    {
-        await HideAsync();
-        hideDelegate?.Invoke();
-    }
+    // public async void Hide(PanelControllerHideDelegate hideDelegate)
+    // {
+    //     await HideAsync();
+    //     hideDelegate?.Invoke();
+    // }
     
     protected async UniTask HideAsync()
     {

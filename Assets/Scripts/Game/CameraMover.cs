@@ -88,7 +88,7 @@ public class CameraMover : MonoBehaviour
         }
 
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(scrollInput) > 0.01f)
+        if (Mathf.Abs(scrollInput) > 0.01f && target != _defaultTarget.transform)
         {
             targetDistance -= scrollInput * zoomSpeed;
             targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);

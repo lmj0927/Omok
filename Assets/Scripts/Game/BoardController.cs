@@ -20,7 +20,9 @@ public class BoardController : MonoBehaviour
     GameObject _gameSystem;
     GridPlacementSystem _gridPlacementSystem;
 
-    
+    [SerializeField] List<Cell> fiveCells = new();
+    [SerializeField] List<Cell> placeCellList = new();
+    [SerializeField] Queue<int> placeCellIndexes = new();
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
     {
@@ -49,7 +51,7 @@ public class BoardController : MonoBehaviour
             _gridPlacementSystem = _gameSystem.GetComponent<GridPlacementSystem>();
             GameManager.Instance.cameraMover.SetTarget(_gridPlacementSystem.cameraTarget);
             _gridPlacementSystem.OnSetCurrentCell += SetCurrentCell;
-            
+            GameManager.Instance.matchController.OnEndGridOmok += _gridPlacementSystem.EndOmok;
         }
     }
 
@@ -59,6 +61,8 @@ public class BoardController : MonoBehaviour
         {
             GameManager.Instance.cameraMover.SetTarget(null);
             _gridPlacementSystem.ClearStones();
+            placeCellList.Clear();
+            placeCellIndexes.Clear();
             Destroy(_gameSystem);
         }
     }
@@ -122,11 +126,14 @@ public class BoardController : MonoBehaviour
         var row = turnData.row;
         var col = turnData.col;
         
-        //마지막에 둔 Cell위에 표시
+        //마지막에 둔 Cell위에 표시 - 2D
         MoveToLastCellFlag(row, col, state);
+        
+        placeCellList.Add(cells[row, col]);
         
         if (CheckGameResult(row, col))
         {
+            CheckEndOmok();
             GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
             return;
         }
@@ -182,12 +189,14 @@ public class BoardController : MonoBehaviour
        
         foreach (var dirs in directions)
         {
+            fiveCells.Add(cells[row, col]);
             foreach (var dir in dirs)
             {
                 for (int i = 1; i < 5; i++)
                 {
                     if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, cellType))
                     {
+                        fiveCells.Add(cells[row + dir.Item1 * i, col + dir.Item2 * i]);
                         count++;
                     }
                     else
@@ -199,6 +208,7 @@ public class BoardController : MonoBehaviour
                 if(count >= 4)
                     return true;
             }
+            fiveCells.Clear();
             count = 0;
         }
         
@@ -218,9 +228,31 @@ public class BoardController : MonoBehaviour
         return false;
     }
     
+    private void CheckEndOmok()
+    {
+        if (fiveCells != null)
+        {
+            //2D 게임판
+            GameManager.Instance.matchController.FiveCells.AddRange(fiveCells);
+                
+            //3D 게임판
+            for (int i = 0; i < placeCellList.Count; i++)
+            {
+                foreach (var cell in fiveCells)
+                {
+                    if (placeCellList[i] == cell)
+                    {
+                        //오목이 된 오브젝트들의 위치정보 전달.
+                        GameManager.Instance.matchController.EndStones.Add(_gridPlacementSystem.placedStoneList[i]);
+                    }
+                }
+            }
+        }
+    }
+    
     #endregion
 
-     #region RenjunRule
+    #region RenjunRule
 
     private List<(int, int)> GetForbiddenPoints()
     {
@@ -381,6 +413,24 @@ public class BoardController : MonoBehaviour
         return count;
     }
 
+    private bool CheckFour(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     private int CheckDoubleFour(int row, int col)
     {
         if(IsFive(row, col))
@@ -389,11 +439,12 @@ public class BoardController : MonoBehaviour
         cells[row, col].SetCellTypeTemporary(CELL_TYPE.Black);
         foreach (var dirs in directions)
         {
-            count += CheckOpenFour(row, col, dirs);
-            // if (CheckFour(row, col, dirs))
-            // {
-            //     count++;
-            // }
+            if(CheckOpenFour(row, col, dirs) >= 1)
+                count += CheckOpenFour(row, col, dirs);
+            else if (CheckFour(row, col, dirs))
+            {
+                count++;
+            }
         }
         cells[row, col].SetCellTypeTemporary(CELL_TYPE.None);
         

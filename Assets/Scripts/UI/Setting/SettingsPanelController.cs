@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,7 +24,7 @@ public class SettingsPanelController : PanelController
     
     private void OnClickProfileButton()
     {
-        UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile);
+        UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile).Forget();
     }
 
     /// <summary>
@@ -41,6 +42,6 @@ public class SettingsPanelController : PanelController
         Hide();
         
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
-        UIManager.Instance.ShowUI<SigninPanelController>(UI_TYPE.SignIn);
+        UIManager.Instance.ShowUI<SigninPanelController>(UI_TYPE.SignIn).Forget();
     }
 }

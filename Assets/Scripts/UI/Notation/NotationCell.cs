@@ -12,6 +12,7 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
     [SerializeField] Image turnImage;
     [SerializeField] TMP_Text opponentName;
     [SerializeField] TMP_Text gameResultText;
+    [SerializeField] TMP_Text turnCountText;
     
     [Header("Data")]
     [SerializeField] List<Sprite> turnImages = new List<Sprite>();
@@ -25,6 +26,9 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
 
     private void OnClickNotation()
     {
+        UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
+        UIManager.Instance.HideUI<NotationUIController>(UI_TYPE.Notation);
+        
         GameManager.Instance.StartGame(Constants.PLAY_TYPE.Replay);
         GameManager.Instance.matchController.InitializeReplayController(matchIndex);
     }
@@ -35,6 +39,7 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
         SetTurn(data.isBlack);
         SetOpponentName(data.opponent.nickname);
         SetGameResult(data.isWin);
+        SetTurnCount(data.turn.Count);
     }
 
     private void SetTurn(bool isBlack)
@@ -50,5 +55,10 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
     private void SetGameResult(bool isWin)
     {
         gameResultText.text = isWin ? "승" : "패";
+    }
+
+    private void SetTurnCount(int count)
+    {
+        turnCountText.text = $"{count.ToString()}수";
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -381,13 +382,15 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
     }
 
-    public void Show()
+    public UniTask Show()
     {
         gameObject.SetActive(true);
+        return UniTask.CompletedTask;
     }
 
-    public void Hide()
+    public UniTask Hide()
     {
         gameObject.SetActive(false);
+        return UniTask.CompletedTask;
     }
 }

@@ -25,7 +25,10 @@ public class ConfirmPanelController : PopupController
     /// </summary>
     public void OnClickConfirmButton()
     {
-        Hide(() => onConfirmButtonClick?.Invoke());
+        UIManager.Instance.HideUI<ConfirmPanelController>(UI_TYPE.Confirm, () =>
+        {
+            onConfirmButtonClick?.Invoke();
+        });
     }
 
     /// <summary>

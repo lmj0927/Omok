@@ -18,6 +18,7 @@ public struct UserInfo{
     public int profileIndex { get=>ProfileIndex; set=>ProfileIndex=value; }
     public int winCount { get=>WinCount; set=>WinCount=value; }
     public int loseCount { get=>LoseCount; set=>LoseCount=value; }
+    public int drawCount { get=>DrawCount; set=>DrawCount=value; }
 
     public string UserId;
     public string Nickname;
@@ -26,4 +27,5 @@ public struct UserInfo{
     public int ProfileIndex;
     public int WinCount;
     public int LoseCount;
+    public int DrawCount;
 }

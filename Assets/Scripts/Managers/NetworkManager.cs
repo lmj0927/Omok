@@ -348,6 +348,42 @@ public class NetworkManage : Singleton<NetworkManage>
         }
     }
 
+    public IEnumerator SendDraw(string userId, Action<UserInfo> success, Action failure)
+    {
+        using (UnityWebRequest www =
+               new UnityWebRequest(Constants.ServerURL + "/users/draw/" + userId, UnityWebRequest.kHttpVerbPOST))
+        {
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            
+            string sid = PlayerPrefs.GetString(Constants.SID, "");
+            if (!string.IsNullOrEmpty(sid))
+            {
+                www.SetRequestHeader("Cookie", sid);
+            }
+
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.ConnectionError ||
+                www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                if (www.responseCode == 403)
+                {
+                    Debug.Log("로그인이 필요합니다.");
+                }
+                
+                failure?.Invoke();
+            }
+            else
+            {
+                var result = www.downloadHandler.text;
+                var userInfoResult = JsonConvert.DeserializeObject<UserInfoResult>(result);
+                
+                success?.Invoke(userInfoResult.userInfo);
+            }
+        }
+    }
+
     public void SendWinnerWrapper(string userId, Action<UserInfo> success, Action failure)
     {
         StartCoroutine(SendWinner(userId, success, failure));
@@ -356,5 +392,10 @@ public class NetworkManage : Singleton<NetworkManage>
     public void SendLoserWrapper(string userId, Action<UserInfo> success, Action failure)
     {
         StartCoroutine(SendLoser(userId, success, failure));
+    }
+
+    public void SendDrawWrapper(string userId, Action<UserInfo> success, Action failure)
+    {
+        StartCoroutine(SendDraw(userId, success, failure));
     }
 }

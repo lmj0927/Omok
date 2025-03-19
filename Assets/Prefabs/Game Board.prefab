@@ -3465,7 +3465,7 @@ GameObject:
   - component: {fileID: 1308010465164913273}
   - component: {fileID: 8087342182894647020}
   - component: {fileID: 4688287588749670593}
-  - component: {fileID: 1127623963403182430}
+  - component: {fileID: 1009033353269415913}
   m_Layer: 5
   m_Name: 'Camera Button '
   m_TagString: Untagged
@@ -3532,7 +3532,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1127623963403182430
+--- !u!114 &1009033353269415913
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3541,7 +3541,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8516460153669025107}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: a6bbb5af14d74d238164b34774d2ccf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -3554,8 +3554,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0.87058824}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.87058824}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -3675,8 +3675,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 0.87058824}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.87058824}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -3813,7 +3813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   giveUpButton: {fileID: 5429011510459496982}
   executeButton: {fileID: 2720113580731912896}
-  changeViewButton: {fileID: 1127623963403182430}
+  changeViewButton: {fileID: 1009033353269415913}
   descriptionPanel: {fileID: 4667493939504914011}
   descriptionText: {fileID: 920739683134604438}
   blackTurnPanel: {fileID: 8487730662104878079}

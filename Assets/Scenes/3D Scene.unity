@@ -630,7 +630,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraMover: {fileID: 519420033}
-  cameraPreset: []
+  cameraPreset:
+  - {x: 8, y: 80, z: 30}
+  - {x: 8, y: 60, z: 20}
+  - {x: 15, y: 30, z: 45}
+  - {x: 9, y: 40, z: 0}
+  - {x: 8, y: 75, z: 0}
   StoneSpawner: {fileID: 1321558212}
 --- !u!1 &858701224
 GameObject:

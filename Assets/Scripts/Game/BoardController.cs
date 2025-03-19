@@ -57,7 +57,8 @@ public class BoardController : MonoBehaviour
     {
         if(_gameSystem != null)
         {
-            GameManager.Instance.cameraMover.SetTarget(null);
+            if(GameManager.Instance.cameraMover != null)
+                GameManager.Instance.cameraMover.SetTarget(null);
             _gridPlacementSystem.ClearStones();
             Destroy(_gameSystem);
         }

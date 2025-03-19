@@ -45,8 +45,8 @@ public class CameraMover : MonoBehaviour
         targetYRotation = currentYRotation = angles.x;
  
         targetDistance = currentDistance = Vector3.Distance(transform.position, target.position);
-        //ResetCamera(8, 55, 0);
-        ResetCamera(8, 40, 20);
+        
+        ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
 
         UpdateCamera();
     }
@@ -128,7 +128,7 @@ public class CameraMover : MonoBehaviour
                 UpdateCamera();
             }
         }
-        ResetCamera(8, 40, 20);
+        ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
     }
 
     public void SetCamera(Vector3 rotation, float distance)

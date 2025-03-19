@@ -42,7 +42,9 @@ public class MatchController : IDisposable
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public Action OnTurnEndUI;
     public Action<bool, Action> OnGameEndUI;
+    public Action OnEndGridOmok;
     public List<Cell> FiveCells = new();
+    public List<Transform> EndStones = new();
 
     public void SetCurrentCell(Cell cell)
     {
@@ -431,6 +433,7 @@ public class MatchController : IDisposable
             }
         }
         FiveCells.Clear();
+        EndStones.Clear();
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         

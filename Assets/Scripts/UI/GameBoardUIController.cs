@@ -186,9 +186,11 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     
     void GameEnded(bool isBlackWin, Action onComplete)
     {
-        //TODO: 게임이 바로 종료 되지 않고 완성된 오목 한줄을 강조함.
+        //오목 강조 효과
+        //2D판 오목 표시
         if (_endMarkerObjects != null)
         {
+            //최초 생성 시
             foreach (var cell in GameManager.Instance.matchController.FiveCells)
             {
                 var cellTr = cell.GetComponent<RectTransform>();
@@ -201,6 +203,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
         else
         {
+            //이후 위치만 변경해서 활성화.
             int i = 0;
             foreach (var cell in GameManager.Instance.matchController.FiveCells)
             {
@@ -211,8 +214,11 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 i++;
             }
         }
+        
+        //3D판 오목 표시.
+        GameManager.Instance.matchController.OnEndGridOmok?.Invoke();
     
-        //TODO: 게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
+        //게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
         _isStartMatch = false;
         giveUpButton.interactable = false;
         
@@ -220,7 +226,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         descriptionText.DOColor(isBlackWin ? Color.white : Color.black, Duration);
         descriptionText.text = isBlackWin ? "흑의 승리 입니다!" : "백의  승리입니다!";
     
-        //TODO: EndMatch가 호출되면 기권 버튼을 Disable 하고 착수 버튼을 퇴장 버튼으로 바꾼다.
+        //EndMatch가 호출되면 기권 버튼을 Disable 하고 착수 버튼을 퇴장 버튼으로 바꾼다.
     
         _excuteButtonText.text = "퇴장";
         _excuteButtonText.DOColor(Color.white, Duration);

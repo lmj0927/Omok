@@ -66,5 +66,6 @@ public class Constants
         White,
         PreviewBlack,
         PreviewWhite,
+        LastPlace
     }
 }

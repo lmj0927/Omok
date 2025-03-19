@@ -429,8 +429,9 @@ public class MatchController : IDisposable
             {
                 myPlayerDataController.Lose();
                 opponentPlayerDataController.Win();
-                _matchInfo.isWin = false;
             }
+
+            _matchInfo.isWin = false;
         }
         FiveCells.Clear();
         EndStones.Clear();

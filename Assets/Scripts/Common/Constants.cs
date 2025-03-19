@@ -68,4 +68,9 @@ public class Constants
         PreviewWhite,
         LastPlace
     }
+
+
+    public const float cameraMoverInitDistance = 5;
+    public const float cameraMoverInitRotateX = 40;
+    public const float cameraMoverInitRotateY = 20;
 }

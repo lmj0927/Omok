@@ -256,62 +256,245 @@ public class BoardController : MonoBehaviour
 
     private List<(int, int)> GetForbiddenPoints()
     {
-        List<(int, int)> forbiddenPoints = new List<(int, int)>();
-    
+        List<(int, int)> forbidden = new List<(int, int)>();
+        for (int row = 0; row < width; row++)
+        {
+            for (int col = 0; col < height; col++)
+            {
+                if (cells[row, col].GetCellType() != CELL_TYPE.None)
+                     continue;
+                if(CheckForbidden(row, col))
+                    forbidden.Add((row, col));
+            }
+        }
+        
+        foreach (var point in forbidden)
+        {
+            cells[point.Item1, point.Item2].SetCellTypeTemporary(CELL_TYPE.Warning);
+        }
+        
         for (int row = 0; row < width; row++)
         {
             for (int col = 0; col < height; col++)
             {
                 if (cells[row, col].GetCellType() != CELL_TYPE.None)
                     continue;
+                if (CheckDoubleThree(row, col) >= 2 || CheckDoubleFour(row, col) >= 2)
+                    forbidden.Add((row, col));
+            }
+        }
+        return forbidden;
+    }
 
-                int threeCount = 0;
-                int fourCount = 0;
-                bool isOverline = false;
-            
-                foreach (var dirs in directions)
+    private int GetCellCount(int row, int col, List<(int, int)> direction)
+    {
+        int count = 1;
+
+        foreach (var dir in direction)
+        {
+            int newRow = row + dir.Item1;
+            int newCol = col + dir.Item2;
+            while (true)
+            {
+                if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != CELL_TYPE.Black)
                 {
-                    
-                    bool isOpen = true;
-                    int lineCount = 1;
-                    foreach (var dir in dirs)
-                    {
-                        for (int i = 1; i < 5; i++)
-                        {
-                            int newRow = row + dir.Item1 * i;
-                            int newCol = col + dir.Item2 * i;
-                            
-                            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White)
-                            {
-                                if (i < 4)
-                                {
-                                    isOpen = false;
-                                }
-                                break;
-                            }
-                            if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
-                            {
-                                lineCount++;
-                            }
-                        }
-                    }
-                    if (lineCount == 3 && isOpen)
-                        threeCount++;
-                    if (lineCount == 4)
-                        fourCount++;
-                    if (lineCount > 5)
-                        isOverline = true;
+                    break;
                 }
-            
-                if (threeCount >= 2 || fourCount >= 2 || isOverline)
+                if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
                 {
-                    forbiddenPoints.Add((row, col));
+                    count++;
+                }
+                newRow += dir.Item1;
+                newCol += dir.Item2;
+            }
+        }
+        return count;
+    }
+    
+    private (int, int) FindEmpty(int row, int col, (int , int) direction)
+    {
+        int newRow = row + direction.Item1;
+        int newCol = col + direction.Item2;
+        while (true)
+        {
+            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != CELL_TYPE.Black)
+            {
+                break;
+            }
+            newRow += direction.Item1;
+            newCol += direction.Item2;
+        }
+        if (IsValidPosition(newRow, newCol) && cells[newRow, newCol].GetCellType() == CELL_TYPE.None)
+        {
+            return (newRow, newCol);
+        }
+        return (-1, -1);
+    }
+    
+    private bool CheckOpenThree(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+
+                if (CheckDoubleFour(newRow, newCol)>=2)
+                {
+                    return false;
+                }
+                
+                cells[newRow, newCol].SetCellTypeTemporary(CELL_TYPE.Black);
+                if (1 == CheckOpenFour(newRow, newCol, direction))
+                {
+                    cells[newRow, newCol].SetCellTypeTemporary(CELL_TYPE.None);
+                    return true;
+                }
+                cells[newRow, newCol].SetCellTypeTemporary(CELL_TYPE.None);
+            }
+        }
+        
+        return false;
+    }
+
+    private int CheckOpenFour(int row, int col, List<(int, int)> direction)
+    {
+        int count = 0;
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    count++;
                 }
             }
         }
-        return forbiddenPoints;
+
+        if (count == 2)
+        {
+            if (GetCellCount(row, col, direction) == 4)
+                count = 1;
+        }
+        else
+        {
+            count = 0;
+        }
+        
+        return count;
+    }
+    
+    private bool CheckFive(int row, int col, List<(int, int)> direction)
+    {
+        var count = GetCellCount(row, col, direction);
+        if (count == 5)
+            return true;
+        return false;    
     }
 
+    private int CheckDoubleThree(int row, int col)
+    {
+        int count = 0;
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.Black);
+        foreach (var dir in directions)
+        {
+            if (CheckOpenThree(row, col, dir))
+            {
+                count++;
+            }
+        }
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.None);
+        
+        return count;
+    }
+
+    private bool CheckFour(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private int CheckDoubleFour(int row, int col)
+    {
+        if(IsFive(row, col))
+            return 0;
+        int count = 0;
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.Black);
+        foreach (var dirs in directions)
+        {
+            if(CheckOpenFour(row, col, dirs) >= 1)
+                count += CheckOpenFour(row, col, dirs);
+            else if (CheckFour(row, col, dirs))
+            {
+                count++;
+            }
+        }
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.None);
+        
+        return count;
+    }
+
+    private bool IsFive(int row, int col)
+    {
+        foreach (var dirs in directions)
+        {
+            var count = GetCellCount(row, col, dirs);
+            if (count == 5)
+                return true;
+        }
+        return false;
+    }
+
+    private int CheckLong(int row, int col)
+    {
+        int count = 0;
+        foreach (var dirs in directions)
+        {
+            foreach (var dir in dirs)
+            {
+                count = GetCellCount(row, col, dirs);
+                if(count >= 5)
+                    return count;
+            }
+        }
+        return count;
+    }
+    
+    private bool CheckForbidden(int row, int col)
+    {
+        if (IsFive(row, col))
+        {
+            return false;
+        }
+        
+        if(CheckLong(row, col) > 5)
+            return true;
+
+        if (CheckDoubleThree(row, col) + CheckDoubleFour(row, col) >= 3)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
     private bool IsValidPosition(int row, int col)
     {
         return row >= 0 && row < width && col >= 0 && col < height;

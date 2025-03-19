@@ -29,14 +29,11 @@ public class ResultPanelController : PanelController
     private List<GameObject> _cells;
     private UserInfo _userInfo;
 
-    protected override void Awake()
+    protected void Awake()
     {
         _rectTransform = gameObject.GetComponent<RectTransform>();
         closeButton.onClick.AddListener(Hide);
-        
-        base.Awake();
     }
-    
 
     public void Show(bool isWin, UserInfo userInfo)
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MatchMakingController : PanelController
+public class MatchMakingController : PopupController
 {
     public Button closeButton;
 

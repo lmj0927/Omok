@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +15,14 @@ public class BoardController : MonoBehaviour
     public Vector2 padding;
     public GameObject cellPrefab;
     public RectTransform cellParent;
-    
+    public RectTransform lastCellFlag;
+    [SerializeField] GameObject gameSystemPrefab;
+    GameObject _gameSystem;
+    GridPlacementSystem _gridPlacementSystem;
+
+    [SerializeField] List<Cell> fiveCells = new();
+    [SerializeField] List<Cell> placeCellList = new();
+    [SerializeField] Queue<int> placeCellIndexes = new();
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
     {
@@ -32,8 +41,31 @@ public class BoardController : MonoBehaviour
     void OnEnable()
     {
         Initialize();
+
+        if(gameSystemPrefab != null)
+        {
+            if(_gameSystem == null)
+            {
+                _gameSystem = Instantiate(gameSystemPrefab, new Vector3(0, 2f, 0), Quaternion.identity);
+            }
+            _gridPlacementSystem = _gameSystem.GetComponent<GridPlacementSystem>();
+            GameManager.Instance.cameraMover.SetTarget(_gridPlacementSystem.cameraTarget);
+            _gridPlacementSystem.OnSetCurrentCell += SetCurrentCell;
+            GameManager.Instance.matchController.OnEndGridOmok += _gridPlacementSystem.EndOmok;
+        }
     }
-    
+
+    void OnDisable()
+    {
+        if(_gameSystem != null)
+        {
+            GameManager.Instance.cameraMover.SetTarget(null);
+            _gridPlacementSystem.ClearStones();
+            placeCellList.Clear();
+            placeCellIndexes.Clear();
+            Destroy(_gameSystem);
+        }
+    }
 
     public void Initialize()
     {
@@ -64,6 +96,8 @@ public class BoardController : MonoBehaviour
         }
         GameManager.Instance.matchController.OnDrawCell = OnDrawCell;
         GameManager.Instance.matchController.TurnEnded = EndTurn;
+        
+        lastCellFlag.gameObject.SetActive(false);
     }
 
     private void OnDrawCell(TurnData turnData, CELL_TYPE type)
@@ -71,15 +105,35 @@ public class BoardController : MonoBehaviour
         var row = turnData.row;
         var col = turnData.col;
         cells[row, col].SetCellType(type);
+        
+        if(_gridPlacementSystem != null)
+        {
+            _gridPlacementSystem.PlaceStone(row, col, type);
+        }
     }
+    
+    void SetCurrentCell(TurnData data)
+    {
+        Cell cell = cells[data.row, data.col];
+
+        GameManager.Instance.matchController.SetCurrentCell(cell);
+    }
+    
 
     private void EndTurn(TurnData turnData, MATCH_STATE state)
     {
         OnDrawCell(turnData, state == MATCH_STATE.BlackTurn ? CELL_TYPE.Black : CELL_TYPE.White);
         var row = turnData.row;
         var col = turnData.col;
+        
+        //마지막에 둔 Cell위에 표시 - 2D
+        MoveToLastCellFlag(row, col, state);
+        
+        placeCellList.Add(cells[row, col]);
+        
         if (CheckGameResult(row, col))
         {
+            CheckEndOmok();
             GameManager.Instance.matchController.EndMatch(MATCH_STATE.BlackTurn == state, false);
             return;
         }
@@ -114,6 +168,17 @@ public class BoardController : MonoBehaviour
         }
     }
 
+    private void MoveToLastCellFlag(int row, int col, MATCH_STATE state)
+    {
+        if(!lastCellFlag.gameObject.activeSelf) lastCellFlag.gameObject.SetActive(true);
+        
+        var flagColor =  lastCellFlag.GetComponentInChildren<Image>();
+        flagColor.DOColor(state == MATCH_STATE.BlackTurn ? Color.white : Color.black, 0);
+
+        var currentCellPosition = cells[row,col].GetComponent<RectTransform>().anchoredPosition;
+        lastCellFlag.anchoredPosition = currentCellPosition;
+    }
+
     #region GameResult
     
     private bool CheckGameResult(int row, int col)
@@ -124,12 +189,14 @@ public class BoardController : MonoBehaviour
        
         foreach (var dirs in directions)
         {
+            fiveCells.Add(cells[row, col]);
             foreach (var dir in dirs)
             {
                 for (int i = 1; i < 5; i++)
                 {
                     if (CheckMark(row + dir.Item1 * i, col + dir.Item2 * i, cellType))
                     {
+                        fiveCells.Add(cells[row + dir.Item1 * i, col + dir.Item2 * i]);
                         count++;
                     }
                     else
@@ -141,6 +208,7 @@ public class BoardController : MonoBehaviour
                 if(count >= 4)
                     return true;
             }
+            fiveCells.Clear();
             count = 0;
         }
         
@@ -160,68 +228,273 @@ public class BoardController : MonoBehaviour
         return false;
     }
     
+    private void CheckEndOmok()
+    {
+        if (fiveCells != null)
+        {
+            //2D 게임판
+            GameManager.Instance.matchController.FiveCells.AddRange(fiveCells);
+                
+            //3D 게임판
+            for (int i = 0; i < placeCellList.Count; i++)
+            {
+                foreach (var cell in fiveCells)
+                {
+                    if (placeCellList[i] == cell)
+                    {
+                        //오목이 된 오브젝트들의 위치정보 전달.
+                        GameManager.Instance.matchController.EndStones.Add(_gridPlacementSystem.placedStoneList[i]);
+                    }
+                }
+            }
+        }
+    }
+    
     #endregion
 
     #region RenjunRule
 
     private List<(int, int)> GetForbiddenPoints()
     {
-        List<(int, int)> forbiddenPoints = new List<(int, int)>();
-    
+        List<(int, int)> forbidden = new List<(int, int)>();
+        for (int row = 0; row < width; row++)
+        {
+            for (int col = 0; col < height; col++)
+            {
+                if (cells[row, col].GetCellType() != CELL_TYPE.None)
+                     continue;
+                if(CheckForbidden(row, col))
+                    forbidden.Add((row, col));
+            }
+        }
+        
+        foreach (var point in forbidden)
+        {
+            cells[point.Item1, point.Item2].SetCellTypeTemporary(CELL_TYPE.Warning);
+        }
+        
         for (int row = 0; row < width; row++)
         {
             for (int col = 0; col < height; col++)
             {
                 if (cells[row, col].GetCellType() != CELL_TYPE.None)
                     continue;
+                if (CheckDoubleThree(row, col) >= 2 || CheckDoubleFour(row, col) >= 2)
+                    forbidden.Add((row, col));
+            }
+        }
+        return forbidden;
+    }
 
-                int threeCount = 0;
-                int fourCount = 0;
-                bool isOverline = false;
-            
-                foreach (var dirs in directions)
+    private int GetCellCount(int row, int col, List<(int, int)> direction)
+    {
+        int count = 1;
+
+        foreach (var dir in direction)
+        {
+            int newRow = row + dir.Item1;
+            int newCol = col + dir.Item2;
+            while (true)
+            {
+                if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != CELL_TYPE.Black)
                 {
-                    
-                    bool isOpen = true;
-                    int lineCount = 1;
-                    foreach (var dir in dirs)
-                    {
-                        for (int i = 1; i < 5; i++)
-                        {
-                            int newRow = row + dir.Item1 * i;
-                            int newCol = col + dir.Item2 * i;
-                            
-                            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() == CELL_TYPE.White)
-                            {
-                                if (i < 4)
-                                {
-                                    isOpen = false;
-                                }
-                                break;
-                            }
-                            if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
-                            {
-                                lineCount++;
-                            }
-                        }
-                    }
-                    if (lineCount == 3 && isOpen)
-                        threeCount++;
-                    if (lineCount == 4)
-                        fourCount++;
-                    if (lineCount > 5)
-                        isOverline = true;
+                    break;
                 }
-            
-                if (threeCount >= 2 || fourCount >= 2 || isOverline)
+                if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
                 {
-                    forbiddenPoints.Add((row, col));
+                    count++;
+                }
+                newRow += dir.Item1;
+                newCol += dir.Item2;
+            }
+        }
+        return count;
+    }
+    
+    private (int, int) FindEmpty(int row, int col, (int , int) direction)
+    {
+        int newRow = row + direction.Item1;
+        int newCol = col + direction.Item2;
+        while (true)
+        {
+            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != CELL_TYPE.Black)
+            {
+                break;
+            }
+            newRow += direction.Item1;
+            newCol += direction.Item2;
+        }
+        if (IsValidPosition(newRow, newCol) && cells[newRow, newCol].GetCellType() == CELL_TYPE.None)
+        {
+            return (newRow, newCol);
+        }
+        return (-1, -1);
+    }
+    
+    private bool CheckOpenThree(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+
+                if (CheckDoubleFour(newRow, newCol)>=2)
+                {
+                    return false;
+                }
+                
+                cells[newRow, newCol].SetCellTypeTemporary(CELL_TYPE.Black);
+                if (1 == CheckOpenFour(newRow, newCol, direction))
+                {
+                    cells[newRow, newCol].SetCellTypeTemporary(CELL_TYPE.None);
+                    return true;
+                }
+                cells[newRow, newCol].SetCellTypeTemporary(CELL_TYPE.None);
+            }
+        }
+        
+        return false;
+    }
+
+    private int CheckOpenFour(int row, int col, List<(int, int)> direction)
+    {
+        int count = 0;
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    count++;
                 }
             }
         }
-        return forbiddenPoints;
+
+        if (count == 2)
+        {
+            if (GetCellCount(row, col, direction) == 4)
+                count = 1;
+        }
+        else
+        {
+            count = 0;
+        }
+        
+        return count;
+    }
+    
+    private bool CheckFive(int row, int col, List<(int, int)> direction)
+    {
+        var count = GetCellCount(row, col, direction);
+        if (count == 5)
+            return true;
+        return false;    
     }
 
+    private int CheckDoubleThree(int row, int col)
+    {
+        int count = 0;
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.Black);
+        foreach (var dir in directions)
+        {
+            if (CheckOpenThree(row, col, dir))
+            {
+                count++;
+            }
+        }
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.None);
+        
+        return count;
+    }
+
+    private bool CheckFour(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private int CheckDoubleFour(int row, int col)
+    {
+        if(IsFive(row, col))
+            return 0;
+        int count = 0;
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.Black);
+        foreach (var dirs in directions)
+        {
+            if(CheckOpenFour(row, col, dirs) >= 1)
+                count += CheckOpenFour(row, col, dirs);
+            else if (CheckFour(row, col, dirs))
+            {
+                count++;
+            }
+        }
+        cells[row, col].SetCellTypeTemporary(CELL_TYPE.None);
+        
+        return count;
+    }
+
+    private bool IsFive(int row, int col)
+    {
+        foreach (var dirs in directions)
+        {
+            var count = GetCellCount(row, col, dirs);
+            if (count == 5)
+                return true;
+        }
+        return false;
+    }
+
+    private int CheckLong(int row, int col)
+    {
+        int count = 0;
+        foreach (var dirs in directions)
+        {
+            foreach (var dir in dirs)
+            {
+                count = GetCellCount(row, col, dirs);
+                if(count >= 5)
+                    return count;
+            }
+        }
+        return count;
+    }
+    
+    private bool CheckForbidden(int row, int col)
+    {
+        if (IsFive(row, col))
+        {
+            return false;
+        }
+        
+        if(CheckLong(row, col) > 5)
+            return true;
+
+        if (CheckDoubleThree(row, col) + CheckDoubleFour(row, col) >= 3)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
     private bool IsValidPosition(int row, int col)
     {
         return row >= 0 && row < width && col >= 0 && col < height;

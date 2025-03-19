@@ -48,7 +48,7 @@ public class UIManager : Singleton<UIManager>
         
 
         //초기화
-        GetUI<SigninPanelController>(UI_TYPE.SignIn); 
+        ShowUI<SigninPanelController>(UI_TYPE.SignIn); 
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -74,7 +74,7 @@ public class UIManager : Singleton<UIManager>
     public void HideUI<T>(UI_TYPE type) where T : Component, IGameUI
     {
         var ui = GetUI<T>(type);
-        ui.Show();
+        ui.Hide();
     }
     
     public T GetUI<T>(UI_TYPE type) where T : Component
@@ -92,8 +92,6 @@ public class UIManager : Singleton<UIManager>
     private T CreateUI<T>(UI_TYPE type) where T : Component
     {
         var ui = _uiPrefabs[type];
-
-
         if (ui == null) return null;
         
         var instance = Instantiate(ui, _mainCanvas.transform).GetComponent<T>();

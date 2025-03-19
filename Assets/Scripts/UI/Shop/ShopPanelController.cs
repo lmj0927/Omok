@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class ShopPanelController: MonoBehaviour,IGameUI
+public class ShopPanelController: PanelController
 {
     [Header("UI Elements")]
     [SerializeField] private RectTransform content;
@@ -29,7 +29,7 @@ public class ShopPanelController: MonoBehaviour,IGameUI
         //TODO: Coin 설정
     }
 
-    public void Show()
+    public override void Show()
     {
         var original = _shopPanel.anchoredPosition;
         _shopPanel.anchoredPosition = new Vector2(Screen.width, original.y);
@@ -38,7 +38,7 @@ public class ShopPanelController: MonoBehaviour,IGameUI
         _shopPanel.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
     }
 
-    public void Hide()
+    public override void Hide()
     {
         var original = _shopPanel.anchoredPosition;
 

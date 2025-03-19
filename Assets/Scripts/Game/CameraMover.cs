@@ -29,15 +29,16 @@ public class CameraMover : MonoBehaviour
     
     // 마우스 입력 감지
     bool isRotating = false;
-    
+    GameObject _defaultTarget;
+
     // 초기화
     void Start()
     {
         if (target == null)
         {
-            GameObject targetObject = new GameObject("CameraTarget");
-            targetObject.transform.position = Vector3.zero;
-            target = targetObject.transform;
+            _defaultTarget = new GameObject("CameraTarget");
+            _defaultTarget.transform.position = Vector3.zero;
+            target = _defaultTarget.transform;
         }
         
         Vector3 angles = transform.eulerAngles;
@@ -45,7 +46,8 @@ public class CameraMover : MonoBehaviour
         targetYRotation = currentYRotation = angles.x;
  
         targetDistance = currentDistance = Vector3.Distance(transform.position, target.position);
-        ResetCamera(8, 55, 0);
+        
+        ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
 
         UpdateCamera();
     }
@@ -62,7 +64,12 @@ public class CameraMover : MonoBehaviour
     
     void HandleInput()
     {
-        if (Input.GetMouseButtonDown(1))
+        if(target == null)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(1) && target != _defaultTarget.transform)
         {
             isRotating = true;
         }
@@ -81,7 +88,7 @@ public class CameraMover : MonoBehaviour
         }
 
         float scrollInput = Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(scrollInput) > 0.01f)
+        if (Mathf.Abs(scrollInput) > 0.01f && target != _defaultTarget.transform)
         {
             targetDistance -= scrollInput * zoomSpeed;
             targetDistance = Mathf.Clamp(targetDistance, minDistance, maxDistance);
@@ -90,6 +97,12 @@ public class CameraMover : MonoBehaviour
     
     void UpdateCamera()
     {
+        if(target == null)
+        {
+            return;
+        }
+
+
         currentXRotation = Mathf.Lerp(currentXRotation, targetXRotation, Time.deltaTime * rotationDampening);
         currentYRotation = Mathf.Lerp(currentYRotation, targetYRotation, Time.deltaTime * rotationDampening);
         currentDistance = Mathf.Lerp(currentDistance, targetDistance, Time.deltaTime * movementDampening);
@@ -98,7 +111,7 @@ public class CameraMover : MonoBehaviour
 
         Vector3 targetPosition = target.position + targetOffset;
         Vector3 direction = rotation * Vector3.back;
-        Debug.DrawRay(targetPosition, direction * currentDistance, Color.red);
+
         Vector3 desiredPosition = targetPosition + direction * currentDistance;        
 
         transform.position = desiredPosition;
@@ -107,6 +120,11 @@ public class CameraMover : MonoBehaviour
 
     public void SetTarget(Transform newTarget, bool instant = false)
     {
+        if(newTarget == null && _defaultTarget != null)
+        {
+            newTarget = _defaultTarget.transform;
+        }
+
         if (newTarget != null)
         {
             target = newTarget;
@@ -116,6 +134,15 @@ public class CameraMover : MonoBehaviour
                 UpdateCamera();
             }
         }
+
+        ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
+    }
+
+    public void SetCamera(Vector3 rotation, float distance)
+    {
+        targetXRotation = rotation.y;
+        targetYRotation = rotation.x;
+        targetDistance =  distance;
     }
     
     public void ResetCamera(float newDistance = 15f, float xRotation = 45f, float yRotation = 30f)

@@ -27,6 +27,12 @@ public class MainMenuController : MonoBehaviour, IGameUI
         Initialize();
     }
 
+    void OnEnable()
+    {
+        GameManager.Instance.StoneSpawner.StartSpawn();
+        GameManager.Instance.cameraMover.ResetCamera(cameraMoverInitDistance, cameraMoverInitRotateX, cameraMoverInitRotateY); 
+    }
+
     void Initialize()
     {
         UpdateUserInfo();
@@ -77,11 +83,11 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     public void Show()
     {
-        throw new System.NotImplementedException();
+        gameObject.SetActive(true);
     }
 
     public void Hide()
     {
-        throw new System.NotImplementedException();
+        gameObject.SetActive(false);        
     }
 }

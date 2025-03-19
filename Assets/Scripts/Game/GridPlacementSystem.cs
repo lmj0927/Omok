@@ -53,7 +53,11 @@ public class GridPlacementSystem : MonoBehaviour
             Destroy(previewObject);
         }
         
-        previewObject = Instantiate(objectPrefab[currentTurn]);
+        if(currentTurn == CELL_TYPE.None)
+        {
+            return;
+        }
+        previewObject = Instantiate(objectPrefab[currentTurn]);        
         
 
         Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();

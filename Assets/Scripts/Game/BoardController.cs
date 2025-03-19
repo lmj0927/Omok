@@ -220,7 +220,7 @@ public class BoardController : MonoBehaviour
     
     #endregion
 
-     #region RenjunRule
+    #region RenjunRule
 
     private List<(int, int)> GetForbiddenPoints()
     {
@@ -381,6 +381,24 @@ public class BoardController : MonoBehaviour
         return count;
     }
 
+    private bool CheckFour(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     private int CheckDoubleFour(int row, int col)
     {
         if(IsFive(row, col))
@@ -389,11 +407,12 @@ public class BoardController : MonoBehaviour
         cells[row, col].SetCellTypeTemporary(CELL_TYPE.Black);
         foreach (var dirs in directions)
         {
-            count += CheckOpenFour(row, col, dirs);
-            // if (CheckFour(row, col, dirs))
-            // {
-            //     count++;
-            // }
+            if(CheckOpenFour(row, col, dirs) >= 1)
+                count += CheckOpenFour(row, col, dirs);
+            else if (CheckFour(row, col, dirs))
+            {
+                count++;
+            }
         }
         cells[row, col].SetCellTypeTemporary(CELL_TYPE.None);
         

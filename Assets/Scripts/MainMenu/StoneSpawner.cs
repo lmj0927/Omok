@@ -12,6 +12,8 @@ public class StoneSpawner : MonoBehaviour
 
     public void StartSpawn()
     {
+        gameObject.SetActive(true);
+
         _spawnCts = new CancellationTokenSource();
         SpawnStoneAsync().Forget();        
     }

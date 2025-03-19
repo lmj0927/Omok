@@ -27,7 +27,7 @@ public class MCTS
 
     public void SetIterations(int iter)
     {
-        iterations = 30000;
+        iterations = 50000;
     }
 
     async public UniTask RunSearch(int row, int col)
@@ -184,6 +184,7 @@ public class Node
     public int currentPlayer { get; private set; } // 현재 board 상태를 만든 player
     public bool isWinningBoard { get; private set; } // 필승이 가능한 상태일 때 true가 된다(현재 player와 관계없이 ai 기준)
     public bool isLosingBoard { get; private set; } //  무조건 지는 상태일 때 true가 된다(현재 player 관계없이 ai 기준
+    public double uctValue { get; private set; }
 
     public Node(Node parent, int[,] board, int player, (int, int) move)
     {
@@ -235,9 +236,11 @@ public class Node
             {
                 Node child = new Node(this, newBoard, -currentPlayer, move);
                 child.isWinningBoard = true;
+                children.Clear();
                 children.Add(child);
                 winningNode = child;
-                foundWinningBoard = true;
+                isWinningBoard = true;
+                return (winningNode, true);
             }
             else // 당장 다음 노드에서 승부가 나지 않는 경우
             {
@@ -248,19 +251,11 @@ public class Node
 
         fullyExpanded = true;
 
-        if (foundWinningBoard)
-        {
-            isWinningBoard = true;
-            return (winningNode, true);
-        }
-
         if (losingBoardCount == children.Count)
         {
             isLosingBoard = true;
             return (children[random.Next(children.Count)], true);
         }
-        
-        // PrintBoardState(children[random.Next(children.Count)].board);
         
         return (children[random.Next(children.Count)], false);
     }
@@ -273,8 +268,7 @@ public class Node
         int player = currentPlayer;
         List<(int, int)> possibleMoves = GetPossibleMoves(tempBoard);
         (int, int) move = this.move;
-
-        double totalScore = 0d;
+        
         bool winnerDecided = CheckWin(tempBoard, move);
         
         while (!winnerDecided && possibleMoves.Count > 0)
@@ -289,33 +283,12 @@ public class Node
         return winnerDecided ? (player == 1 ? 1d : 0) : 0;
     }
     
-    // private double EvaluateBoard(int[,] board, (int, int) move, int player)
-    // {
-    //     int threeCount = 0;
-    //     int fourCount = 0;
-    //
-    //     double threeScore = 0.01d;
-    //     double fourScore = 0.1d;
-    //
-    //     foreach (var (dx, dy) in directions)
-    //     {
-    //         int count = CountConsecutiveStones(board, move.Item1, move.Item2, dx, dy, player)
-    //             + CountConsecutiveStones(board, move.Item1, move.Item2, -dx, -dy, player) - 1;
-    //
-    //         if (count == 3) threeCount++;
-    //         if (count == 4) fourCount++;
-    //     }
-    //     double score = (fourCount * fourScore) + (threeCount * threeScore);
-    //
-    //     return player == 1 ? score : -score;
-    // }
-
-
     public void Update(double result)
     {
         visits++;
         wins += result;
     }
+    
     public (Node, bool) BestUCTChild() // bool: winnerDecided
     {
         if (currentPlayer == -1) // 마지막으로 player가 뒀을 때

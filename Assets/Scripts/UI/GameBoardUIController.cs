@@ -10,6 +10,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     [Header("Interaction Buttons")]
     public Button giveUpButton;
     public Button executeButton;
+    [SerializeField] Button changeViewButton;
     
     //상단 한줄 정보란
     [Header("Head Description")]
@@ -102,26 +103,27 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 
     public void Initialize()
     {
-        giveUpButton.onClick.AddListener(OnClickGiveUpButton);
-        executeButton.onClick.AddListener(OnClickExecuteButton);
-        
-        GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
-        
-        _onRepeatEffect += OnRepeatBoardEffect;
-        _onRepeatEffect += OnRepeatCircleEffect;
-        
-        _excuteButtonImage = executeButton.GetComponent<Image>();
-        _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
-        
-        _timerSeed = timerCircleImage.GetComponentsInChildren<Image>()[1];
-        _timerHead = timerCircleImage.GetComponentsInChildren<Image>()[^1];
-        _timerHeadRect = timerCircleImage.GetComponentsInChildren<RectTransform>()[^1];
-        
-        boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
-        circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
-        
         if(_blackOriginWidth == 0)
         {
+            giveUpButton.onClick.AddListener(OnClickGiveUpButton);
+            executeButton.onClick.AddListener(OnClickExecuteButton);
+            changeViewButton.onClick.AddListener(OnClickChangeViewButton);
+            
+            GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
+            
+            _onRepeatEffect += OnRepeatBoardEffect;
+            _onRepeatEffect += OnRepeatCircleEffect;
+            
+            _excuteButtonImage = executeButton.GetComponent<Image>();
+            _excuteButtonText = executeButton.GetComponentInChildren<TMP_Text>();
+            
+            _timerSeed = timerCircleImage.GetComponentsInChildren<Image>()[1];
+            _timerHead = timerCircleImage.GetComponentsInChildren<Image>()[^1];
+            _timerHeadRect = timerCircleImage.GetComponentsInChildren<RectTransform>()[^1];
+            
+            boardOutlineFade = boardOutlineRect.GetComponent<CanvasGroup>();
+            circleEffectFade = circleEffectRect.GetComponent<CanvasGroup>();
+        
             _blackOriginWidth = blackTurnPanel.sizeDelta.x;
             _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
         }
@@ -151,6 +153,11 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     public void OnClickExecuteButton()
     {
         GameManager.Instance.matchController.SetTurn();
+    }
+    
+    public void OnClickChangeViewButton()
+    {
+        GameManager.Instance.ChangeView();
     }
 
     public void SetChangedTurn()

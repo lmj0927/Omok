@@ -20,7 +20,7 @@ public class BoardController : MonoBehaviour
     GameObject _gameSystem;
     GridPlacementSystem _gridPlacementSystem;
 
-    List<Cell> fiveCells = new();
+    [SerializeField] List<Cell> fiveCells = new();
     
     List<List<(int, int)>> directions = new List<List<(int, int)>>
     {
@@ -202,6 +202,7 @@ public class BoardController : MonoBehaviour
                 if(count >= 4)
                     return true;
             }
+            fiveCells.Clear();
             count = 0;
         }
         

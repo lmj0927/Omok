@@ -363,6 +363,11 @@ public class MatchController : IDisposable
     public MATCH_STATE GetMatchState(){
         return _matchState;
     }
+    
+    public MatchInfo GetCurrentMatchInfo()
+    {
+        return _matchInfo;
+    }
 
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
@@ -401,6 +406,8 @@ public class MatchController : IDisposable
             OnGameEndUI?.Invoke(isBlackWin, () =>
             {
                 UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+                UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
             });
             
             myPlayerDataController.Win();
@@ -412,6 +419,8 @@ public class MatchController : IDisposable
             OnGameEndUI?.Invoke(isBlackWin, () =>
             {
                 UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+                UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
             });
             
             if(_matchPlayType == PLAY_TYPE.AI)
@@ -425,8 +434,9 @@ public class MatchController : IDisposable
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         
-        UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+        // UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+        // UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+        
         Dispose();
     }
 }

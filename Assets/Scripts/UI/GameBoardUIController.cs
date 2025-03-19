@@ -134,11 +134,25 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
         
         _isStartMatch = false;
+        
+        giveUpButton.interactable = true;
+
+        executeButton.onClick.RemoveAllListeners();
+        executeButton.onClick.AddListener(OnClickExecuteButton);
+
+        if (_endMarkerObjects != null)
+        {
+            foreach (var obj in _endMarkerObjects)
+            {
+                obj.SetActive(false);
+            }
+        }
     }
 
     public void StartMatch()
     {
         _isBlack = GameManager.Instance.matchController.IsClientBlack();
+        _opponentInfo.SetUserInfo(GameManager.Instance.matchController.GetCurrentMatchInfo().opponent);
         _isStartMatch = true;
         
         SetChangedTurn();
@@ -219,6 +233,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 
     public void SetChangedTurn()
     {
+        if (!_isStartMatch) return;
+        
         //시간 초기화
         GameManager.Instance.matchController.TurnTime = 30f;
 

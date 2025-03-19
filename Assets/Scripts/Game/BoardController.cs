@@ -253,7 +253,7 @@ public class BoardController : MonoBehaviour
     
     #endregion
 
-    #region RenjunRule
+    #region RenjuRule
 
     private List<(int, int)> GetForbiddenPoints()
     {
@@ -287,21 +287,21 @@ public class BoardController : MonoBehaviour
         return forbidden;
     }
 
-    private int GetCellCount(int row, int col, List<(int, int)> direction)
+    private int GetCellCount(int row, int col, List<(int, int)> direction, CELL_TYPE cellType)
     {
         int count = 1;
-
+        
         foreach (var dir in direction)
         {
             int newRow = row + dir.Item1;
             int newCol = col + dir.Item2;
             while (true)
             {
-                if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != CELL_TYPE.Black)
+                if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != cellType)
                 {
                     break;
                 }
-                if (cells[newRow, newCol].GetCellType() == CELL_TYPE.Black)
+                if (cells[newRow, newCol].GetCellType() == cellType)
                 {
                     count++;
                 }
@@ -314,11 +314,13 @@ public class BoardController : MonoBehaviour
     
     private (int, int) FindEmpty(int row, int col, (int , int) direction)
     {
+        var cellType = cells[row, col].GetCellType();
+        
         int newRow = row + direction.Item1;
         int newCol = col + direction.Item2;
         while (true)
         {
-            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != CELL_TYPE.Black)
+            if (!IsValidPosition(newRow, newCol) || cells[newRow, newCol].GetCellType() != cellType)
             {
                 break;
             }
@@ -379,7 +381,7 @@ public class BoardController : MonoBehaviour
 
         if (count == 2)
         {
-            if (GetCellCount(row, col, direction) == 4)
+            if (GetCellCount(row, col, direction, CELL_TYPE.Black) == 4)
                 count = 1;
         }
         else
@@ -390,9 +392,27 @@ public class BoardController : MonoBehaviour
         return count;
     }
     
+    private bool CheckFour(int row, int col, List<(int, int)> direction)
+    {
+        foreach (var dir in direction)
+        {
+            var noneLocate = FindEmpty(row, col, dir);
+            if (noneLocate.Item1 != -1)
+            {
+                int newRow = noneLocate.Item1;
+                int newCol = noneLocate.Item2;
+                if (CheckFive(newRow, newCol, direction))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     private bool CheckFive(int row, int col, List<(int, int)> direction)
     {
-        var count = GetCellCount(row, col, direction);
+        var count = GetCellCount(row, col, direction, CELL_TYPE.Black);
         if (count == 5)
             return true;
         return false;    
@@ -414,24 +434,6 @@ public class BoardController : MonoBehaviour
         return count;
     }
 
-    private bool CheckFour(int row, int col, List<(int, int)> direction)
-    {
-        foreach (var dir in direction)
-        {
-            var noneLocate = FindEmpty(row, col, dir);
-            if (noneLocate.Item1 != -1)
-            {
-                int newRow = noneLocate.Item1;
-                int newCol = noneLocate.Item2;
-                if (CheckFive(newRow, newCol, direction))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
     private int CheckDoubleFour(int row, int col)
     {
         if(IsFive(row, col))
@@ -456,26 +458,21 @@ public class BoardController : MonoBehaviour
     {
         foreach (var dirs in directions)
         {
-            var count = GetCellCount(row, col, dirs);
-            if (count == 5)
+            if(CheckFive(row, col, dirs))
                 return true;
         }
         return false;
     }
 
-    private int CheckLong(int row, int col)
+    private bool CheckLong(int row, int col)
     {
-        int count = 0;
         foreach (var dirs in directions)
         {
-            foreach (var dir in dirs)
-            {
-                count = GetCellCount(row, col, dirs);
-                if(count >= 5)
-                    return count;
-            }
+            var count = GetCellCount(row, col, dirs, CELL_TYPE.Black);
+            if(count > 5)
+                return true;
         }
-        return count;
+        return false;
     }
     
     private bool CheckForbidden(int row, int col)
@@ -485,7 +482,7 @@ public class BoardController : MonoBehaviour
             return false;
         }
         
-        if(CheckLong(row, col) > 5)
+        if(CheckLong(row, col))
             return true;
 
         if (CheckDoubleThree(row, col) + CheckDoubleFour(row, col) >= 3)
@@ -500,8 +497,6 @@ public class BoardController : MonoBehaviour
     {
         return row >= 0 && row < width && col >= 0 && col < height;
     }
-
-    
 
     #endregion
     

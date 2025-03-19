@@ -79,4 +79,9 @@ public class Cell : MonoBehaviour
     {
         return _cellType;
     }
+    
+    public void SetCellTypeTemporary(CELL_TYPE cellType)
+    {
+        _cellType = cellType;
+    }
 }

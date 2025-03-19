@@ -27,7 +27,7 @@ public class MCTS
 
     public void SetIterations(int iter)
     {
-        iterations = 10000;
+        iterations = 30000;
     }
 
     async public UniTask RunSearch(int row, int col)
@@ -37,7 +37,6 @@ public class MCTS
         Debug.Log("----탐색중----");
         for (int i = 0; i < iterations; i++)
         {
-            StringBuilder sb = new StringBuilder();
             
             if (rootNode.isWinningBoard) // 필승 전략을 찾았을 때
             {
@@ -64,14 +63,11 @@ public class MCTS
             if (i % 100 == 0) await UniTask.Yield();
             double result;
             
-            (Node node, bool winnerDecided) = Select(rootNode, sb); // uct에 따라 leaf node 선택
-            // Debug.Log(sb.ToString());
+            (Node node, bool winnerDecided) = Select(rootNode); // uct에 따라 leaf node 선택
 
             if (winnerDecided) // 탐색 중 승부가 결정된 node에 도착했을 때
             {
-                Debug.Log("탐색 중 승부 결정난 노드 도달");
-                Debug.Log(node.isWinningBoard? "승리" : "패배");
-                result = node.isWinningBoard ? 1d : -1d;
+                result = node.isWinningBoard ? 1d : 0;
                 Backpropagate(node, result);
                 continue;
             }
@@ -80,16 +76,10 @@ public class MCTS
             Backpropagate(node, result);
         }
         Debug.Log("시뮬레이션 완료");
-        StringBuilder winRates = new StringBuilder();
-        foreach (var child in rootNode.children)
-        {
-            // winRates.Append(
-            //     $"({child.move.Item1}, {child.move.Item2}) - WinRate: {child.wins}, Visits: {child.visits}\n");
-        }
-        // Debug.Log(winRates.ToString());
         
         // 착수 지점 결정
         Node bestchild = BestChild(rootNode);
+        
         UpdateRootNode(bestchild.move.Item1, bestchild.move.Item2, 1);
         
         //이건.. UniTask말고 다른걸 사용해서 테스트할때 사용한 코드 - 착수
@@ -105,7 +95,7 @@ public class MCTS
         {
             // 기존 rootNode의 자식 중 해당 위치의 노드를 찾아 rootNode로 설정
             Node existingChild = rootNode.children.FirstOrDefault(child => child.move == (row, col));
-
+    
             if (existingChild != null)
             {
                 Debug.Log("업데이트 완료");
@@ -124,7 +114,7 @@ public class MCTS
         }
     }
 
-    private (Node,bool) Select(Node node, StringBuilder sb)
+    private (Node,bool) Select(Node node)
     {
         int depth = 0;
         bool winnerDecided = false;
@@ -132,7 +122,6 @@ public class MCTS
         {
             (node, winnerDecided) = node.BestUCTChild(); // leaf에 도달할때까지 UCT에 따라 다음 수를 둔다
             depth++;
-            sb.Append($"({node.move.Item1}, {node.move.Item2}), winrate: {node.wins} - ");
         }
         // Debug.Log(depth);
         
@@ -145,7 +134,6 @@ public class MCTS
         if (node.IsTerminal()) return (node, false);
 
         (Node a, bool b) = node.Expand();
-        sb.Append($"({a.move.Item1}, {a.move.Item2}), winrate: {a.wins} - ");
         return (a, b);
     }
 
@@ -291,18 +279,14 @@ public class Node
         
         while (!winnerDecided && possibleMoves.Count > 0)
         {
+            player = -player;
             move = possibleMoves[random.Next(possibleMoves.Count)];
             tempBoard[move.Item1, move.Item2] = player;
             possibleMoves.Remove(move);
             
-            // totalScore += EvaluateBoard(tempBoard, move, player);
-            
-            player = -player;
-            
             winnerDecided = CheckWin(tempBoard, move);
         }
-        // Debug.Log(winnerDecided? (player == 1? "ai won" : "ai lost") : "draw");
-        return winnerDecided ? (player == 1 ? 1d : -1d) : 0;
+        return winnerDecided ? (player == 1 ? 1d : 0) : 0;
     }
     
     // private double EvaluateBoard(int[,] board, (int, int) move, int player)
@@ -330,7 +314,7 @@ public class Node
     public void Update(double result)
     {
         visits++;
-        wins = wins + (result-wins)/visits;
+        wins += result;
     }
     public (Node, bool) BestUCTChild() // bool: winnerDecided
     {
@@ -396,8 +380,8 @@ public class Node
                     continue;
                 }
                 
-                // double winRate = 1 - ((double)child.wins / (child.visits + 1e-6));
-                double winRate = ((double)child.wins / (child.visits + 1e-6));
+                double winRate = 1 - ((double)child.wins / (child.visits + 1e-6));
+                // double winRate = ((double)child.wins / (child.visits + 1e-6));
                 double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (child.visits + 1e-6));
                 double uctValue = winRate + exploration;
 
@@ -416,11 +400,6 @@ public class Node
             return (bestNode ?? children[random.Next(children.Count)], false);
         } 
     }
-    
-    // public Node BestUCTChild()
-    // {
-    //     return Children.OrderByDescending(n => (double)n.Wins / (n.Visits + 1e-6) + ExplorationParameter * Math.Sqrt(2 * Math.Log(Visits + 1) / (n.Visits + 1e-6))).FirstOrDefault();
-    // }
     
     private static readonly (int, int)[] directions = 
     {

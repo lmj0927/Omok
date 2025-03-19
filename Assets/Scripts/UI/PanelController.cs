@@ -14,26 +14,38 @@ public class PanelController : MonoBehaviour, IGameUI
     /// <summary>
     /// Panel 표시 함수
     /// </summary>
-    public virtual void Show()
+    public virtual UniTask Show()
     {
         var original = panelRectTransform.anchoredPosition;
         panelRectTransform.anchoredPosition = new Vector2(Screen.width, original.y);
 
+        var tcs = new UniTaskCompletionSource();
+        
         gameObject.SetActive(true);
-        panelRectTransform.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint);
+        panelRectTransform.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint).OnComplete(() =>
+        {
+            tcs.TrySetResult();
+        });
+        
+        return tcs.Task;
     }
     
     /// <summary>
     /// Panel 숨기기 함수
     /// </summary>
-    public virtual void Hide()
+    public virtual UniTask Hide()
     {
         var original = panelRectTransform.anchoredPosition;
+        
+        var tcs = new UniTaskCompletionSource();
 
         panelRectTransform.DOAnchorPosX(Screen.width, .3f).SetEase(Ease.InQuint).OnComplete(() =>
         {
             gameObject.SetActive(false);
             panelRectTransform.anchoredPosition = original;
+            tcs.TrySetResult();
         });
+        
+        return tcs.Task;
     }
 }

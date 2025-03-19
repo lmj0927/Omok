@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AYellowpaper.SerializedCollections;
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -48,7 +51,7 @@ public class UIManager : Singleton<UIManager>
         
 
         //초기화
-        ShowUI<SigninPanelController>(UI_TYPE.SignIn); 
+        _ = ShowUI<SigninPanelController>(UI_TYPE.SignIn); 
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -59,22 +62,23 @@ public class UIManager : Singleton<UIManager>
         }
 
         IsInitialized = true;
-
-        
     }
 
-    public T ShowUI<T>(UI_TYPE type) where T : Component, IGameUI
+    public async UniTask<T> ShowUI<T>(UI_TYPE type, Action callback = null) where T : Component, IGameUI
     {
         var ui = GetUI<T>(type);
-        ui.Show();
+        await ui.Show();
 
+        callback?.Invoke();
         return ui;
     }
     
-    public void HideUI<T>(UI_TYPE type) where T : Component, IGameUI
+    public async void HideUI<T>(UI_TYPE type, Action callback = null) where T : Component, IGameUI
     {
         var ui = GetUI<T>(type);
-        ui.Hide();
+        await ui.Hide();
+        
+        callback?.Invoke();
     }
     
     public T GetUI<T>(UI_TYPE type) where T : Component

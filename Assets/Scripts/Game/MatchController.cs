@@ -41,7 +41,10 @@ public class MatchController : IDisposable
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public Action OnTurnEndUI;
-
+    public Action<bool, Action> OnGameEndUI;
+    public Action OnEndGridOmok;
+    public List<Cell> FiveCells = new();
+    public List<Transform> EndStones = new();
 
     public void SetCurrentCell(Cell cell)
     {
@@ -76,7 +79,7 @@ public class MatchController : IDisposable
         switch(_matchPlayType){
             case PLAY_TYPE.Multi:
                 //Show MatchMaking Loading UI
-                UIManager.Instance.ShowUI<MatchMakingController>(UI_TYPE.MatchMaking);
+                _ = UIManager.Instance.ShowUI<MatchMakingController>(UI_TYPE.MatchMaking);
                 //Multiplay Initialize
                 InitializeMultiController();
                 //waiting thread
@@ -131,7 +134,7 @@ public class MatchController : IDisposable
 
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
         gameBoardUIController.Initialize();
-        gameBoardUIController.Show();
+        gameBoardUIController.Show().Forget();
         
         await UniTask.Delay(200);
         GameManager.Instance.cameraMover.SetCamera(new Vector3(65, 0, 0), 8);
@@ -177,20 +180,24 @@ public class MatchController : IDisposable
         string aiId = "ai1";
         if(tier >= 10 && tier <= 18)
         {
-            //aiController.SetAILevel(1);
+            // easy
             aiId = "ai1";
-            
+            aiController.SetAILevel(aiId);
         }
         else if(tier >= 5 && tier <= 9)
         {
-            //aiController.SetAILevel(2);
+            // mid
             aiId = "ai2";
+            aiController.SetAILevel(aiId);
         }
         else if(tier >= 1 && tier <= 4)
         {
-            //aiController.SetAILevel(3);
+            // hard
             aiId = "ai3";
+            aiController.SetAILevel(aiId);
         }
+        
+        
         
         NetworkManage.Instance.LoadUserInfo(aiId, 
             (userInfo) =>
@@ -362,6 +369,11 @@ public class MatchController : IDisposable
     public MATCH_STATE GetMatchState(){
         return _matchState;
     }
+    
+    public MatchInfo GetCurrentMatchInfo()
+    {
+        return _matchInfo;
+    }
 
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
@@ -397,14 +409,26 @@ public class MatchController : IDisposable
         
         if(isBlackWin == IsClientBlack())
         {
-            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+            OnGameEndUI?.Invoke(isBlackWin, () =>
+            {
+                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+                UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+            });
+            
             myPlayerDataController.Win();
             opponentPlayerDataController.Lose();
             _matchInfo.isWin = true;
         }
         else
         {
-            UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+            OnGameEndUI?.Invoke(isBlackWin, () =>
+            {
+                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+                UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+            });
+            
             if(_matchPlayType == PLAY_TYPE.AI)
             {
                 myPlayerDataController.Lose();
@@ -413,11 +437,14 @@ public class MatchController : IDisposable
 
             _matchInfo.isWin = false;
         }
+        FiveCells.Clear();
+        EndStones.Clear();
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         
-        UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-        UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+        // UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+        // UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+        
         Dispose();
     }
 }

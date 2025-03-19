@@ -51,9 +51,9 @@ public class SigninPanelController : PanelController
             UserInfo info = await SigninAsync(signinData);
         
             GameManager.Instance.SetUserInfo(info);
-            UIManager.Instance.GetUI<MainMenuController>(UI_TYPE.MainMenu).Show();
+            UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu).Forget();
             GameManager.Instance.mainUIUpdate?.Invoke();
-            Hide();
+            Hide().Forget();
         }
         catch (Exception ex)
         {
@@ -90,16 +90,18 @@ public class SigninPanelController : PanelController
         UIManager.Instance.GetUI<SignupPanelController>(UI_TYPE.SignUp);
     }
 
-    public override void Show()
+    public override UniTask Show()
     {
         gameObject.SetActive(true);
+        return UniTask.CompletedTask;
     }
 
-    public override void Hide()
+    public override UniTask Hide()
     {
         _usernameInputField.text = "";
         _passwordInputField.text = "";
 
         gameObject.SetActive(false);
+        return UniTask.CompletedTask;
     }
 }

@@ -164,6 +164,8 @@ MonoBehaviour:
       Value: {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
     - Key: 5
       Value: {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
+    - Key: 6
+      Value: {fileID: 3928392095050592808, guid: ee32e1ad4d8561145bc6c37ca48090b1, type: 3}
   gridSize: 0.242
   defaultMaterial: {fileID: 0}
   previewMaterial: {fileID: 2100000, guid: 1a963d23062554db0afed9de739bd23b, type: 2}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static Constants;
 using AYellowpaper.SerializedCollections;
 using System;
+using UnityEngine.Serialization;
 
 public class GridPlacementSystem : MonoBehaviour
 {
@@ -28,6 +29,11 @@ public class GridPlacementSystem : MonoBehaviour
     CELL_TYPE currentTurn = CELL_TYPE.None;
 
     public Action<TurnData> OnSetCurrentCell;
+    
+    //마지막 수 관련 변수
+    public List<Transform> placedStoneList = new List<Transform>();
+    private List<GameObject> endRingList = new();
+    GameObject _lastPlacedObject;
     
     void Start()
     {
@@ -209,7 +215,7 @@ public class GridPlacementSystem : MonoBehaviour
             GameObject stone = Instantiate(objectPrefab[cellType]);
             stone.transform.position = position;
             placedObjects.Add(gridPosition, stone);
-
+            
             if(cellType == CELL_TYPE.PreviewBlack || cellType == CELL_TYPE.PreviewWhite)
             {
                 Renderer[] renderers = stone.GetComponentsInChildren<Renderer>();
@@ -219,6 +225,21 @@ public class GridPlacementSystem : MonoBehaviour
                     previewMat.color = new Color(0.1f, 0.8f, 0.1f, 0.5f);
                     renderer.material = previewMat;
                 }
+            }
+            
+            //마지막 수 표시.
+            if (_lastPlacedObject == null && (cellType == CELL_TYPE.Black || cellType == CELL_TYPE.White))
+            {
+                Debug.Log("LastPlaced");
+                _lastPlacedObject = Instantiate(objectPrefab[CELL_TYPE.LastPlace], stone.transform);
+                placedStoneList.Add(stone.transform);
+            }
+            else if (cellType == CELL_TYPE.Black || cellType == CELL_TYPE.White)
+            {
+                Debug.Log("CELLT"+cellType);
+                _lastPlacedObject.transform.SetParent(stone.transform);
+                _lastPlacedObject.transform.position = stone.transform.position;
+                placedStoneList.Add(stone.transform);
             }
         }
 
@@ -249,6 +270,21 @@ public class GridPlacementSystem : MonoBehaviour
         UpdatePreview();
     }
 
+    public void EndOmok()
+    {
+        //마지막 수 표시 제거.
+        if(_lastPlacedObject != null) Destroy(_lastPlacedObject);
+        
+        //오목 위치에 강조오브젝트 생성.
+        foreach (var stone in GameManager.Instance.matchController.EndStones)
+        {
+            var endRing = Instantiate(objectPrefab[CELL_TYPE.LastPlace], stone.transform);
+            var renderer = endRing.GetComponent<Renderer>();
+            renderer.material.color = new Color32(154,255,0,255);
+            endRingList.Add(endRing.gameObject);
+        }
+    }
+
     public void RemoveStone(int row, int col)
     {
         Vector3Int gridPosition = new Vector3Int(row, 0, col);
@@ -269,7 +305,13 @@ public class GridPlacementSystem : MonoBehaviour
             Destroy(stone);
         }
         
+        if(_lastPlacedObject != null) Destroy(_lastPlacedObject);
+        
         placedObjects.Clear();
+        
+        placedStoneList.Clear();
+        
+        endRingList.Clear();
         
         UpdatePreview();
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using Unity.VisualScripting;
@@ -33,7 +34,10 @@ public class ResultPanelController : PopupController
     {
         base.Awake();
         _rectTransform = gameObject.GetComponent<RectTransform>();
-        closeButton.onClick.AddListener(Hide);
+        closeButton.onClick.AddListener(() =>
+        {
+            Hide();
+        });
     }
 
     public void Show(bool isWin, UserInfo userInfo)

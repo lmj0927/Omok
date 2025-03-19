@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,7 +53,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
             var confirmPanel = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
             confirmPanel.Show("코인이 부족합니다.", () =>
             {
-                UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
+                UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop).Forget();
             });            
             return;
         }
@@ -63,31 +64,33 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickReplayButton()
     {
-        UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation);        
+        UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation).Forget();
     }
 
     void OnClickLeaderboardButton()
     {
-        UIManager.Instance.ShowUI<LeaderBoardPanelController>(UI_TYPE.Leaderboard);        
+        UIManager.Instance.ShowUI<LeaderBoardPanelController>(UI_TYPE.Leaderboard).Forget();
     }
 
     void OnClickShopButton()
     {
-        UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop);
+        UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop).Forget();
     }
 
     void OnClickSettingButton()
     {
-        UIManager.Instance.ShowUI<SettingsPanelController>(UI_TYPE.Setting);        
+        UIManager.Instance.ShowUI<SettingsPanelController>(UI_TYPE.Setting).Forget();
     }
 
-    public void Show()
+    public UniTask Show()
     {
         gameObject.SetActive(true);
+        return UniTask.CompletedTask;
     }
 
-    public void Hide()
+    public UniTask Hide()
     {
         gameObject.SetActive(false);        
+        return UniTask.CompletedTask;
     }
 }

@@ -29,7 +29,7 @@ public static class MatchInfoUtil
     public static void AddMatchInfo(MatchInfo matchInfo)
     {
         List<MatchInfo> matchList = LoadMatchInfoList();
-        matchList.Add(matchInfo);
+        matchList.Insert(0, matchInfo);
         SaveMatchInfoToFile(matchList);
     }
 

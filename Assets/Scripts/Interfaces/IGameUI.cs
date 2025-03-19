@@ -1,5 +1,7 @@
-﻿public interface IGameUI
+﻿using Cysharp.Threading.Tasks;
+
+public interface IGameUI
 {
-    public void Show();
-    public void Hide();
+    public UniTask Show();
+    public UniTask Hide();
 }

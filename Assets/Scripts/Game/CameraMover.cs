@@ -68,6 +68,7 @@ public class CameraMover : MonoBehaviour
     {
         if(target == null)
         {
+            isRotating = false;
             return;
         }
 

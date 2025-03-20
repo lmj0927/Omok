@@ -6,6 +6,7 @@ using UnityEngine;
 public class GestureDetector : Singleton<GestureDetector>
 {
     [SerializeField] private float speedThreshold;
+    [SerializeField] private float heightThreshold;
     
     public Action OnGestureDetected;
     
@@ -36,7 +37,9 @@ public class GestureDetector : Singleton<GestureDetector>
     private void CheckThreshold()
     {
         var speed = (_endPos - _startPos).magnitude / _dragTime;
-        if (speed < speedThreshold || _endPos.y < _startPos.y) return;
+        Debug.Log($"start: {_startPos.y}, end: {_endPos.y}, speed: {speed}");
+        
+        if (speed < speedThreshold || _endPos.y - _startPos.y < heightThreshold) return;
         
         OnGestureDetected?.Invoke();
     }

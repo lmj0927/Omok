@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 
@@ -6,6 +7,6 @@ public struct MatchInfo{
     // public int index;
     public List<TurnData> turn;
     public UserInfo opponent;
-    public bool isWin;
+    public Constants.END_TYPE gameResult;
     public bool isBlack;
 }

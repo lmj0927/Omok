@@ -75,6 +75,13 @@ public class Constants
         Load,
     }
 
+    public enum END_TYPE
+    {
+        BlackWin,
+        WhiteWin,
+        Draw
+    }
+
 
     public const float cameraMoverInitDistance = 5;
     public const float cameraMoverInitRotateX = 40;

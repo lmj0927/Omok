@@ -38,7 +38,7 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
         matchIndex = index;
         SetTurn(data.isBlack);
         SetOpponentName(data.opponent.nickname);
-        SetGameResult(data.isWin);
+        SetGameResult(data.gameResult, data.isBlack);
         SetTurnCount(data.turn.Count);
     }
 
@@ -52,9 +52,22 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
         opponentName.text = name;
     }
     
-    private void SetGameResult(bool isWin)
+    private void SetGameResult(Constants.END_TYPE gameResult, bool isBlack)
     {
-        gameResultText.text = isWin ? "승" : "패";
+        switch (gameResult)
+        {
+            case Constants.END_TYPE.BlackWin:
+                gameResultText.text = isBlack ? "승" : "패";
+                break;
+            case Constants.END_TYPE.WhiteWin:
+                gameResultText.text = isBlack ? "패" : "승";
+                break;
+            case Constants.END_TYPE.Draw:
+                gameResultText.text = "무";
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(gameResult), gameResult, null);
+        }
     }
 
     private void SetTurnCount(int count)

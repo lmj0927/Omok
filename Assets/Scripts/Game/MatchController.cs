@@ -37,7 +37,8 @@ public class MatchController : IDisposable
     }
 
     private Cell currentCell;
-
+    private bool isFirst = true;
+    
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public Action OnTurnEndUI;
@@ -48,6 +49,7 @@ public class MatchController : IDisposable
 
     public void SetCurrentCell(Cell cell)
     {
+        Debug.Log(isFirst);
         if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
 
         if(currentCell != null)
@@ -322,6 +324,17 @@ public class MatchController : IDisposable
 
     public void SetTurn()
     {
+        if (isFirst)
+        {
+            if (currentCell.row != 7 || currentCell.col != 7)
+            {
+                UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("첫 수는 가운데에 놓아야 합니다!", () => {});
+                return;
+            }
+            
+            isFirst = false;
+        }
+        
         if (!currentCell.IsUnityNull())
         {
             if (_gameTypeController is MultiplayController multiplayController)
@@ -388,6 +401,7 @@ public class MatchController : IDisposable
         _gameTypeController?.Dispose();
         _gameTypeController = null;
         _matchState = MATCH_STATE.End;
+        isFirst = true;
     }
 
     public void Surrender()

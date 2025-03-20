@@ -71,18 +71,13 @@ public class UserInfoPanel : MonoBehaviour
     {
         return _profileState;
     }
-
-   
     
-    ///기존 userinfo를 갱신하는데 사용합니다. opponentInfo가 있는 경우 인자를 넣어 갱신합니다.
-    public async UniTask RefreshInfo(UserInfo? opponentInfo = null)
+    ///로컬 userinfo를 갱신하는데 사용합니다.
+    public async UniTask RefreshInfo()
     {
         await UniTask.WaitUntil(()=>_profileSprites != null);
-        
-        if (opponentInfo == null) _userInfo =  GameManager.Instance.GetUserInfo();
-        else _opponentInfo ??= opponentInfo.Value;
-
-        SetUserInfo(_opponentInfo ?? _userInfo);
+        _userInfo = GameManager.Instance.GetUserInfo();
+        SetUserInfo( _userInfo);
     }
     
     ///Userinfo를 새로 할당합니다.

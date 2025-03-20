@@ -68,6 +68,7 @@ public class CameraMover : MonoBehaviour
     {
         if(target == null)
         {
+            isRotating = false;
             return;
         }
 
@@ -145,6 +146,11 @@ public class CameraMover : MonoBehaviour
         {
             ResetCamera(cameraMoverMatchInitDistance, cameraMoverMatchInitRotateX, cameraMoverMatchInitRotateY);
         }
+    }
+
+    public void ResetTarget()
+    {
+        target = null;
     }
 
     public void SetCamera(Vector3 rotation, float distance)

@@ -3751,7 +3751,7 @@ MonoBehaviour:
   closeButton: {fileID: 7925350500008031377}
   logoutButton: {fileID: 4792250021380177533}
   editIconPanel: {fileID: 4465097962068793188}
-  userInfoPanel: {fileID: 0}
+  userInfoPanel: {fileID: 5548732603092725017}
 --- !u!225 &7498579463380119278
 CanvasGroup:
   m_ObjectHideFlags: 0

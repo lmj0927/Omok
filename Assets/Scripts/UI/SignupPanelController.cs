@@ -31,7 +31,7 @@ public class SignupPanelController : PanelController
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(nickname) ||
             string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmPassword))
         {
-            UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("입력 내용이 누락되었습니다.", () =>
+            UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("입력 내용이 누락되었습니다.", () =>
             {
                 
             });
@@ -57,7 +57,7 @@ public class SignupPanelController : PanelController
         }
         else
         {
-            UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("비밀번호가 서로 다릅니다.", () =>
+            UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("비밀번호가 서로 다릅니다.", () =>
             {
                 _passwordInputField.text = "";
                 _confirmPasswordInputField.text = "";

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static Constants;
 using AYellowpaper.SerializedCollections;
 using System;
+using System.Linq;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
@@ -15,6 +16,10 @@ public class GridPlacementSystem : MonoBehaviour
     [SerializeField] Transform gridParent;
     [SerializeField] LayerMask layerMask;
     [SerializeField] public Transform cameraTarget;
+    [SerializeField] private Rigidbody boardRigidbody;
+    [SerializeField] private float explosionPower;
+    [SerializeField] private float explosionRadius;
+    [SerializeField] private List<Transform> explosionPositions;
     
     Dictionary<Vector3Int, GameObject> placedObjects = new Dictionary<Vector3Int, GameObject>();
     Camera mainCamera;
@@ -41,7 +46,12 @@ public class GridPlacementSystem : MonoBehaviour
         mainCamera = Camera.main;
         //CreatePreviewObject();
     }
-    
+
+    private void OnEnable()
+    {
+        GestureDetector.Instance.OnGestureDetected = SurrenderGestureDetected;
+    }
+
     void CreatePreviewObject()
     {
         if (objectPrefab.Keys.Count == 0)
@@ -206,7 +216,6 @@ public class GridPlacementSystem : MonoBehaviour
         Vector3Int gridPosition = new Vector3Int(row, 0, col);
         Vector3 position = GridToWorld(gridPosition);        
 
-
         if (placedObjects.TryGetValue(gridPosition, out GameObject existingStone))
         {
             Destroy(existingStone);
@@ -216,6 +225,11 @@ public class GridPlacementSystem : MonoBehaviour
         if(cellType != CELL_TYPE.None)
         {
             GameObject stone = Instantiate(objectPrefab[cellType]);
+            if (stone.TryGetComponent<Stone>(out var stoneComp))
+            {
+                stoneComp.stoneType = cellType;
+            }
+            
             stone.transform.position = position;
             placedObjects.Add(gridPosition, stone);
             
@@ -335,6 +349,37 @@ public class GridPlacementSystem : MonoBehaviour
                 UpdatePreview();
             }
         }
+    }
+    
+    private void SurrenderGestureDetected()
+    {
+        OverturnBoard();
+        GameManager.Instance.GiveUpGame();
+    }
+
+    private void OverturnBoard()
+    {
+        var cam = Camera.main;
+        var closestExplosion = explosionPositions.OrderBy(t => Vector3.Distance(cam.transform.position, t.position)).FirstOrDefault().position;
+        
+        boardRigidbody.isKinematic = false;
+        boardRigidbody.AddExplosionForce(explosionPower, closestExplosion, explosionRadius);
+        
+        foreach (var placed in placedObjects)
+        {
+            if (placed.Value.TryGetComponent<Stone>(out var stone))
+            {
+                if (stone.stoneType != CELL_TYPE.Black && stone.stoneType != CELL_TYPE.White)
+                {
+                    Destroy(stone.gameObject);
+                    continue;
+                }
+                
+                stone.SetKinematic(false);
+            }
+        }
+
+        GameManager.Instance.cameraMover.ResetTarget();
     }
         
     public int gridCountX = 14;  // X축 셀 개수

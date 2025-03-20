@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -67,6 +68,20 @@ public class Constants
         PreviewBlack,
         PreviewWhite,
         LastPlace
+    }
+
+    public enum PROFILE_STATE
+    {
+        Unload,
+        Load,
+    }
+
+    [Serializable]
+    public enum END_TYPE
+    {
+        BlackWin,
+        WhiteWin,
+        Draw
     }
 
 

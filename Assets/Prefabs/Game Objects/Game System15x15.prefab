@@ -52,13 +52,13 @@ MonoBehaviour:
     - Key: 1
       Value: {fileID: 3928392095050592808, guid: 46f03b1b615b74c91ac2bce95f3ae5ea, type: 3}
     - Key: 2
-      Value: {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
+      Value: {fileID: 3928392095050592808, guid: 09a1dbd0999334ffb815b9fef721ab9d, type: 3}
     - Key: 3
-      Value: {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
+      Value: {fileID: 6964724473504938745, guid: 416e10904e0624cdd8c515e0443c930c, type: 3}
     - Key: 4
-      Value: {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
+      Value: {fileID: 3928392095050592808, guid: 09a1dbd0999334ffb815b9fef721ab9d, type: 3}
     - Key: 5
-      Value: {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
+      Value: {fileID: 6964724473504938745, guid: 416e10904e0624cdd8c515e0443c930c, type: 3}
     - Key: 6
       Value: {fileID: 3928392095050592808, guid: ee32e1ad4d8561145bc6c37ca48090b1, type: 3}
   gridSize: 0.225
@@ -69,6 +69,14 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 16
   cameraTarget: {fileID: 1352693686023496540}
+  boardRigidbody: {fileID: 6237510898186805144}
+  explosionPower: 500
+  explosionRadius: 50
+  explosionPositions:
+  - {fileID: 2650552845047668226}
+  - {fileID: 4167817899550435393}
+  - {fileID: 3908914048928982336}
+  - {fileID: 1230894744579284419}
   placedStoneList: []
   gridCountX: 14
   gridCountY: 14
@@ -131,6 +139,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
+--- !u!4 &1230894744579284419 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 934403380635474345, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
+  m_PrefabInstance: {fileID: 2153475793856529514}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1352693686023496540 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1091864999944562486, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
@@ -139,6 +152,26 @@ Transform:
 --- !u!4 &1363028338540650416 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1083359657222282202, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
+  m_PrefabInstance: {fileID: 2153475793856529514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2650552845047668226 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4119114807302363752, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
+  m_PrefabInstance: {fileID: 2153475793856529514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3908914048928982336 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3160944535795310890, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
+  m_PrefabInstance: {fileID: 2153475793856529514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4167817899550435393 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2609201149274713131, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
+  m_PrefabInstance: {fileID: 2153475793856529514}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &6237510898186805144 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 5436611994943085554, guid: 73b63691871d9d744ae09c28c7a43ff4, type: 3}
   m_PrefabInstance: {fileID: 2153475793856529514}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &6973625210851498025 stripped

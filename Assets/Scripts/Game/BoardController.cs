@@ -173,7 +173,7 @@ public class BoardController : MonoBehaviour
         if (CheckDraw())
         {
             // TODO: 무승부 ui처리
-            GameManager.Instance.matchController.EndMatch(END_TYPE.Draw, false);
+            GameManager.Instance.matchController.DrawMatch();
         }
     }
 

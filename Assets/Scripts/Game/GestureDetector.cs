@@ -37,8 +37,6 @@ public class GestureDetector : Singleton<GestureDetector>
     private void CheckThreshold()
     {
         var speed = (_endPos - _startPos).magnitude / _dragTime;
-        Debug.Log($"start: {_startPos.y}, end: {_endPos.y}, speed: {speed}");
-        
         if (speed < speedThreshold || _endPos.y - _startPos.y < heightThreshold) return;
         
         OnGestureDetected?.Invoke();

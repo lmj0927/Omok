@@ -254,6 +254,7 @@ public class MatchController : IDisposable
                     break;
                 case MultiplayManagerState.JoinRoom:
                     _matchInfo.isBlack = false;
+                    isFirst = false;
                     Debug.Log("## Join Room");
                     break;
                 case MultiplayManagerState.StartGame:

@@ -28,7 +28,7 @@ public class RankInfoCell : MonoBehaviour, IReloadableCell<UserInfo>
         
         float winRate = (float)_userInfo.winCount / (_userInfo.winCount + _userInfo.loseCount) * 100f;
         infoText.text = $"{_userInfo.tier}급 {_userInfo.nickname}";
-        winRateText.text = $"{_userInfo.winCount}승 {_userInfo.loseCount}패 ({winRate:F0}%)";
+        winRateText.text = $"{_userInfo.winCount}승 {_userInfo.loseCount}패 ({(float.IsNaN(winRate) ? 0 : winRate):F0}%)";
     }
 
     public void SetRank(int rankIndex)

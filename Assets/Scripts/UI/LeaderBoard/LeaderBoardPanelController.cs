@@ -24,7 +24,6 @@ public class LeaderBoardPanelController : PanelController
     private void Start()
     {
         _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
-        _userInfo = GameManager.Instance.playerDataController.UserInfo;
         closeButton.onClick.AddListener(OnClickCloseButton);
     }
 
@@ -40,7 +39,8 @@ public class LeaderBoardPanelController : PanelController
         
         float winRate = (float)userInfo.winCount / (userInfo.winCount + userInfo.loseCount) * 100f;
         userInfoText.text = $"{userInfo.tier}급 {userInfo.nickname}";
-        userWinRateText.text = $"{rankIndex}위 | {userInfo.winCount}승 {userInfo.loseCount}패 ({winRate:F0}%)";
+        userWinRateText.text = $"{rankIndex}위 | {userInfo.drawCount}무 {userInfo.winCount}승 {userInfo.loseCount}패 ({(float.IsNaN(winRate) ? 0 : winRate):F0}%)";
+        Debug.Log(winRate);
     }
 
     void ReloadCell()
@@ -84,7 +84,7 @@ public class LeaderBoardPanelController : PanelController
                 
                 //최상단의 플레이어 본인의 정보 업데이트 및 리더보드내 본인 강조표시
                 var cellInfo = cell.GetInfo();
-                
+                _userInfo = GameManager.Instance.GetUserInfo();
                 if (cellInfo.userId == _userInfo.userId)
                 {
                     cell.GetComponentsInChildren<TMP_Text>()[1].DOColor(Color.blue, 0);

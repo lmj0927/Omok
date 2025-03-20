@@ -1373,7 +1373,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7680888379d31084092df2ad09c018a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speedThreshold: 8000
+  speedThreshold: 1000
   heightThreshold: 500
 --- !u!1 &2007111015
 GameObject:

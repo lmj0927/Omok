@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -77,6 +78,7 @@ public class Constants
         Load,
     }
 
+    [Serializable]
     public enum END_TYPE
     {
         BlackWin,

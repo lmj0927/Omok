@@ -255,6 +255,7 @@ public class MatchController : IDisposable
                     break;
                 case MultiplayManagerState.JoinRoom:
                     _matchInfo.isBlack = false;
+                    isFirst = false;
                     Debug.Log("## Join Room");
                     break;
                 case MultiplayManagerState.StartGame:
@@ -490,6 +491,7 @@ public class MatchController : IDisposable
         PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;
         PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);
 
+        _matchInfo.gameResult = endType;
         switch (endType)
         {
             case END_TYPE.Draw:
@@ -510,7 +512,6 @@ public class MatchController : IDisposable
             
                 myPlayerDataController.Win();
                 opponentPlayerDataController.Lose();
-                _matchInfo.isWin = true;
                 break;
             case END_TYPE.WhiteWin:
                 OnGameEndUI?.Invoke(END_TYPE.WhiteWin, () =>
@@ -525,8 +526,6 @@ public class MatchController : IDisposable
                     myPlayerDataController.Lose();
                     opponentPlayerDataController.Win();
                 }
-
-                _matchInfo.isWin = false;
                 break;
         }
         

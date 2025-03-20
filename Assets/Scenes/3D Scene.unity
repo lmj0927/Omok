@@ -1295,8 +1295,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stonePrefab:
-  - {fileID: 3928392095050592808, guid: 09a1dbd0999334ffb815b9fef721ab9d, type: 3}
-  - {fileID: 6964724473504938745, guid: 416e10904e0624cdd8c515e0443c930c, type: 3}
+  - {fileID: 3928392095050592808, guid: cdec0b6dd172248589b87fb8fabb9aea, type: 3}
+  - {fileID: 6964724473504938745, guid: a7061d759488a4ea98b933caa00a8c04, type: 3}
 --- !u!1 &1398955560
 GameObject:
   m_ObjectHideFlags: 0

@@ -28,7 +28,7 @@ public class NetworkManage : Singleton<NetworkManage>
 
                 if (www.responseCode == 409)
                 {
-                    UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("이미 존재하는 사용자입니다.", () =>
+                    UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("이미 존재하는 사용자입니다.", () =>
                     {
                         failure?.Invoke();
                     });
@@ -38,7 +38,7 @@ public class NetworkManage : Singleton<NetworkManage>
             {
                 var result = www.downloadHandler.text;
                 
-                UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("회원 가입이 완료 되었습니다.", () =>
+                UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("회원 가입이 완료 되었습니다.", () =>
                 {
                     success?.Invoke();
                 });
@@ -81,21 +81,21 @@ public class NetworkManage : Singleton<NetworkManage>
 
                 if (result.result == 0)
                 {
-                    UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("유저네임이 유효하지 않습니다.", () =>
+                    UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("유저네임이 유효하지 않습니다.", () =>
                     {
                         failure?.Invoke(0);
                     });
                 }
                 else if (result.result == 1)
                 {
-                    UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("패스워드가 유효하지 않습니다.", () =>
+                    UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("패스워드가 유효하지 않습니다.", () =>
                     {
                         failure?.Invoke(1);
                     });
                 }
                 else if (result.result == 2)
                 {
-                    UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("로그인에 성공하였습니다.", () =>
+                    UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("로그인에 성공하였습니다.", () =>
                     {
                         success?.Invoke(result.userInfo);
                     });

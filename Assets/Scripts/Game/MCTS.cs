@@ -211,7 +211,6 @@ public class Node
         effectiveMoves = GetEffectiveMoves(board);
         
         int losingBoardCount = 0;
-        Node winningNode = null;
         
         foreach (var move in effectiveMoves)
         {
@@ -224,8 +223,11 @@ public class Node
             {
                 Node child = new Node(this, newBoard, -currentPlayer, move);
                 child.isLosingBoard = true;
+                children.Clear();
                 children.Add(child);
-                losingBoardCount++;
+                isLosingBoard = true;
+                fullyExpanded = true;
+                return (child, true);
             }
             else if (winnerDecided && currentPlayer == -1) // 다음 ai가 두는 수 중, 이기는 경우가 있을 경우 -> 현재 노드 = 필승 노드
             {
@@ -233,9 +235,9 @@ public class Node
                 child.isWinningBoard = true;
                 children.Clear();
                 children.Add(child);
-                winningNode = child;
                 isWinningBoard = true;
-                return (winningNode, true);
+                fullyExpanded = true;
+                return (child, true);
             }
             else // 당장 다음 노드에서 승부가 나지 않는 경우
             {
@@ -246,11 +248,11 @@ public class Node
 
         fullyExpanded = true;
 
-        if (losingBoardCount == children.Count)
-        {
-            isLosingBoard = true;
-            return (children[random.Next(children.Count)], true);
-        }
+        // if (losingBoardCount == children.Count)
+        // {
+        //     isLosingBoard = true;
+        //     return (children[random.Next(children.Count)], true);
+        // }
         
         return (children[random.Next(children.Count)], false);
     }

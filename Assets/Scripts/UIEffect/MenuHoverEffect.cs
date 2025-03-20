@@ -49,6 +49,8 @@ public class MenuHoverEffect : MonoBehaviour
             // 왼쪽에서 오른쪽으로 채워지도록 애니메이션 시작
             currentCoroutine = StartCoroutine(AnimateFill(true));
         }
+
+        AudioManager.Instance.PlaySFX(1);
     }
     
     // PointerExit 이벤트에 연결 (BaseEventData 매개변수 포함)

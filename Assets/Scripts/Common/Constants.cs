@@ -73,4 +73,18 @@ public class Constants
     public const float cameraMoverInitDistance = 5;
     public const float cameraMoverInitRotateX = 40;
     public const float cameraMoverInitRotateY = 20;
+
+    public const float cameraMoverIntroDistance = 15;
+    public const float cameraMoverIntroRotateX = 40;
+    public const float cameraMoverIntroRotateY = 80;
+
+
+    public const float cameraMoverMatchInitDistance = 15;
+    public const float cameraMoverMatchInitRotateX = 40;
+    public const float cameraMoverMatchInitRotateY = 20;
+
+    public const float cameraMoverMatchStartDistance = 8;
+    public const float cameraMoverMatchStartRotateX = 65;
+    public const float cameraMoverMatchStartRotateY = 0;
+    
 }

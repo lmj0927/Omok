@@ -10,13 +10,20 @@ public class StoneSpawner : MonoBehaviour
 {
     [SerializeField] GameObject[] stonePrefab;
     CancellationTokenSource _spawnCts;
+    GameObject parent;
+
+    void Start()
+    {
+        parent = new GameObject("Stones");
+        parent.transform.SetParent(transform);   
+    }
 
     public void StartSpawn()
     {
         gameObject.SetActive(true);
 
         _spawnCts = new CancellationTokenSource();
-        SpawnStoneAsync().Forget();        
+        SpawnStoneAsync().Forget();
     }
 
     public void StopSpawn()
@@ -24,6 +31,17 @@ public class StoneSpawner : MonoBehaviour
         if(_spawnCts != null){
             _spawnCts.Cancel();
             _spawnCts = null;
+        }
+    }
+
+    public void DisableSpawner()
+    {
+        StopSpawn();
+
+        if(parent != null){
+            foreach(Transform child in parent.transform){
+                Destroy(child.gameObject);
+            }
         }
         
         gameObject.SetActive(false);
@@ -51,7 +69,7 @@ public class StoneSpawner : MonoBehaviour
 
     public void SpawnStone(int index, Vector3 position)
     {
-        var stoneObject = Instantiate(stonePrefab[index], position, Random.rotation, transform);
+        var stoneObject = Instantiate(stonePrefab[index], position, Random.rotation, parent.transform);
         if (stoneObject.TryGetComponent<Stone>(out var stone))
         {
             stone.SetKinematic(false);

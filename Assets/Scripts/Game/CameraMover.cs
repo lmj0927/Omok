@@ -1,4 +1,6 @@
 using UnityEngine;
+using static Constants;
+
 
 public class CameraMover : MonoBehaviour
 {
@@ -47,7 +49,7 @@ public class CameraMover : MonoBehaviour
  
         targetDistance = currentDistance = Vector3.Distance(transform.position, target.position);
         
-        ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
+        ResetCamera(cameraMoverInitDistance, cameraMoverInitRotateX, cameraMoverInitRotateY); 
 
         UpdateCamera();
     }
@@ -134,8 +136,15 @@ public class CameraMover : MonoBehaviour
                 UpdateCamera();
             }
         }
-
-        ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
+        
+        if(target == _defaultTarget.transform)
+        {
+            ResetCamera(cameraMoverInitDistance, cameraMoverInitRotateX, cameraMoverInitRotateY); 
+        }
+        else
+        {
+            ResetCamera(cameraMoverMatchInitDistance, cameraMoverMatchInitRotateX, cameraMoverMatchInitRotateY);
+        }
     }
 
     public void ResetTarget()

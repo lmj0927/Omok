@@ -128,7 +128,7 @@ public class MatchController : IDisposable
         _matchMakingCts?.Cancel();
         _isMatched = true;
         _isCancelMatch = false;
-
+        
         UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
 
@@ -137,7 +137,7 @@ public class MatchController : IDisposable
         gameBoardUIController.Show().Forget();
         
         await UniTask.Delay(200);
-        GameManager.Instance.cameraMover.SetCamera(new Vector3(65, 0, 0), 8);
+        GameManager.Instance.cameraMover.SetCamera(new Vector3(cameraMoverMatchStartRotateX, cameraMoverMatchStartRotateY, 0), cameraMoverMatchStartDistance);
         await UniTask.Delay(500);
         
         _matchState = MATCH_STATE.BlackTurn;
@@ -413,7 +413,7 @@ public class MatchController : IDisposable
             {
                 UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
                 UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-                UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+                _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
             });
             
             myPlayerDataController.Win();
@@ -426,7 +426,7 @@ public class MatchController : IDisposable
             {
                 UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
                 UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-                UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+                _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
             });
             
             if(_matchPlayType == PLAY_TYPE.AI)
@@ -441,9 +441,6 @@ public class MatchController : IDisposable
         EndStones.Clear();
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);
-        
-        // UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-        // UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
         
         Dispose();
     }

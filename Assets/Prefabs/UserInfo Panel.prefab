@@ -187,8 +187,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "18\uAE09 \uD64D\uAE38\uB3D9"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3a4e3c2c38c1e384fa3c4c0cb47315e9, type: 2}
-  m_sharedMaterial: {fileID: -1423741528718833254, guid: 3a4e3c2c38c1e384fa3c4c0cb47315e9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b459c9d4fac02f54996dddba73cdb7a9, type: 2}
+  m_sharedMaterial: {fileID: 6075371062239151384, guid: b459c9d4fac02f54996dddba73cdb7a9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

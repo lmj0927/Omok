@@ -94,39 +94,60 @@ public class AudioManager : Singleton<AudioManager>
     }
     
     // 배경음악 재생
-    public void PlayBGM(int index)
+    public void PlayBGM(string clipName)
     {
-        if (index < 0 || index >= bgmClips.Length) return;
-        
-        // BGM 전환
-        bgmSource.clip = bgmClips[index];
-        bgmSource.loop = true;
-        bgmSource.Play();
+        for (int i = 0; i < bgmClips.Length; i++)
+        {
+            if (bgmClips[i].name.Equals(clipName))
+            {
+                bgmSource.clip = bgmClips[i];
+                bgmSource.loop = true;
+                bgmSource.Play();
+                return;
+            }
+        }
+        Debug.LogWarning("BGM 클립을 찾을 수 없습니다: " + clipName);
     }
+
     
     // 효과음 재생
-    public void PlaySFX(int index)
+    public void PlaySFX(string clipName)
     {
-        if (index < 0 || index >= sfxClips.Length) return;
-        
+        AudioClip clip = null;
+        for (int i = 0; i < sfxClips.Length; i++)
+        {
+            if (sfxClips[i].name.Equals(clipName))
+            {
+                clip = sfxClips[i];
+                break;
+            }
+        }
+    
+        if (clip == null)
+        {
+            Debug.LogWarning("SFX 클립을 찾을 수 없습니다: " + clipName);
+            return;
+        }
+    
         // 재생 가능한 효과음 소스 찾기
         for (int i = 0; i < sfxSources.Length; i++)
         {
             if (!sfxSources[i].isPlaying)
             {
-                sfxSources[i].clip = sfxClips[index];
+                sfxSources[i].clip = clip;
                 sfxSources[i].loop = false;
                 sfxSources[i].Play();
                 return;
             }
         }
-        
+    
         // 모든 소스가 사용 중이면 첫 번째 소스 재사용
         if (sfxSources.Length > 0)
         {
             sfxSources[0].Stop();
-            sfxSources[0].clip = sfxClips[index];
+            sfxSources[0].clip = clip;
             sfxSources[0].Play();
         }
     }
+
 }

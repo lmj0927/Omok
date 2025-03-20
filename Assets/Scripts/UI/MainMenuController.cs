@@ -32,6 +32,18 @@ public class MainMenuController : MonoBehaviour, IGameUI
     {
         GameManager.Instance.StoneSpawner.StartSpawn();
         GameManager.Instance.cameraMover.ResetCamera(cameraMoverInitDistance, cameraMoverInitRotateX, cameraMoverInitRotateY); 
+
+        PlayIntro().Forget();
+    }
+
+    void OnDisable()
+    {
+        GameManager.Instance.StoneSpawner?.DisableSpawner();
+    }
+
+    async UniTask PlayIntro(){
+        await UniTask.Delay(5000);
+        GameManager.Instance.cameraMover.SetCamera(new Vector3(cameraMoverIntroRotateX, cameraMoverIntroRotateY, 0), cameraMoverIntroDistance);
     }
 
     void Initialize()
@@ -57,7 +69,8 @@ public class MainMenuController : MonoBehaviour, IGameUI
             });            
             return;
         }
-        
+
+        AudioManager.Instance.PlaySFX("matchMaking");
         GameManager.Instance.coinController.ConsumeCoin(Constants.CostPerGame);
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);
     }
@@ -65,21 +78,25 @@ public class MainMenuController : MonoBehaviour, IGameUI
     void OnClickReplayButton()
     {
         UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation).Forget();
+        AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     void OnClickLeaderboardButton()
     {
         UIManager.Instance.ShowUI<LeaderBoardPanelController>(UI_TYPE.Leaderboard).Forget();
+        AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     void OnClickShopButton()
     {
         UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop).Forget();
+        AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     void OnClickSettingButton()
     {
         UIManager.Instance.ShowUI<SettingsPanelController>(UI_TYPE.Setting).Forget();
+        AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     public UniTask Show()
@@ -92,5 +109,10 @@ public class MainMenuController : MonoBehaviour, IGameUI
     {
         gameObject.SetActive(false);        
         return UniTask.CompletedTask;
+    }
+
+    void Dispose()
+    {
+
     }
 }

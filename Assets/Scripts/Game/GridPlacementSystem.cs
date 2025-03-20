@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using static Constants;
 using AYellowpaper.SerializedCollections;
 using System;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine.Serialization;
 
 public class GridPlacementSystem : MonoBehaviour
@@ -14,6 +16,10 @@ public class GridPlacementSystem : MonoBehaviour
     [SerializeField] Transform gridParent;
     [SerializeField] LayerMask layerMask;
     [SerializeField] public Transform cameraTarget;
+    [SerializeField] private Rigidbody boardRigidbody;
+    [SerializeField] private float explosionPower;
+    [SerializeField] private float explosionRadius;
+    [SerializeField] private List<Transform> explosionPositions;
     
     Dictionary<Vector3Int, GameObject> placedObjects = new Dictionary<Vector3Int, GameObject>();
     Camera mainCamera;
@@ -40,7 +46,12 @@ public class GridPlacementSystem : MonoBehaviour
         mainCamera = Camera.main;
         //CreatePreviewObject();
     }
-    
+
+    private void OnEnable()
+    {
+        GestureDetector.Instance.OnGestureDetected = SurrenderGestureDetected;
+    }
+
     void CreatePreviewObject()
     {
         if (objectPrefab.Keys.Count == 0)
@@ -332,6 +343,22 @@ public class GridPlacementSystem : MonoBehaviour
                 UpdatePreview();
             }
         }
+    }
+    
+    private void SurrenderGestureDetected()
+    {
+        //TODO: 기권 요청
+        var cam = Camera.main;
+        var closestExplosion = explosionPositions.OrderBy(t => Vector3.Distance(cam.transform.position, t.position)).FirstOrDefault().position;
+        
+        boardRigidbody.isKinematic = false;
+        boardRigidbody.AddExplosionForce(explosionPower, closestExplosion, explosionRadius);
+        
+        foreach (var placed in placedObjects)
+        {
+        }
+
+        GameManager.Instance.cameraMover.ResetTarget();
     }
         
     public int gridCountX = 14;  // X축 셀 개수

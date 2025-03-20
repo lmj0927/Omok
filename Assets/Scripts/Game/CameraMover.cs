@@ -138,6 +138,11 @@ public class CameraMover : MonoBehaviour
         ResetCamera(Constants.cameraMoverInitDistance, Constants.cameraMoverInitRotateX, Constants.cameraMoverInitRotateY); 
     }
 
+    public void ResetTarget()
+    {
+        target = null;
+    }
+
     public void SetCamera(Vector3 rotation, float distance)
     {
         targetXRotation = rotation.y;

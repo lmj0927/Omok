@@ -30,7 +30,6 @@ public class Cell : MonoBehaviour
     
     void OnClickCell()
     {
-        
         GameManager.Instance.matchController.SetCurrentCell(this);
     }
 

@@ -10,8 +10,8 @@ public class AIController : IBaseGameTypeController
     
     private readonly Dictionary<string, int> iterations = new Dictionary<string, int>
     {
-        { "ai1", 1000 },
-        { "ai2", 10000 },
+        { "ai1", 10000 },
+        { "ai2", 30000 },
         { "ai3", 50000 }
     };
     

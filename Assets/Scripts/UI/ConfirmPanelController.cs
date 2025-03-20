@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class ConfirmPanelController : PopupController
 {
     [SerializeField] private TMP_Text messageText;
+    Action onConfirmButtonClick;
+    Action onCloseButtonClick;
 
-    public delegate void OnConfirmButtonClick();
-    private OnConfirmButtonClick onConfirmButtonClick;
-
-    public void Show(string message, OnConfirmButtonClick onConfirmButtonClick)
+    public void Show(string message, Action onConfirmButtonClick, Action onCloseButtonClick = null)
     {
         transform.SetAsLastSibling();
 
         messageText.text = message;
         this.onConfirmButtonClick = onConfirmButtonClick;
+        this.onCloseButtonClick = onCloseButtonClick;
         base.Show();
     }
     
@@ -37,5 +38,6 @@ public class ConfirmPanelController : PopupController
     public void OnClickCloseButton()
     {
         Hide();
+        onCloseButtonClick?.Invoke();
     }
 }

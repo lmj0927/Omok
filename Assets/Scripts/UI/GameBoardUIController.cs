@@ -10,8 +10,9 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 {
     //조작 버튼
     [Header("Interaction Buttons")]
-    public Button giveUpButton;
-    public Button executeButton;
+    [SerializeField] Button requestDrawButton;
+    [SerializeField] Button giveUpButton;
+    [SerializeField] Button executeButton;
     [SerializeField] Button changeViewButton;
     
     //상단 한줄 정보란
@@ -111,6 +112,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     {
         if(_blackOriginWidth == 0)
         {
+            requestDrawButton.onClick.AddListener(OnClickRequestDrawButton);
             giveUpButton.onClick.AddListener(OnClickGiveUpButton);
             executeButton.onClick.AddListener(OnClickExecuteButton);
             changeViewButton.onClick.AddListener(OnClickChangeViewButton);
@@ -157,6 +159,15 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         
         SetChangedTurn();
         OnTimerCircle();
+    }
+
+    public void OnClickRequestDrawButton()
+    {
+        UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("무승부를 신청하시겠습니까?", () =>
+        {
+            GameManager.Instance.matchController.RequestDraw();
+            Time.timeScale = 0;
+        });
     }
     
     public void OnClickGiveUpButton()

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Random = System.Random;
@@ -10,7 +10,6 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using System.Text;
-using Debug = UnityEngine.Debug;
 
 public class MCTS
 {
@@ -19,7 +18,7 @@ public class MCTS
 
     private int[,] board;
     
-    private int iterations;
+    private int iterations = 1000000;
 
     public MCTS()
     {
@@ -28,7 +27,7 @@ public class MCTS
 
     public void SetIterations(int iter)
     {
-        iterations = iter;
+        iterations = 50000;
     }
 
     async public UniTask RunSearch(int row, int col)
@@ -173,7 +172,7 @@ public class MCTS
 public class Node
 {
     private const double ExplorationParameter = 1.414;
-    private static XorShift random = new XorShift((uint)DateTime.Now.Ticks);
+    private static Random random = new Random();
     public Node parent { get; set; }
     public List<Node> children { get; private set; }
     public double wins { get; set; }
@@ -199,7 +198,6 @@ public class Node
         this.move = move;
         isWinningBoard = false;
         isLosingBoard = false;
-        uctValue = CalculateUCT(this);
     }
 
     public bool IsTerminal()
@@ -215,7 +213,8 @@ public class Node
     public (Node, bool) Expand()
     {
         effectiveMoves = GetEffectiveMoves(board);
-        
+
+        bool foundWinningBoard = false;
         int losingBoardCount = 0;
         Node winningNode = null;
         
@@ -255,9 +254,10 @@ public class Node
         if (losingBoardCount == children.Count)
         {
             isLosingBoard = true;
-            return (children[random.NextInt(0, children.Count)], true);
+            return (children[random.Next(children.Count)], true);
         }
-        return (children[random.NextInt(0, children.Count)], false);
+        
+        return (children[random.Next(children.Count)], false);
     }
 
     public double SimulateRandomPlay()
@@ -267,7 +267,6 @@ public class Node
 
         int player = currentPlayer;
         List<(int, int)> possibleMoves = GetPossibleMoves(tempBoard);
-        ShuffleList(possibleMoves);
         (int, int) move = this.move;
         
         bool winnerDecided = CheckWin(tempBoard, move);
@@ -275,9 +274,9 @@ public class Node
         while (!winnerDecided && possibleMoves.Count > 0)
         {
             player = -player;
-            move = possibleMoves[^1];
+            move = possibleMoves[random.Next(possibleMoves.Count)];
             tempBoard[move.Item1, move.Item2] = player;
-            possibleMoves.RemoveAt(possibleMoves.Count - 1);
+            possibleMoves.Remove(move);
             
             winnerDecided = CheckWin(tempBoard, move);
         }
@@ -288,13 +287,13 @@ public class Node
     {
         visits++;
         wins += result;
-        uctValue = CalculateUCT(this);
     }
     
     public (Node, bool) BestUCTChild() // bool: winnerDecided
     {
         if (currentPlayer == -1) // 마지막으로 player가 뒀을 때
         {
+            double logParentVisits = Math.Log(visits + 1);
             Node bestNode = null;
             double bestValue = double.NegativeInfinity;
             int losingBoardCount = 0;
@@ -313,9 +312,13 @@ public class Node
                     continue;
                 }
 
-                if (child.uctValue > bestValue)
+                double winRate = (double)child.wins / (child.visits + 1e-6);
+                double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (child.visits + 1e-6));
+                double uctValue = winRate + exploration;
+
+                if (uctValue > bestValue)
                 {
-                    bestValue = child.uctValue;
+                    bestValue = uctValue;
                     bestNode = child;
                 }
             }
@@ -326,11 +329,12 @@ public class Node
                 return (children[0], true);
             }
             
-            return (bestNode ?? children[random.NextInt(0, children.Count)], false);
+            return (bestNode ?? children[random.Next(children.Count)], false);
         }
 
         else // 마지막으로 ai가 뒀을 때
         {
+            double logParentVisits = Math.Log(visits + 1);
             Node bestNode = null;
             double bestValue = double.PositiveInfinity;
             int winningMoveCount = 0;
@@ -348,10 +352,15 @@ public class Node
                     winningMoveCount++;
                     continue;
                 }
+                
+                double winRate = 1 - ((double)child.wins / (child.visits + 1e-6));
+                // double winRate = ((double)child.wins / (child.visits + 1e-6));
+                double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (child.visits + 1e-6));
+                double uctValue = winRate + exploration;
 
-                if (child.uctValue > bestValue)
+                if (uctValue > bestValue)
                 {
-                    bestValue = child.uctValue;
+                    bestValue = uctValue;
                     bestNode = child;
                 }
             }
@@ -359,20 +368,10 @@ public class Node
             if (winningMoveCount == children.Count)
             {
                 isWinningBoard = true;
-                return (children[random.NextInt(0, children.Count)], true);
+                return (children[random.Next(children.Count)], true);
             }
-            return (bestNode ?? children[random.NextInt(0, children.Count)], false);
+            return (bestNode ?? children[random.Next(children.Count)], false);
         } 
-    }
-
-    private double CalculateUCT(Node node)
-    {
-        double logParentVisits = Math.Log(node.visits + 1);
-        double winRate = (double)node.wins / (node.visits + 1e-6);;
-        if (node.currentPlayer == -1) winRate = 1 - winRate;
-        double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (node.visits + 1e-6));
-        double value = winRate + exploration;
-        return value;
     }
     
     private static readonly (int, int)[] directions = 
@@ -425,7 +424,7 @@ public class Node
 
     private static List<(int, int)> GetEffectiveMoves(int[,] board)
     {
-        HashSet<(int, int)> moves = new HashSet<(int, int)>();
+        List<(int, int)> moves = new List<(int, int)>();
 
         for (int i = 0; i < 14; i++)
         {
@@ -439,7 +438,7 @@ public class Node
                         {
                             int xPos = i + x;
                             int yPos = j + y;
-                            if (xPos >= 0 && xPos < 14 && yPos >= 0 && yPos < 14 && board[xPos, yPos] == 0)
+                            if (xPos >= 0 && xPos < 14 && yPos >= 0 && yPos < 14 && board[xPos, yPos] == 0 && !moves.Contains((xPos, yPos)))
                             {
                                 moves.Add((xPos, yPos));
                             }
@@ -448,7 +447,7 @@ public class Node
                 }
             }
         }
-        return moves.ToList();
+        return moves;
     }
     
     private static List<(int, int)> GetPossibleMoves(int[,] board)
@@ -465,18 +464,6 @@ public class Node
 
         return moves;
     }
-
-    private static void ShuffleList<T>(List<T> list)
-    {
-        
-        int n = list.Count;
-        XorShift rng = new XorShift((uint)DateTime.Now.Ticks);
-        for (int i = n - 1; i > 0; i--)
-        {
-            int j = rng.NextInt(0, i);
-            (list[i], list[j]) = (list[j], list[i]);
-        }
-    }
     
     private void PrintBoardState(int[,] boardState)
     {
@@ -492,37 +479,3 @@ public class Node
         Debug.Log(q.ToString());
     }
 }
-
-
-public struct XorShift
-{
-    private uint state;
-
-    public XorShift(uint seed)
-    {
-        if (seed == 0) seed = 2463534242; // 0은 사용할 수 없음
-        state = seed;
-    }
-
-    public uint Next()
-    {
-        state ^= state << 13;
-        state ^= state >> 17;
-        state ^= state << 5;
-        return state;
-    }
-
-    public int NextInt(int min, int max)
-    {
-        return (int)(Next() % (max - min)) + min;
-    }
-
-    public double NextDouble()
-    {
-        return (Next() / (double)uint.MaxValue);
-    }
-}
-
-// random 대신 xorShift
-// uct 미리 계산
-// list shuffle

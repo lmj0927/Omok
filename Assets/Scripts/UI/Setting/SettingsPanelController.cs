@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -14,17 +15,29 @@ public class SettingsPanelController : PanelController
 
     void Start()
     {
-        profileButton.onMouseEnter += () => { editIconPanel.SetActive(true); };
+        profileButton.onMouseEnter += () =>
+        {
+            if (userInfoPanel.GetProfileState() == Constants.PROFILE_STATE.Load) 
+                editIconPanel.SetActive(true);
+        };
         profileButton.onMouseExit += ()=> { editIconPanel.SetActive(false); };
         
         profileButton.onClick.AddListener(OnClickProfileButton);   
         closeButton.onClick.AddListener(OnClickCloseButton);   
         logoutButton.onClick.AddListener(OnClickLogoutButton);
     }
-    
+
+    private void OnEnable()
+    {
+        userInfoPanel.RefreshInfo().Forget();
+    }
+
     private void OnClickProfileButton()
     {
-        UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile).Forget();
+        if (userInfoPanel.GetProfileState() == Constants.PROFILE_STATE.Load)
+        {
+            UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile).Forget();
+        }
     }
 
     /// <summary>

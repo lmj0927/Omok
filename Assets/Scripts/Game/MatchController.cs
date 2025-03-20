@@ -279,6 +279,7 @@ public class MatchController : IDisposable
                     }
                     break;
                 case MultiplayManagerState.EndGame:
+                    Time.timeScale = 1;
                     try{
                         if (data is bool isBlackWin)
                         {

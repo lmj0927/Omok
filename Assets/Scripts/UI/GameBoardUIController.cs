@@ -185,7 +185,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         });
     }
     
-    void GameEnded(bool isBlackWin, Action onComplete)
+    void GameEnded(END_TYPE endType, Action onComplete)
     {
         //오목 강조 효과
         //2D판 오목 표시
@@ -209,10 +209,22 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         //게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
         _isStartMatch = false;
         giveUpButton.interactable = false;
+
+        switch (endType)
+        {
+            case END_TYPE.BlackWin:
+                descriptionPanel.DOColor(Color.black , Duration);
+                descriptionText.text = "흑의 승리입니다!";
+                break;
+            case END_TYPE.WhiteWin:
+                descriptionPanel.DOColor(Color.white , Duration);
+                descriptionText.text = "백의 승리입니다!";
+                break;
+            case END_TYPE.Draw:
+                descriptionText.text = "무승부입니다!";
+                break;
+        }
         
-        descriptionPanel.DOColor(isBlackWin ? Color.black : Color.white, Duration);
-        descriptionText.DOColor(isBlackWin ? Color.white : Color.black, Duration);
-        descriptionText.text = isBlackWin ? "흑의 승리 입니다!" : "백의  승리입니다!";
     
         //EndMatch가 호출되면 기권 버튼을 Disable 하고 착수 버튼을 퇴장 버튼으로 바꾼다.
     

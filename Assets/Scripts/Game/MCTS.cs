@@ -28,8 +28,6 @@ public class MCTS
     {
         boardBlack = new ulong[_boardSize]; // 가로 15줄, 각 줄을 64비트 정수(ulong)로 표현
         boardWhite = new ulong[_boardSize];
-        
-        // board = new int[_boardSize, _boardSize];
     }
 
     public void SetIterations(int iter)
@@ -96,7 +94,6 @@ public class MCTS
     {
         if (player == 1) boardWhite[row] |= (1UL << 63-col);
         else if(player == -1) boardBlack[row] |= (1UL << 63-col);
-        // board[row, col] = player;
         if (rootNode != null)
         {
             // 기존 rootNode의 자식 중 해당 위치의 노드를 찾아 rootNode로 설정
@@ -118,9 +115,6 @@ public class MCTS
         {
             rootNode = new Node(null, boardBlack, boardWhite, player, (row, col), 0);
         }
-        
-        // PrintBoardState(boardBlack);
-        // PrintBoardState(boardWhite);
     }
 
     private (Node,bool) Select(Node node)
@@ -202,7 +196,6 @@ public class Node
     public double wins { get; set; }
     public int visits { get; set; }
     public bool fullyExpanded { get; private set; }
-    // public int[,] board { get; private set; }
     public ulong[] boardBlack{get; private set;}
     public ulong[] boardWhite {get; private set;}
     public (int, int) move{get; set;}
@@ -254,9 +247,6 @@ public class Node
             
             if(currentPlayer == 1) newBoardBlack[move.Item1] |= (1UL << 63 - move.Item2);
             else if(currentPlayer == -1) newBoardWhite[move.Item1] |= (1UL << 63 - move.Item2);
-            
-            // int[,] newBoard = (int[,])board.Clone();
-            // newBoard[move.Item1, move.Item2] = -currentPlayer;
 
             bool winnerDecided = CheckWin(newBoardBlack, newBoardWhite, move, -currentPlayer);
 
@@ -288,12 +278,6 @@ public class Node
         }
 
         fullyExpanded = true;
-
-        // if (losingBoardCount == children.Count)
-        // {
-        //     isLosingBoard = true;
-        //     return (children[random.Next(children.Count)], true);
-        // }
         
         return (children[random.Next(children.Count)], false);
     }
@@ -304,9 +288,6 @@ public class Node
         ulong[] tempBoardWhite = new ulong[boardSize];
         Array.Copy(boardBlack, tempBoardBlack, boardBlack.Length);
         Array.Copy(boardWhite, tempBoardWhite, boardWhite.Length);
-        
-        // int[,] tempBoard = new int[boardSize, boardSize];
-        // Array.Copy(board, tempBoard, board.Length);
 
         int player = currentPlayer;
         List<(int, int)> possibleMoves = GetPossibleMoves(tempBoardBlack, tempBoardWhite);
@@ -322,7 +303,6 @@ public class Node
             if(player == 1) tempBoardWhite[move.Item1] |= (1UL << 63 - move.Item2);
             else if(player == -1) tempBoardBlack[move.Item1] |= (1UL << 63 - move.Item2);
             winnerDecided = CheckWin(tempBoardBlack, tempBoardWhite, move, player);
-            // tempBoard[move.Item1, move.Item2] = player;
             possibleMoves.Remove(move);
         }
         return winnerDecided ? (player == 1 ? 1d : 0) : 0;
@@ -439,7 +419,6 @@ public class Node
         {
             if (CountConsecutiveStones(board, x, y, dx, dy) + CountConsecutiveStones(board, x, y, -dx, -dy) - 1 >= 5)
             {
-                // PrintBoardState(board);
                 return true;
             }
         }
@@ -480,7 +459,6 @@ public class Node
         for (int row = 0; row < boardSize; row++)
         {
             ulong occupied = boardBlack[row] | boardWhite[row]; //돌이 놓인 자리
-            // Debug.Log(occupied);
             if (occupied == 0) continue;
 
             for (int col = 0; col < boardSize; col++)
@@ -503,28 +481,6 @@ public class Node
                 }
             }
         }
-
-        // for (int i = 0; i < boardSize; i++)
-        // {
-        //     for (int j = 0; j < boardSize; j++)
-        //     {
-        //         if (board[i, j] != 0)
-        //         {
-        //             for (int x = -1; x < 2; x++)
-        //             {
-        //                 for (int y = -1; y < 2; y++)
-        //                 {
-        //                     int xPos = i + x;
-        //                     int yPos = j + y;
-        //                     if (xPos >= 0 && xPos < boardSize && yPos >= 0 && yPos < boardSize && board[xPos, yPos] == 0 && !moves.Contains((xPos, yPos)))
-        //                     {
-        //                         moves.Add((xPos, yPos));
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
         return moves.ToList();
     }
     
@@ -545,30 +501,7 @@ public class Node
                 }
             }
         }
-        //
-        // for (int i = 0; i < boardSize; i++)
-        // {
-        //     for (int j = 0; j < boardSize; j++)
-        //     {
-        //         if(board[i, j] == 0)
-        //             moves.Add((i, j));
-        //     }
-        // }
 
         return moves.ToList();
-    }
-    
-    private void PrintBoardState(ulong[] board)
-    {
-        StringBuilder sb = new StringBuilder(64);
-        foreach (var value in board)
-        {
-            for (int i = 63; i >= 0; i--)
-            {
-                sb.Append((value & (1UL << i)) != 0 ? '1' : '0');
-            }
-            sb.Append('\n');
-        }
-        Debug.Log(sb.ToString());
     }
 }

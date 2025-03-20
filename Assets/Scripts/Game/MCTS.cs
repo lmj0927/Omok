@@ -17,30 +17,29 @@ public class MCTS
     private Node rootNode;
 
     private int[,] board;
-    
-    private int iterations = 1000000;
 
+    private int iterations;
+    private const int _boardSize = 15;
+    
     public MCTS()
     {
-        board = new int[14, 14];
+        board = new int[_boardSize, _boardSize];
     }
 
     public void SetIterations(int iter)
     {
-        iterations = 50000;
+        iterations = iter;
     }
 
     async public UniTask RunSearch(int row, int col)
     {
         UpdateRootNode(row, col, -1);
-
-        Debug.Log("----탐색중----");
+        
         for (int i = 0; i < iterations; i++)
         {
             
             if (rootNode.isWinningBoard) // 필승 전략을 찾았을 때
             {
-                Debug.Log("필승전략 발견");
                 Node a = rootNode;
                 while (a.children.Count > 0)
                 {
@@ -75,7 +74,6 @@ public class MCTS
             result = Simulate(node);
             Backpropagate(node, result);
         }
-        Debug.Log("시뮬레이션 완료");
         
         // 착수 지점 결정
         Node bestchild = BestChild(rootNode);
@@ -98,7 +96,6 @@ public class MCTS
     
             if (existingChild != null)
             {
-                Debug.Log("업데이트 완료");
                 rootNode = existingChild;
                 rootNode.parent = null; // 기존 부모 정보 제거
             }
@@ -123,7 +120,6 @@ public class MCTS
             (node, winnerDecided) = node.BestUCTChild(); // leaf에 도달할때까지 UCT에 따라 다음 수를 둔다
             depth++;
         }
-        // Debug.Log(depth);
         
         if (winnerDecided)
         {
@@ -172,6 +168,7 @@ public class MCTS
 public class Node
 {
     private const double ExplorationParameter = 1.414;
+    private const int boardSize = 15;
     private static Random random = new Random();
     public Node parent { get; set; }
     public List<Node> children { get; private set; }
@@ -184,7 +181,6 @@ public class Node
     public int currentPlayer { get; private set; } // 현재 board 상태를 만든 player
     public bool isWinningBoard { get; private set; } // 필승이 가능한 상태일 때 true가 된다(현재 player와 관계없이 ai 기준)
     public bool isLosingBoard { get; private set; } //  무조건 지는 상태일 때 true가 된다(현재 player 관계없이 ai 기준
-    public double uctValue { get; private set; }
 
     public Node(Node parent, int[,] board, int player, (int, int) move)
     {
@@ -213,8 +209,7 @@ public class Node
     public (Node, bool) Expand()
     {
         effectiveMoves = GetEffectiveMoves(board);
-
-        bool foundWinningBoard = false;
+        
         int losingBoardCount = 0;
         Node winningNode = null;
         
@@ -232,7 +227,7 @@ public class Node
                 children.Add(child);
                 losingBoardCount++;
             }
-            else if (winnerDecided && currentPlayer == -1) // 다음 ai가 두는 수 중, 이기는 경우가 있을 경우
+            else if (winnerDecided && currentPlayer == -1) // 다음 ai가 두는 수 중, 이기는 경우가 있을 경우 -> 현재 노드 = 필승 노드
             {
                 Node child = new Node(this, newBoard, -currentPlayer, move);
                 child.isWinningBoard = true;
@@ -262,7 +257,7 @@ public class Node
 
     public double SimulateRandomPlay()
     {
-        int[,] tempBoard = new int[board.GetLength(0), board.GetLength(1)];
+        int[,] tempBoard = new int[boardSize, boardSize];
         Array.Copy(board, tempBoard, board.Length);
 
         int player = currentPlayer;
@@ -354,7 +349,6 @@ public class Node
                 }
                 
                 double winRate = 1 - ((double)child.wins / (child.visits + 1e-6));
-                // double winRate = ((double)child.wins / (child.visits + 1e-6));
                 double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (child.visits + 1e-6));
                 double uctValue = winRate + exploration;
 
@@ -401,9 +395,8 @@ public class Node
     private static int CountConsecutiveStones(int[,] board, int x, int y, int dx, int dy, int player)
     {
         int count = 0;
-        int boardCount = board.GetLength(0);
 
-        while (x >= 0 && x < boardCount && y >= 0 && y < boardCount && board[x, y] == player)
+        while (x >= 0 && x < boardSize && y >= 0 && y < boardSize && board[x, y] == player)
         {
             count++;
             x += dx;
@@ -426,9 +419,9 @@ public class Node
     {
         List<(int, int)> moves = new List<(int, int)>();
 
-        for (int i = 0; i < 14; i++)
+        for (int i = 0; i < boardSize; i++)
         {
-            for (int j = 0; j < 14; j++)
+            for (int j = 0; j < boardSize; j++)
             {
                 if (board[i, j] != 0)
                 {
@@ -438,7 +431,7 @@ public class Node
                         {
                             int xPos = i + x;
                             int yPos = j + y;
-                            if (xPos >= 0 && xPos < 14 && yPos >= 0 && yPos < 14 && board[xPos, yPos] == 0 && !moves.Contains((xPos, yPos)))
+                            if (xPos >= 0 && xPos < boardSize && yPos >= 0 && yPos < boardSize && board[xPos, yPos] == 0 && !moves.Contains((xPos, yPos)))
                             {
                                 moves.Add((xPos, yPos));
                             }
@@ -453,9 +446,9 @@ public class Node
     private static List<(int, int)> GetPossibleMoves(int[,] board)
     {
         List<(int, int)> moves = new List<(int, int)>();
-        for (int i = 0; i < 14; i++)
+        for (int i = 0; i < boardSize; i++)
         {
-            for (int j = 0; j < 14; j++)
+            for (int j = 0; j < boardSize; j++)
             {
                 if(board[i, j] == 0)
                     moves.Add((i, j));
@@ -463,19 +456,5 @@ public class Node
         }
 
         return moves;
-    }
-    
-    private void PrintBoardState(int[,] boardState)
-    {
-        StringBuilder q = new StringBuilder();
-        for (int i = 0; i < boardState.GetLength(0); i++)
-        {
-            for (int j = 0; j < boardState.GetLength(1); j++)
-            {
-                q.Append($"{boardState[i,j]}" );
-            }
-            q.Append("\n");
-        }
-        Debug.Log(q.ToString());
     }
 }

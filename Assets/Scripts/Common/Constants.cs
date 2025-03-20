@@ -73,6 +73,11 @@ public class Constants
     {
         Unload,
         Load,
+    public enum END_TYPE
+    {
+        BlackWin,
+        WhiteWin,
+        Draw
     }
 
 

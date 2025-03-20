@@ -37,11 +37,12 @@ public class MatchController : IDisposable
     }
 
     private Cell currentCell;
-
+    private bool isFirst = true;
+    
     public Action<TurnData, CELL_TYPE> OnDrawCell;
     public Action<TurnData, MATCH_STATE> TurnEnded;
     public Action OnTurnEndUI;
-    public Action<bool, Action> OnGameEndUI;
+    public Action<END_TYPE, Action> OnGameEndUI;
     public Action OnEndGridOmok;
     public List<Cell> FiveCells = new();
     public List<Transform> EndStones = new();
@@ -279,7 +280,7 @@ public class MatchController : IDisposable
                     try{
                         if (data is bool isBlackWin)
                         {
-                            EndMatch(isBlackWin, true);
+                            EndMatch(isBlackWin ? END_TYPE.BlackWin : END_TYPE.WhiteWin, true);
                         }
                         else
                         {
@@ -322,6 +323,17 @@ public class MatchController : IDisposable
 
     public void SetTurn()
     {
+        if (isFirst)
+        {
+            if (currentCell.row != 7 || currentCell.col != 7)
+            {
+                UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("첫 수는 가운데에 놓아야 합니다!", () => {});
+                return;
+            }
+            
+            isFirst = false;
+        }
+        
         if (!currentCell.IsUnityNull())
         {
             if (_gameTypeController is MultiplayController multiplayController)
@@ -388,6 +400,7 @@ public class MatchController : IDisposable
         _gameTypeController?.Dispose();
         _gameTypeController = null;
         _matchState = MATCH_STATE.End;
+        isFirst = true;
     }
 
     public void Surrender()
@@ -397,46 +410,57 @@ public class MatchController : IDisposable
             multiplayController.EndGame(!IsClientBlack());
         }
         
-        EndMatch(!IsClientBlack(), true);
+        EndMatch(IsClientBlack() ? END_TYPE.WhiteWin : END_TYPE.BlackWin, true);
     }
 
-    public void EndMatch(bool isBlackWin, bool isSurrender)
+    public void EndMatch(END_TYPE endType, bool isSurrender)
     {
+        
         _matchState = MATCH_STATE.End;
 
         PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;
         PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);
-        
-        if(isBlackWin == IsClientBlack())
-        {
-            OnGameEndUI?.Invoke(isBlackWin, () =>
-            {
-                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
-                UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-                _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
-            });
-            
-            myPlayerDataController.Win();
-            opponentPlayerDataController.Lose();
-            _matchInfo.isWin = true;
-        }
-        else
-        {
-            OnGameEndUI?.Invoke(isBlackWin, () =>
-            {
-                UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
-                UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
-                _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
-            });
-            
-            if(_matchPlayType == PLAY_TYPE.AI)
-            {
-                myPlayerDataController.Lose();
-                opponentPlayerDataController.Win();
-            }
 
-            _matchInfo.isWin = false;
+        switch (endType)
+        {
+            case END_TYPE.Draw:
+                OnGameEndUI?.Invoke(END_TYPE.Draw, () =>
+                {
+                    UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("무승부 하였습니다!" ,() =>{});
+                    UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                    _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+                });
+                break;
+            case END_TYPE.BlackWin:
+                OnGameEndUI?.Invoke(END_TYPE.BlackWin, () =>
+                {
+                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+                    UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                    _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+                });
+            
+                myPlayerDataController.Win();
+                opponentPlayerDataController.Lose();
+                _matchInfo.isWin = true;
+                break;
+            case END_TYPE.WhiteWin:
+                OnGameEndUI?.Invoke(END_TYPE.WhiteWin, () =>
+                {
+                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+                    UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
+                    _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
+                });
+            
+                if(_matchPlayType == PLAY_TYPE.AI)
+                {
+                    myPlayerDataController.Lose();
+                    opponentPlayerDataController.Win();
+                }
+
+                _matchInfo.isWin = false;
+                break;
         }
+        
         FiveCells.Clear();
         EndStones.Clear();
 

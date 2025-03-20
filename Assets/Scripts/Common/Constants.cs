@@ -69,6 +69,19 @@ public class Constants
         LastPlace
     }
 
+    public enum PROFILE_STATE
+    {
+        Unload,
+        Load,
+    }
+
+    public enum END_TYPE
+    {
+        BlackWin,
+        WhiteWin,
+        Draw
+    }
+
 
     public const float cameraMoverInitDistance = 5;
     public const float cameraMoverInitRotateX = 40;

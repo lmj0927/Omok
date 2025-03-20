@@ -15,6 +15,9 @@ public class GestureDetector : Singleton<GestureDetector>
 
     void Update()
     {
+        if (GameManager.Instance.matchController == null ||
+            GameManager.Instance.matchController.GetMatchState() == Constants.MATCH_STATE.End) return;
+        
         if (Input.GetMouseButtonDown(1))
         {
             _startPos = Input.mousePosition;
@@ -33,11 +36,8 @@ public class GestureDetector : Singleton<GestureDetector>
     private void CheckThreshold()
     {
         var speed = (_endPos - _startPos).magnitude / _dragTime;
-        
-        Debug.Log(speed);
         if (speed < speedThreshold || _endPos.y < _startPos.y) return;
         
-        //TODO: 중복 불가 처리
         OnGestureDetected?.Invoke();
     }
 }

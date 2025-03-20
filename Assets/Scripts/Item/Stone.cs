@@ -1,13 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Stone : MonoBehaviour
 {
-    [SerializeField] Rigidbody rigidbody;
-    [SerializeField] MeshCollider meshCollider;
-    
     public Constants.CELL_TYPE stoneType;
     private bool isDisposable = true;
-    
+    private List<Collider> _colliders;
+    private Rigidbody _rigidbody;
+
+    private void Awake()
+    {
+        _rigidbody = GetComponent<Rigidbody>();
+        _colliders = GetComponents<Collider>().ToList();
+    }
+
     void Update()
     {
         if (isDisposable)
@@ -21,8 +29,12 @@ public class Stone : MonoBehaviour
 
     public void SetKinematic(bool isKinematic)
     {
-        meshCollider.enabled = !isKinematic;
-        rigidbody.isKinematic = isKinematic;
+        foreach (var col in _colliders)
+        {
+            col.enabled = !isKinematic;
+        }
+        
+        _rigidbody.isKinematic = isKinematic;
         
         isDisposable = !isKinematic;
     }

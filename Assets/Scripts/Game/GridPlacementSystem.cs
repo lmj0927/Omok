@@ -351,7 +351,12 @@ public class GridPlacementSystem : MonoBehaviour
     
     private void SurrenderGestureDetected()
     {
-        //TODO: 기권 요청
+        OverturnBoard();
+        GameManager.Instance.GiveUpGame();
+    }
+
+    private void OverturnBoard()
+    {
         var cam = Camera.main;
         var closestExplosion = explosionPositions.OrderBy(t => Vector3.Distance(cam.transform.position, t.position)).FirstOrDefault().position;
         

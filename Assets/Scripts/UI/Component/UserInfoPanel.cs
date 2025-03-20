@@ -18,7 +18,6 @@ public class UserInfoPanel : MonoBehaviour
     
     private PROFILE_STATE _profileState;
     private UserInfo _userInfo;
-    private UserInfo? _opponentInfo;
 
     private void Awake()
     {

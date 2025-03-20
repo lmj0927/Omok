@@ -132,7 +132,7 @@ public class BoardController : MonoBehaviour
         
         placeCellList.Add(cells[row, col]);
 
-        AudioManager.Instance.PlaySFX(0);
+        AudioManager.Instance.PlaySFX("putStone");
         
         if (CheckGameResult(row, col))
         {

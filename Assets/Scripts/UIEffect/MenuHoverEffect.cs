@@ -50,7 +50,7 @@ public class MenuHoverEffect : MonoBehaviour
             currentCoroutine = StartCoroutine(AnimateFill(true));
         }
 
-        AudioManager.Instance.PlaySFX(1);
+        AudioManager.Instance.PlaySFX("menuHovering");
     }
     
     // PointerExit 이벤트에 연결 (BaseEventData 매개변수 포함)

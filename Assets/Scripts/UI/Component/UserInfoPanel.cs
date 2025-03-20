@@ -1,14 +1,22 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
+using static Constants;
 
 public class UserInfoPanel : MonoBehaviour
 {
+    [Header("UI Elements")]
     [SerializeField] TMP_Text infoText;
     [SerializeField] Image profileImage;
     [SerializeField] private List<Sprite> _profileSprites = new List<Sprite>();
+    
+    private PROFILE_STATE _profileState;
     private UserInfo _userInfo;
 
     private void Awake()
@@ -16,21 +24,62 @@ public class UserInfoPanel : MonoBehaviour
         _profileSprites.AddRange(ResourceManager.Instance.ProfileSprites);
     }
     
-    private void Start()
+    private void OnEnable()
     {
-        SetUserInfo(GameManager.Instance.GetUserInfo());
-        GameManager.Instance.playerDataController.OnChangedProfile += SetProfileImage;
+        Initialize();
     }
 
-    //설정창에서 갱신이 안되어서 활성화 될때 갱신시킴.
-    public void OnEnable()
+    private void Initialize()
     {
-        //계정 변경 시 playerDataController가 초기화 될 경우 재등록
-        GameManager.Instance.playerDataController.OnChangedProfile ??= SetProfileImage;
-
-        SetUserInfo(GameManager.Instance.GetUserInfo());
+        GameManager.Instance.playerDataController.OnChangedProfile = SetProfileImage;
+        SetDefaultInfo();
     }
 
+    //로드 되지않은 상태의 프로필 정보
+    private void SetDefaultInfo()
+    {
+        _userInfo.userId = "";
+        _userInfo.nickname = "로드 중..";
+        _userInfo.tier = 0;
+        _userInfo.score = 0;
+        _userInfo.profileIndex = 0;
+        _userInfo.winCount = 0;
+        _userInfo.loseCount = 0;
+        _userInfo.drawCount = 0;
+        _profileState = PROFILE_STATE.Unload;
+        
+        infoText.text = $"{_userInfo.nickname}";
+        SetProfileState(_profileState);
+        SetProfileImage(_userInfo.profileIndex);
+    }
+
+    public void SetProfileState(PROFILE_STATE state)
+    {
+        switch (state)
+        {
+            case PROFILE_STATE.Unload:
+                profileImage.color = new Color32(80,80,80,255);
+                break;
+            case PROFILE_STATE.Load:
+                profileImage.DOColor(Color.white, 0.2f);
+                break;
+        }
+    }
+
+    public PROFILE_STATE GetProfileState()
+    {
+        return _profileState;
+    }
+    
+    ///로컬 userinfo를 갱신하는데 사용합니다.
+    public async UniTask RefreshInfo()
+    {
+        await UniTask.WaitUntil(()=>_profileSprites != null);
+        _userInfo = GameManager.Instance.GetUserInfo();
+        SetUserInfo( _userInfo);
+    }
+    
+    ///Userinfo를 새로 할당합니다.
     public void SetUserInfo(UserInfo userInfo)
     {
         _userInfo = userInfo;
@@ -39,13 +88,15 @@ public class UserInfoPanel : MonoBehaviour
         infoText.text = infoStr;
         
         SetProfileImage(_userInfo.profileIndex);
+        
+        _profileState = PROFILE_STATE.Load;
+        SetProfileState(_profileState);
     }
     
     public void SetProfileImage(int idx)
     {
         if (idx < 0 || idx >= _profileSprites.Count)
         {
-            Debug.Log("PRCNT"+_profileSprites.Count);
             Debug.LogError("Profile Index out of range." + idx);
             return;
         }

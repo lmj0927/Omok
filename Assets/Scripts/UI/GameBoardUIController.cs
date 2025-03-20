@@ -55,6 +55,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     [Header("UserProfiles")]
     [SerializeField] private RectTransform userinfoPanel;
     [SerializeField] private RectTransform opponentinfoPanel;
+    private UserInfoPanel _userInfoPanel;
     private UserInfoPanel _opponentInfo;
     private Vector3 _downScaleInfo = new Vector3(0.75f, 0.75f, 0.75f);
     
@@ -118,6 +119,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             GameManager.Instance.matchController.OnGameEndUI = GameEnded;
         
             _opponentInfo = opponentinfoPanel.GetComponent<UserInfoPanel>();
+            _userInfoPanel = userinfoPanel.GetComponent<UserInfoPanel>();
         
             _onRepeatEffect += OnRepeatBoardEffect;
             _onRepeatEffect += OnRepeatCircleEffect;
@@ -150,6 +152,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     {
         _isBlack = GameManager.Instance.matchController.IsClientBlack();
         _opponentInfo.SetUserInfo(GameManager.Instance.matchController.GetCurrentMatchInfo().opponent);
+        _userInfoPanel.RefreshInfo().Forget();
         _isStartMatch = true;
         
         SetChangedTurn();
@@ -178,6 +181,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         {
             onComplete?.Invoke();
             UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
+            GameManager.Instance.mainUIUpdate?.Invoke();
         });
     }
     

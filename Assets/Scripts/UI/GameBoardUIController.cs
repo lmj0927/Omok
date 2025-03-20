@@ -143,13 +143,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         executeButton.onClick.RemoveAllListeners();
         executeButton.onClick.AddListener(OnClickExecuteButton);
 
-        if (_endMarkerObjects != null)
-        {
-            foreach (var obj in _endMarkerObjects)
-            {
-                obj.SetActive(false);
-            }
-        }
+        _endMarkerObjects.Clear();
     }
 
     public void StartMatch()
@@ -202,19 +196,6 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 markerBg.GetComponent<Image>().sprite = ResourceManager.Instance.endMarker;
                 markerBg.GetComponent<RectTransform>().localScale = new Vector3(0.5f, 0.5f, 0.5f);
                 _endMarkerObjects.Add(markerBg);
-            }
-        }
-        else
-        {
-            //이후 위치만 변경해서 활성화.
-            int i = 0;
-            foreach (var cell in GameManager.Instance.matchController.FiveCells)
-            {
-                var cellTr = cell.GetComponent<RectTransform>();
-                _endMarkerObjects[i].SetActive(true);
-                _endMarkerObjects[i].transform.SetParent(cellTr);
-                _endMarkerObjects[i].GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-                i++;
             }
         }
         
@@ -390,7 +371,19 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 
     public UniTask Hide()
     {
+        Dispose();
         gameObject.SetActive(false);
         return UniTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        descriptionText.text = "불러오기 중";
+        _excuteButtonText.text = "대기";
+        blackTurnPanel.sizeDelta = new Vector2(_blackOriginWidth, blackTurnPanel.sizeDelta.y);
+        whiteTurnPanel.sizeDelta = new Vector2(_whiteOriginWidth, whiteTurnPanel.sizeDelta.y);
+
+        var emptyUserInfo = new UserInfo();
+        _opponentInfo.SetUserInfo(emptyUserInfo);
     }
 }

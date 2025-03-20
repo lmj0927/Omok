@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using static Constants;
 using AYellowpaper.SerializedCollections;
 using System;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 public class GridPlacementSystem : MonoBehaviour
@@ -110,6 +111,8 @@ public class GridPlacementSystem : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0))
         {
+            //UI와 겹칠 때 Place 막기.
+            if (EventSystem.current.IsPointerOverGameObject(-1)) return;
             PlaceStone();
         }
     }
@@ -246,7 +249,7 @@ public class GridPlacementSystem : MonoBehaviour
 
     void PlaceStone()
     {
-        if (!previewObject.activeSelf || !canPlace)
+        if (previewObject == null || !previewObject.activeSelf || !canPlace)
         {
             return;
         }

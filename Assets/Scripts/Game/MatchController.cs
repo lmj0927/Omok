@@ -49,7 +49,6 @@ public class MatchController : IDisposable
 
     public void SetCurrentCell(Cell cell)
     {
-        Debug.Log(isFirst);
         if(!IsMyTurn() && (_matchPlayType == PLAY_TYPE.Multi || _matchPlayType == PLAY_TYPE.AI)) return;
 
         if(currentCell != null)

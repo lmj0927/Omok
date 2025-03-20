@@ -69,7 +69,8 @@ public class MainMenuController : MonoBehaviour, IGameUI
             });            
             return;
         }
-        
+
+        AudioManager.Instance.PlaySFX(2);
         GameManager.Instance.coinController.ConsumeCoin(Constants.CostPerGame);
         GameManager.Instance.StartGame(PLAY_TYPE.Multi);
     }
@@ -77,21 +78,25 @@ public class MainMenuController : MonoBehaviour, IGameUI
     void OnClickReplayButton()
     {
         UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation).Forget();
+        AudioManager.Instance.PlaySFX(3);
     }
 
     void OnClickLeaderboardButton()
     {
         UIManager.Instance.ShowUI<LeaderBoardPanelController>(UI_TYPE.Leaderboard).Forget();
+        AudioManager.Instance.PlaySFX(3);
     }
 
     void OnClickShopButton()
     {
         UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop).Forget();
+        AudioManager.Instance.PlaySFX(3);
     }
 
     void OnClickSettingButton()
     {
         UIManager.Instance.ShowUI<SettingsPanelController>(UI_TYPE.Setting).Forget();
+        AudioManager.Instance.PlaySFX(3);
     }
 
     public UniTask Show()

@@ -255,7 +255,7 @@ public class ResultPanelController : PopupController
     {
         _tier++;
         _score = 0;
-        UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("강등하셨습니다!", () =>
+        UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("강등 당하셨습니다.", () =>
         {
             //TODO: 승급 애니메이션
             SetCell();
@@ -268,7 +268,7 @@ public class ResultPanelController : PopupController
     {
         _tier--;
         _score = 0;
-        UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("승급하셨습니다!", () =>
+        UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("승급 하셨습니다!", () =>
         {
             //TODO: 승급 애니메이션
             SetCell();

@@ -68,7 +68,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
         if (GameManager.Instance.coinController.Coin < Constants.CostPerGame)
         {
             Debug.Log("코인이 부족합니다.");
-            var confirmPanel = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
+            var confirmPanel = UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm);
             confirmPanel.Show("코인이 부족합니다.", () =>
             {
                 UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop).Forget();

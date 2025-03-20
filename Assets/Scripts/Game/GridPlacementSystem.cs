@@ -214,7 +214,6 @@ public class GridPlacementSystem : MonoBehaviour
         Vector3Int gridPosition = new Vector3Int(row, 0, col);
         Vector3 position = GridToWorld(gridPosition);        
 
-
         if (placedObjects.TryGetValue(gridPosition, out GameObject existingStone))
         {
             Destroy(existingStone);
@@ -224,6 +223,11 @@ public class GridPlacementSystem : MonoBehaviour
         if(cellType != CELL_TYPE.None)
         {
             GameObject stone = Instantiate(objectPrefab[cellType]);
+            if (stone.TryGetComponent<Stone>(out var stoneComp))
+            {
+                stoneComp.stoneType = cellType;
+            }
+            
             stone.transform.position = position;
             placedObjects.Add(gridPosition, stone);
             
@@ -356,6 +360,16 @@ public class GridPlacementSystem : MonoBehaviour
         
         foreach (var placed in placedObjects)
         {
+            if (placed.Value.TryGetComponent<Stone>(out var stone))
+            {
+                if (stone.stoneType != CELL_TYPE.Black && stone.stoneType != CELL_TYPE.White)
+                {
+                    Destroy(stone.gameObject);
+                    continue;
+                }
+                
+                stone.SetKinematic(false);
+            }
         }
 
         GameManager.Instance.cameraMover.ResetTarget();

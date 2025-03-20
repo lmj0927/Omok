@@ -53,8 +53,7 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void UpdateUserInfo()
     {
-        _userInfo = GameManager.Instance.GetUserInfo();
-        userInfoPanel.SetUserInfo(_userInfo);
+        userInfoPanel.RefreshInfo().Forget();
     }
 
     void OnClickStartButton()

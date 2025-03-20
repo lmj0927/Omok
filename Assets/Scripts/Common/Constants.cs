@@ -69,6 +69,12 @@ public class Constants
         LastPlace
     }
 
+    public enum PROFILE_STATE
+    {
+        Unload,
+        Load,
+    }
+
 
     public const float cameraMoverInitDistance = 5;
     public const float cameraMoverInitRotateX = 40;

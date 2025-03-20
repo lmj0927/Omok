@@ -16,31 +16,36 @@ public class MCTS
     public Action<TurnData> onSearchComplete;
     private Node rootNode;
 
-    private int[,] board;
+    private ulong[] boardBlack; // 흑돌을 저장하는 비트마스크
+    private ulong[] boardWhite; // 백돌을 저장하는 비트마스크
     
-    private int iterations = 1000000;
+    // private int[,] board;
 
+    private int iterations;
+    private const int _boardSize = 15;
+    
     public MCTS()
     {
-        board = new int[14, 14];
+        boardBlack = new ulong[_boardSize]; // 가로 15줄, 각 줄을 64비트 정수(ulong)로 표현
+        boardWhite = new ulong[_boardSize];
+        
+        // board = new int[_boardSize, _boardSize];
     }
 
     public void SetIterations(int iter)
     {
-        iterations = 30000;
+        iterations = iter;
     }
 
-    async public UniTask RunSearch(int row, int col)
+    async public UniTask RunSearch(int row, int col) //(0,0)은 바둑판의 좌측 상단 끝
     {
         UpdateRootNode(row, col, -1);
-
-        Debug.Log("----탐색중----");
+        
         for (int i = 0; i < iterations; i++)
         {
             
             if (rootNode.isWinningBoard) // 필승 전략을 찾았을 때
             {
-                Debug.Log("필승전략 발견");
                 Node a = rootNode;
                 while (a.children.Count > 0)
                 {
@@ -75,7 +80,6 @@ public class MCTS
             result = Simulate(node);
             Backpropagate(node, result);
         }
-        Debug.Log("시뮬레이션 완료");
         
         // 착수 지점 결정
         Node bestchild = BestChild(rootNode);
@@ -90,7 +94,9 @@ public class MCTS
 
     private void UpdateRootNode(int row, int col, int player)
     {
-        board[row, col] = player;
+        if (player == 1) boardWhite[row] |= (1UL << 63-col);
+        else if(player == -1) boardBlack[row] |= (1UL << 63-col);
+        // board[row, col] = player;
         if (rootNode != null)
         {
             // 기존 rootNode의 자식 중 해당 위치의 노드를 찾아 rootNode로 설정
@@ -98,20 +104,23 @@ public class MCTS
     
             if (existingChild != null)
             {
-                Debug.Log("업데이트 완료");
                 rootNode = existingChild;
                 rootNode.parent = null; // 기존 부모 정보 제거
             }
             else
             {
                 // 기존 rootNode에서 찾을 수 없으면 새로운 노드 생성
-                rootNode = new Node(null, board, player, (row, col));
+                int depth = rootNode.depth + 1;
+                rootNode = new Node(null, boardBlack, boardWhite, player, (row, col), depth);
             }
         }
         else
         {
-            rootNode = new Node(null, board, player, (row, col));
+            rootNode = new Node(null, boardBlack, boardWhite, player, (row, col), 0);
         }
+        
+        // PrintBoardState(boardBlack);
+        // PrintBoardState(boardWhite);
     }
 
     private (Node,bool) Select(Node node)
@@ -123,7 +132,6 @@ public class MCTS
             (node, winnerDecided) = node.BestUCTChild(); // leaf에 도달할때까지 UCT에 따라 다음 수를 둔다
             depth++;
         }
-        // Debug.Log(depth);
         
         if (winnerDecided)
         {
@@ -167,28 +175,51 @@ public class MCTS
 
         return bestNode;
     }
+
+
+    private void PrintBoardState(ulong[] board)
+    {
+        StringBuilder sb = new StringBuilder(64);
+        foreach (var value in board)
+        {
+            for (int i = 63; i >= 0; i--)
+            {
+                sb.Append((value & (1UL << i)) != 0 ? '1' : '0');
+            }
+            sb.Append('\n');
+        }
+        Debug.Log(sb.ToString());
+    }
 }
 
 public class Node
 {
     private const double ExplorationParameter = 1.414;
+    private const int boardSize = 15;
     private static Random random = new Random();
     public Node parent { get; set; }
     public List<Node> children { get; private set; }
     public double wins { get; set; }
     public int visits { get; set; }
     public bool fullyExpanded { get; private set; }
-    public int[,] board { get; private set; }
+    // public int[,] board { get; private set; }
+    public ulong[] boardBlack{get; private set;}
+    public ulong[] boardWhite {get; private set;}
     public (int, int) move{get; set;}
     public List<(int, int)> effectiveMoves { get; private set; } // leaf node를 뽑을 때는 놓여있는 돌을 기준으로 위치를 제한한다
     public int currentPlayer { get; private set; } // 현재 board 상태를 만든 player
     public bool isWinningBoard { get; private set; } // 필승이 가능한 상태일 때 true가 된다(현재 player와 관계없이 ai 기준)
     public bool isLosingBoard { get; private set; } //  무조건 지는 상태일 때 true가 된다(현재 player 관계없이 ai 기준
+    public int depth { get; private set; } // 수의 깊이
 
-    public Node(Node parent, int[,] board, int player, (int, int) move)
+    public Node(Node parent, ulong[] boardBlack, ulong[] boardWhite, int player, (int, int) move, int depth)
     {
         this.parent = parent;
-        this.board = (int[,])board.Clone();
+        // this.board = (int[,])board.Clone();
+        this.boardBlack = new ulong[boardSize];
+        this.boardWhite = new ulong[boardSize];
+        Array.Copy(boardBlack, this.boardBlack, boardBlack.Length);
+        Array.Copy(boardWhite, this.boardWhite, boardWhite.Length);
         currentPlayer = player;
         children = new List<Node>();
         wins = 0d;
@@ -197,11 +228,12 @@ public class Node
         this.move = move;
         isWinningBoard = false;
         isLosingBoard = false;
+        this.depth = depth;
     }
 
     public bool IsTerminal()
     {
-        return CheckWin(board, move) || !HasEmptyCells(board);
+        return CheckWin(boardBlack, boardWhite, move, currentPlayer) || !HasEmptyCells();
     }
 
     public bool IsFullyExpanded()
@@ -211,111 +243,97 @@ public class Node
 
     public (Node, bool) Expand()
     {
-        effectiveMoves = GetEffectiveMoves(board);
-
-        bool foundWinningBoard = false;
-        int losingBoardCount = 0;
-        Node winningNode = null;
+        effectiveMoves = GetEffectiveMoves(boardBlack, boardWhite);
         
         foreach (var move in effectiveMoves)
         {
-            int[,] newBoard = (int[,])board.Clone();
-            newBoard[move.Item1, move.Item2] = -currentPlayer;
+            ulong[] newBoardBlack = new ulong[boardSize];
+            ulong[] newBoardWhite = new ulong[boardSize];
+            Array.Copy(boardBlack, newBoardBlack, boardBlack.Length);
+            Array.Copy(boardWhite, newBoardWhite, boardWhite.Length);
+            
+            if(currentPlayer == 1) newBoardBlack[move.Item1] |= (1UL << 63 - move.Item2);
+            else if(currentPlayer == -1) newBoardWhite[move.Item1] |= (1UL << 63 - move.Item2);
+            
+            // int[,] newBoard = (int[,])board.Clone();
+            // newBoard[move.Item1, move.Item2] = -currentPlayer;
 
-            bool winnerDecided = CheckWin(newBoard, move);
+            bool winnerDecided = CheckWin(newBoardBlack, newBoardWhite, move, -currentPlayer);
 
             if (winnerDecided && currentPlayer == 1) // 다음에 player가 두는 수 중, 지는 경우가 있을 경우
             {
-                Node child = new Node(this, newBoard, -currentPlayer, move);
+                Node child = new Node(this, newBoardBlack, newBoardWhite, -currentPlayer, move, depth + 1);
                 child.isLosingBoard = true;
+                children.Clear();
                 children.Add(child);
-                losingBoardCount++;
+                isLosingBoard = true;
+                fullyExpanded = true;
+                return (child, true);
             }
-            else if (winnerDecided && currentPlayer == -1) // 다음 ai가 두는 수 중, 이기는 경우가 있을 경우
+            else if (winnerDecided && currentPlayer == -1) // 다음 ai가 두는 수 중, 이기는 경우가 있을 경우 -> 현재 노드 = 필승 노드
             {
-                Node child = new Node(this, newBoard, -currentPlayer, move);
+                Node child = new Node(this, newBoardBlack, newBoardWhite, -currentPlayer, move, depth + 1);
                 child.isWinningBoard = true;
+                children.Clear();
                 children.Add(child);
-                winningNode = child;
-                foundWinningBoard = true;
+                isWinningBoard = true;
+                fullyExpanded = true;
+                return (child, true);
             }
             else // 당장 다음 노드에서 승부가 나지 않는 경우
             {
-                Node child = new Node(this, newBoard, -currentPlayer, (move.Item1, move.Item2));
+                Node child = new Node(this, newBoardBlack, newBoardWhite, -currentPlayer, (move.Item1, move.Item2), depth+1);
                 children.Add(child);
             }
         }
 
         fullyExpanded = true;
 
-        if (foundWinningBoard)
-        {
-            isWinningBoard = true;
-            return (winningNode, true);
-        }
-
-        if (losingBoardCount == children.Count)
-        {
-            isLosingBoard = true;
-            return (children[random.Next(children.Count)], true);
-        }
-        
-        // PrintBoardState(children[random.Next(children.Count)].board);
+        // if (losingBoardCount == children.Count)
+        // {
+        //     isLosingBoard = true;
+        //     return (children[random.Next(children.Count)], true);
+        // }
         
         return (children[random.Next(children.Count)], false);
     }
 
     public double SimulateRandomPlay()
     {
-        int[,] tempBoard = new int[board.GetLength(0), board.GetLength(1)];
-        Array.Copy(board, tempBoard, board.Length);
+        ulong[] tempBoardBlack = new ulong[boardSize];
+        ulong[] tempBoardWhite = new ulong[boardSize];
+        Array.Copy(boardBlack, tempBoardBlack, boardBlack.Length);
+        Array.Copy(boardWhite, tempBoardWhite, boardWhite.Length);
+        
+        // int[,] tempBoard = new int[boardSize, boardSize];
+        // Array.Copy(board, tempBoard, board.Length);
 
         int player = currentPlayer;
-        List<(int, int)> possibleMoves = GetPossibleMoves(tempBoard);
+        List<(int, int)> possibleMoves = GetPossibleMoves(tempBoardBlack, tempBoardWhite);
         (int, int) move = this.move;
 
-        double totalScore = 0d;
-        bool winnerDecided = CheckWin(tempBoard, move);
+        bool winnerDecided = false;
         
         while (!winnerDecided && possibleMoves.Count > 0)
         {
             player = -player;
             move = possibleMoves[random.Next(possibleMoves.Count)];
-            tempBoard[move.Item1, move.Item2] = player;
-            possibleMoves.Remove(move);
             
-            winnerDecided = CheckWin(tempBoard, move);
+            if(player == 1) tempBoardWhite[move.Item1] |= (1UL << 63 - move.Item2);
+            else if(player == -1) tempBoardBlack[move.Item1] |= (1UL << 63 - move.Item2);
+            winnerDecided = CheckWin(tempBoardBlack, tempBoardWhite, move, player);
+            // tempBoard[move.Item1, move.Item2] = player;
+            possibleMoves.Remove(move);
         }
         return winnerDecided ? (player == 1 ? 1d : 0) : 0;
     }
     
-    // private double EvaluateBoard(int[,] board, (int, int) move, int player)
-    // {
-    //     int threeCount = 0;
-    //     int fourCount = 0;
-    //
-    //     double threeScore = 0.01d;
-    //     double fourScore = 0.1d;
-    //
-    //     foreach (var (dx, dy) in directions)
-    //     {
-    //         int count = CountConsecutiveStones(board, move.Item1, move.Item2, dx, dy, player)
-    //             + CountConsecutiveStones(board, move.Item1, move.Item2, -dx, -dy, player) - 1;
-    //
-    //         if (count == 3) threeCount++;
-    //         if (count == 4) fourCount++;
-    //     }
-    //     double score = (fourCount * fourScore) + (threeCount * threeScore);
-    //
-    //     return player == 1 ? score : -score;
-    // }
-
-
     public void Update(double result)
     {
         visits++;
         wins += result;
     }
+    
     public (Node, bool) BestUCTChild() // bool: winnerDecided
     {
         if (currentPlayer == -1) // 마지막으로 player가 뒀을 때
@@ -381,7 +399,6 @@ public class Node
                 }
                 
                 double winRate = 1 - ((double)child.wins / (child.visits + 1e-6));
-                // double winRate = ((double)child.wins / (child.visits + 1e-6));
                 double exploration = ExplorationParameter * Math.Sqrt(2 * logParentVisits / (child.visits + 1e-6));
                 double uctValue = winRate + exploration;
 
@@ -409,100 +426,149 @@ public class Node
         (1, -1)
     };
 
-    private static bool CheckWin(int[,] board, (int, int) lastMove)
+    private bool CheckWin(ulong[] boardBlack, ulong[] boardWhite, (int, int) lastMove, int player)
     {
+        // player: 마지막으로 둔 사람
         int x = lastMove.Item1, y = lastMove.Item2;
-        int player = board[x, y];
+
         if (player == 0) return false;
 
+        ulong[] board = player == 1 ? boardWhite : boardBlack;
+               
         foreach (var (dx, dy) in directions)
         {
-            if (CountConsecutiveStones(board, x, y, dx, dy, player) + CountConsecutiveStones(board, x, y, -dx, -dy, player) - 1 >= 5)
+            if (CountConsecutiveStones(board, x, y, dx, dy) + CountConsecutiveStones(board, x, y, -dx, -dy) - 1 >= 5)
             {
+                // PrintBoardState(board);
                 return true;
             }
         }
         return false;
     }
-
-    private static int CountConsecutiveStones(int[,] board, int x, int y, int dx, int dy, int player)
+    
+    private int CountConsecutiveStones(ulong[] board, int x, int y, int dx, int dy)
     {
         int count = 0;
-        int boardCount = board.GetLength(0);
-
-        while (x >= 0 && x < boardCount && y >= 0 && y < boardCount && board[x, y] == player)
+    
+        while (IsValid(x, y) && (board[x] & (1UL << 63 - y)) != 0)
         {
             count++;
             x += dx;
             y += dy;
         }
-
+    
         return count;
     }
-
-    private static bool HasEmptyCells(int[,] board)
+    
+    // 유효한 좌표인지 확인
+    private bool IsValid(int x, int y)
     {
-        foreach (var cell in board)
-        {
-            if (cell == 0) return true;
-        }
-        return false;
+        return x >= 0 && y >= 0 && x < boardSize && y < boardSize;
     }
 
-    private static List<(int, int)> GetEffectiveMoves(int[,] board)
+    private bool HasEmptyCells()
     {
-        List<(int, int)> moves = new List<(int, int)>();
+        int max = boardSize * boardSize;
+        
+        return depth < max - 1;
+    }
 
-        for (int i = 0; i < 14; i++)
+    private List<(int, int)> GetEffectiveMoves(ulong[] boardBlack, ulong[] boardWhite)
+    {
+        HashSet<(int, int)> moves = new HashSet<(int, int)>();
+
+        for (int row = 0; row < boardSize; row++)
         {
-            for (int j = 0; j < 14; j++)
+            ulong occupied = boardBlack[row] | boardWhite[row]; //돌이 놓인 자리
+            // Debug.Log(occupied);
+            if (occupied == 0) continue;
+
+            for (int col = 0; col < boardSize; col++)
             {
-                if (board[i, j] != 0)
+                if ((occupied & (1UL << 63 - col)) != 0)
                 {
-                    for (int x = -1; x < 2; x++)
+                    for (int dx = -1; dx < 2; dx++)
                     {
-                        for (int y = -1; y < 2; y++)
+                        for (int dy = -1; dy < 2; dy++)
                         {
-                            int xPos = i + x;
-                            int yPos = j + y;
-                            if (xPos >= 0 && xPos < 14 && yPos >= 0 && yPos < 14 && board[xPos, yPos] == 0 && !moves.Contains((xPos, yPos)))
+                            int nx = row + dx;
+                            int ny = col + dy;
+                        
+                            if (IsValid(nx, ny) && (boardBlack[nx] & (1UL << 63 - ny)) == 0 && (boardWhite[nx] & (1UL << 63 - ny)) == 0)
                             {
-                                moves.Add((xPos, yPos));
+                                moves.Add((nx, ny)); // 중복 검사 없이 추가
                             }
                         }
                     }
                 }
             }
         }
-        return moves;
-    }
-    
-    private static List<(int, int)> GetPossibleMoves(int[,] board)
-    {
-        List<(int, int)> moves = new List<(int, int)>();
-        for (int i = 0; i < 14; i++)
-        {
-            for (int j = 0; j < 14; j++)
-            {
-                if(board[i, j] == 0)
-                    moves.Add((i, j));
-            }
-        }
 
-        return moves;
+        // for (int i = 0; i < boardSize; i++)
+        // {
+        //     for (int j = 0; j < boardSize; j++)
+        //     {
+        //         if (board[i, j] != 0)
+        //         {
+        //             for (int x = -1; x < 2; x++)
+        //             {
+        //                 for (int y = -1; y < 2; y++)
+        //                 {
+        //                     int xPos = i + x;
+        //                     int yPos = j + y;
+        //                     if (xPos >= 0 && xPos < boardSize && yPos >= 0 && yPos < boardSize && board[xPos, yPos] == 0 && !moves.Contains((xPos, yPos)))
+        //                     {
+        //                         moves.Add((xPos, yPos));
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        return moves.ToList();
     }
     
-    private void PrintBoardState(int[,] boardState)
+    private List<(int, int)> GetPossibleMoves(ulong[] boardBlack, ulong[] boardWhite)
     {
-        StringBuilder q = new StringBuilder();
-        for (int i = 0; i < boardState.GetLength(0); i++)
+        HashSet<(int, int)> moves = new HashSet<(int, int)>();
+
+        for (int row = 0; row < boardSize; row++)
         {
-            for (int j = 0; j < boardState.GetLength(1); j++)
+            ulong occupied = boardBlack[row] | boardWhite[row]; //돌이 놓인 자리
+            if (occupied == 0) continue;
+
+            for (int col = 0; col < boardSize; col++)
             {
-                q.Append($"{boardState[i,j]}" );
+                if (IsValid(row, col) && (boardBlack[row] & (1UL << 63 - col)) == 0 && (boardWhite[row] & (1UL << 63 - col)) == 0)
+                {
+                    moves.Add((row, col)); // 중복 검사 없이 추가
+                }
             }
-            q.Append("\n");
         }
-        Debug.Log(q.ToString());
+        //
+        // for (int i = 0; i < boardSize; i++)
+        // {
+        //     for (int j = 0; j < boardSize; j++)
+        //     {
+        //         if(board[i, j] == 0)
+        //             moves.Add((i, j));
+        //     }
+        // }
+
+        return moves.ToList();
+    }
+    
+    private void PrintBoardState(ulong[] board)
+    {
+        StringBuilder sb = new StringBuilder(64);
+        foreach (var value in board)
+        {
+            for (int i = 63; i >= 0; i--)
+            {
+                sb.Append((value & (1UL << i)) != 0 ? '1' : '0');
+            }
+            sb.Append('\n');
+        }
+        Debug.Log(sb.ToString());
     }
 }

@@ -23,6 +23,7 @@ public enum UI_TYPE
     Game,
     EditProfile,
     Notation,
+    Alarm,
 }
 
 

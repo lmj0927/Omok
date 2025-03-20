@@ -214,10 +214,12 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         {
             case END_TYPE.BlackWin:
                 descriptionPanel.DOColor(Color.black , Duration);
+                descriptionText.DOColor(Color.white , Duration);
                 descriptionText.text = "흑의 승리입니다!";
                 break;
             case END_TYPE.WhiteWin:
                 descriptionPanel.DOColor(Color.white , Duration);
+                descriptionText.DOColor(Color.black , Duration);
                 descriptionText.text = "백의 승리입니다!";
                 break;
             case END_TYPE.Draw:

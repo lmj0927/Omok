@@ -22,7 +22,7 @@ public class MCTS
     // private int[,] board;
 
     private int iterations;
-    private const int _boardSize = 14;
+    private const int _boardSize = 15;
     
     public MCTS()
     {
@@ -195,7 +195,7 @@ public class MCTS
 public class Node
 {
     private const double ExplorationParameter = 1.414;
-    private const int boardSize = 14;
+    private const int boardSize = 15;
     private static Random random = new Random();
     public Node parent { get; set; }
     public List<Node> children { get; private set; }

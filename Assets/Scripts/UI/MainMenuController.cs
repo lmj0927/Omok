@@ -16,6 +16,8 @@ public class MainMenuController : MonoBehaviour, IGameUI
     [SerializeField] Button settingButton;
     UserInfo _userInfo;
 
+    CancellationTokenSource _introCts;
+
     void Start()
     {
         startButton.onClick.AddListener(OnClickStartButton);

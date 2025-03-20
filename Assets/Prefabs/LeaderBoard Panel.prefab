@@ -607,7 +607,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "--\uC704 | 17\uC2B9 28\uD328 (37%)"
+  m_text: "--\uC704 | 5\uBB34 17\uC2B9 28\uD328 (37%)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b459c9d4fac02f54996dddba73cdb7a9, type: 2}
   m_sharedMaterial: {fileID: 6075371062239151384, guid: b459c9d4fac02f54996dddba73cdb7a9, type: 2}

@@ -327,7 +327,7 @@ public class MatchController : IDisposable
         {
             if (currentCell.row != 7 || currentCell.col != 7)
             {
-                UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("첫 수는 가운데에 놓아야 합니다!", () => {});
+                UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("첫 수는 가운데에 놓아야 합니다!", () => {});
                 return;
             }
             
@@ -426,7 +426,7 @@ public class MatchController : IDisposable
             case END_TYPE.Draw:
                 OnGameEndUI?.Invoke(END_TYPE.Draw, () =>
                 {
-                    UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("무승부 하였습니다!" ,() =>{});
+                    UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("무승부입니다!" ,() =>{});
                     UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
                     _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
                 });

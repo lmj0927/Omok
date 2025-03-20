@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -15,6 +16,8 @@ public class MainMenuController : MonoBehaviour, IGameUI
     [SerializeField] Button shopButton;
     [SerializeField] Button settingButton;
     UserInfo _userInfo;
+
+    CancellationTokenSource _introCts;
 
     void Start()
     {
@@ -37,12 +40,16 @@ public class MainMenuController : MonoBehaviour, IGameUI
     }
 
     void OnDisable()
-    {
+    {   
+        _introCts?.Cancel();
         GameManager.Instance.StoneSpawner?.DisableSpawner();
     }
 
-    async UniTask PlayIntro(){
-        await UniTask.Delay(5000);
+    async UniTask PlayIntro()
+    {        
+        _introCts?.Cancel();
+        _introCts = new CancellationTokenSource();
+        await UniTask.Delay(5000, cancellationToken: _introCts.Token);
         GameManager.Instance.cameraMover.SetCamera(new Vector3(cameraMoverIntroRotateX, cameraMoverIntroRotateY, 0), cameraMoverIntroDistance);
     }
 
@@ -106,12 +113,13 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     public UniTask Hide()
     {
+        Dispose();
         gameObject.SetActive(false);        
         return UniTask.CompletedTask;
     }
 
     void Dispose()
     {
-
+        
     }
 }

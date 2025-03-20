@@ -44,7 +44,9 @@ public class Constants
         EndGame,
         EndTurn,
         EndMatch,
-        ReadyComplete
+        ReadyComplete,
+        Draw,
+        DrawAnswer,
     }
 
     public enum PLAY_TYPE{

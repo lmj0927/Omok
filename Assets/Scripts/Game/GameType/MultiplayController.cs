@@ -28,12 +28,23 @@ public class MultiplayController : IBaseGameTypeController
         _socket.OnUnityThread("startGameCli", StartGame);
         _socket.OnUnityThread("endGameCli", EndGame);
         _socket.OnUnityThread("endTurnCli", EndTurn);
-        _socket.OnUnityThread("readyCompleteCli", ReadyComplete);        
+        _socket.OnUnityThread("readyCompleteCli", ReadyComplete);
+        _socket.OnUnityThread("drawGameCli", DrawGame);
+        _socket.OnUnityThread("drawAnswerCli", DrawAnswer);
         
         _socket.Connect();
     }
-    
+    public MultiplayController()
+    {
+
+    }
+
     public MultiplayController(Action<Constants.MultiplayManagerState, dynamic> onMultiplayStateChanged)
+    {
+        _onMultiplayStateChanged = onMultiplayStateChanged;
+    }
+
+    public void InitailizeMultiplay(Action<Constants.MultiplayManagerState, dynamic> onMultiplayStateChanged)
     {
         _onMultiplayStateChanged = onMultiplayStateChanged;
     }
@@ -77,6 +88,19 @@ public class MultiplayController : IBaseGameTypeController
 
         _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.EndTurn, data);
     }
+    
+    private void DrawGame(SocketIOResponse response)
+    {
+        var data = response.GetValue<bool>();
+        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.Draw, data);
+    }
+
+    private void DrawAnswer(SocketIOResponse response)
+    {
+        var data = response.GetValue<bool>();
+        _onMultiplayStateChanged?.Invoke(Constants.MultiplayManagerState.DrawAnswer, data);
+    }
+
 
     public void SendEndTurn(int row, int col){
         _socket.Emit("endTurn", new { row, col });
@@ -92,6 +116,14 @@ public class MultiplayController : IBaseGameTypeController
 
     public void EndGame(bool isBlackWin){
         _socket.Emit("endGame", isBlackWin);
+    }
+    
+    public void SendRequestDraw(bool isQuestion){
+        _socket.Emit("drawGame", isQuestion);
+    }
+
+    public void SendAnswerDraw(bool isAccept){
+        _socket.Emit("drawAnswer", isAccept);
     }
 
     public void Operate(OperateCommand command)

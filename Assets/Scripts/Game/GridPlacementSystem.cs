@@ -29,9 +29,6 @@ public class GridPlacementSystem : MonoBehaviour
     Vector3Int currentGridPosition;
     bool canPlace = true;
     bool isReplacing = false;
-    
-    int selectedPrefabType = 0;
-    
     CELL_TYPE currentTurn = CELL_TYPE.None;
 
     public Action<TurnData> OnSetCurrentCell;
@@ -353,12 +350,14 @@ public class GridPlacementSystem : MonoBehaviour
     
     private void SurrenderGestureDetected()
     {
-        OverturnBoard();
+        //OverturnBoard();
         GameManager.Instance.GiveUpGame();
     }
 
-    private void OverturnBoard()
+    public void OverturnBoard()
     {
+        AudioManager.Instance.PlaySFX("overturnBoard");
+        
         var cam = Camera.main;
         var closestExplosion = explosionPositions.OrderBy(t => Vector3.Distance(cam.transform.position, t.position)).FirstOrDefault().position;
         

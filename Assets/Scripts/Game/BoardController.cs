@@ -52,6 +52,7 @@ public class BoardController : MonoBehaviour
             GameManager.Instance.cameraMover.SetTarget(_gridPlacementSystem.cameraTarget);
             _gridPlacementSystem.OnSetCurrentCell += SetCurrentCell;
             GameManager.Instance.matchController.OnEndGridOmok += _gridPlacementSystem.EndOmok;
+            GameManager.Instance.matchController.OnSurrender += _gridPlacementSystem.OverturnBoard;
         }
     }
 
@@ -173,7 +174,7 @@ public class BoardController : MonoBehaviour
         if (CheckDraw())
         {
             // TODO: 무승부 ui처리
-            GameManager.Instance.matchController.EndMatch(END_TYPE.Draw, false);
+            GameManager.Instance.matchController.DrawMatch();
         }
     }
 

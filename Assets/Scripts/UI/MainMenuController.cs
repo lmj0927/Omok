@@ -83,24 +83,28 @@ public class MainMenuController : MonoBehaviour, IGameUI
 
     void OnClickReplayButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation).Forget();
         AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     void OnClickLeaderboardButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.ShowUI<LeaderBoardPanelController>(UI_TYPE.Leaderboard).Forget();
         AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     void OnClickShopButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.ShowUI<ShopPanelController>(UI_TYPE.Shop).Forget();
         AudioManager.Instance.PlaySFX("panelOpen");
     }
 
     void OnClickSettingButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.ShowUI<SettingsPanelController>(UI_TYPE.Setting).Forget();
         AudioManager.Instance.PlaySFX("panelOpen");
     }

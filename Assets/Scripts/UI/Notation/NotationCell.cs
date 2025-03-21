@@ -26,6 +26,7 @@ public class NotationCell : MonoBehaviour, IReloadableCell<MatchInfo>
 
     private void OnClickNotation()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
         UIManager.Instance.HideUI<NotationUIController>(UI_TYPE.Notation);
         

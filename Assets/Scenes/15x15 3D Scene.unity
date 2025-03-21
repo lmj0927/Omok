@@ -238,6 +238,52 @@ MonoBehaviour:
   maxDistance: 30
   movementDampening: 5
   rotationDampening: 5
+--- !u!1 &548734506
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 548734507}
+  - component: {fileID: 548734508}
+  m_Layer: 0
+  m_Name: CursorManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &548734507
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548734506}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2128811468}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &548734508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548734506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0784ad1945f1ee940a3418fdb1c4ba74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cursorBrushTexture: {fileID: 2800000, guid: 49901351a9adbac44bdc435753c9553c, type: 3}
+  cursorHandTexture: {fileID: 2800000, guid: 5152664d17d2d064781668693ea323ec, type: 3}
 --- !u!1 &622247658
 GameObject:
   m_ObjectHideFlags: 0
@@ -384,7 +430,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -977,6 +1023,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ceb7076872b1715469fdf8e78240c1ef, type: 3}
   - {fileID: 8300000, guid: e457432118ed58e4fb37da95e871f909, type: 3}
   - {fileID: 8300000, guid: 7eba7ce18eb6b804faae134955563b2c, type: 3}
+  - {fileID: 8300000, guid: ca323e8ac64d1da4ba4c1bd24fb9b04b, type: 3}
+  - {fileID: 8300000, guid: cc8243b85c552c04e8fb5ff077c954f2, type: 3}
+  - {fileID: 8300000, guid: 0883da2e7f0374ef1a3c942d3bc331fc, type: 3}
 --- !u!1 &1172362575
 GameObject:
   m_ObjectHideFlags: 0
@@ -1455,6 +1504,7 @@ Transform:
   - {fileID: 2107089419}
   - {fileID: 1080054597}
   - {fileID: 1172362576}
+  - {fileID: 548734507}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &2146633804 stripped

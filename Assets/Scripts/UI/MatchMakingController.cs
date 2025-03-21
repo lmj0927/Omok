@@ -17,6 +17,7 @@ public class MatchMakingController : PopupController
     /// </summary>
     public void OnClickCloseButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         //Canel MatchMaking
         GameManager.Instance.matchController.CloseMatchMaking();
         Hide();

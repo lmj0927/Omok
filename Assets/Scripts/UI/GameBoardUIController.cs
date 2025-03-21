@@ -10,8 +10,9 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 {
     //조작 버튼
     [Header("Interaction Buttons")]
-    public Button giveUpButton;
-    public Button executeButton;
+    [SerializeField] Button requestDrawButton;
+    [SerializeField] Button giveUpButton;
+    [SerializeField] Button executeButton;
     [SerializeField] Button changeViewButton;
     
     //상단 한줄 정보란
@@ -79,6 +80,16 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     {
         if(_isStartMatch)
         {
+            List<int> targetSeconds = new List<int> { 20, 15, 10, 5, 3, 2, 1 };
+
+            foreach (var targetSecond in targetSeconds)
+            {
+                if (IsTargetSecond(targetSecond))
+                {
+                    ShakeButton();
+                }
+            }
+
             GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
             OnTimerCircle(); 
             
@@ -102,6 +113,12 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
     }
 
+    bool IsTargetSecond(int targetSecond)
+    {
+        return GameManager.Instance.matchController.TurnTime > targetSecond && GameManager.Instance.matchController.TurnTime - Time.deltaTime <= targetSecond;
+
+    }
+
     // void OnEnable()
     // {
     //     Initialize();
@@ -111,6 +128,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     {
         if(_blackOriginWidth == 0)
         {
+            requestDrawButton.onClick.AddListener(OnClickRequestDrawButton);
             giveUpButton.onClick.AddListener(OnClickGiveUpButton);
             executeButton.onClick.AddListener(OnClickExecuteButton);
             changeViewButton.onClick.AddListener(OnClickChangeViewButton);
@@ -141,6 +159,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         _isStartMatch = false;
         
         giveUpButton.interactable = true;
+        requestDrawButton.interactable = true;
 
         executeButton.onClick.RemoveAllListeners();
         executeButton.onClick.AddListener(OnClickExecuteButton);
@@ -158,9 +177,20 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         SetChangedTurn();
         OnTimerCircle();
     }
+
+    public void OnClickRequestDrawButton()
+    {
+        AudioManager.Instance.PlaySFX("buttonClick");
+        UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("무승부를 신청하시겠습니까?", () =>
+        {
+            GameManager.Instance.matchController.RequestDraw();
+            Time.timeScale = 0;
+        });
+    }
     
     public void OnClickGiveUpButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("정말로 게임을 포기하시겠습니까?", () =>
         {
             GameManager.Instance.GiveUpGame();
@@ -171,14 +201,17 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     //착수버튼
     public void OnClickExecuteButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         GameManager.Instance.matchController.SetTurn();
     }
     
     //매치 정상 완료 후, 퇴장 버튼
     void OnClickEndButton(Action onComplete)
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("로비로 돌아갑니다.", () =>
         {
+            AudioManager.Instance.PlaySFX("buttonClick");
             onComplete?.Invoke();
             UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
             GameManager.Instance.mainUIUpdate?.Invoke();
@@ -209,6 +242,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         //게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
         _isStartMatch = false;
         giveUpButton.interactable = false;
+        requestDrawButton.interactable = false;
 
         switch (endType)
         {
@@ -279,7 +313,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 _excuteButtonText.DOColor(_isBlack ? Color.white : Color.black, Duration);
                 _excuteButtonImage.DOColor(_isBlack ? Color.black : timerColors[0], Duration);
 
-                giveUpButton.interactable = _isBlack;
+                //giveUpButton.interactable = _isBlack;
+                requestDrawButton.interactable = _isBlack;
 
                 timerCircleImage.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerSeed.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
@@ -313,7 +348,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 _excuteButtonText.DOColor(!_isBlack ? Color.black : Color.black, Duration);
                 _excuteButtonImage.DOColor(!_isBlack ? Color.white : timerColors[0], Duration);
 
-                giveUpButton.interactable = !_isBlack;
+                //giveUpButton.interactable = !_isBlack;
+                requestDrawButton.interactable = !_isBlack;
 
                 timerCircleImage.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerSeed.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
@@ -339,9 +375,29 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
     }
 
+    void ShakeButton()
+    {
+        executeButton.transform.DOShakePosition(0.5f, 10, 50, 90, false, true);
+    }
+
     void OnTimerCircle()
     {
         float fillValue = Mathf.InverseLerp(0f,30f,GameManager.Instance.matchController.TurnTime);
+
+        if(fillValue < 0.25f)
+        {
+            timerCircleImage.DOColor(timerColors[3], Duration);
+            _timerHead.DOColor(timerColors[3], Duration);
+            _timerSeed.DOColor(timerColors[3], Duration);
+        }
+        else if(fillValue < 0.5f)
+        {
+            timerCircleImage.DOColor(timerColors[2], Duration);
+            _timerHead.DOColor(timerColors[2], Duration);
+            _timerSeed.DOColor(timerColors[2], Duration);
+        }
+        
+        
         float rotateValue = Mathf.Lerp(0f,360f,fillValue);
         
         timerCircleImage.fillAmount = fillValue;

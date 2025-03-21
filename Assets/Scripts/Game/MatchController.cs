@@ -44,6 +44,7 @@ public class MatchController : IDisposable
     public Action OnTurnEndUI;
     public Action<END_TYPE, Action> OnGameEndUI;
     public Action OnEndGridOmok;
+    public Action OnSurrender;
     public List<Cell> FiveCells = new();
     public List<Transform> EndStones = new();
 
@@ -133,6 +134,8 @@ public class MatchController : IDisposable
         UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
 
+        CursorManager.Instance.SetHandCursorTexture();
+        
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
         gameBoardUIController.Initialize();
         gameBoardUIController.Show().Forget();
@@ -244,7 +247,8 @@ public class MatchController : IDisposable
             turn = new List<TurnData>(),
         };
 
-        MultiplayController multiplayController = new MultiplayController((state, data) =>
+        MultiplayController multiplayController = new MultiplayController();
+        multiplayController.InitailizeMultiplay((state, data) =>
         {
             switch (state)
             {
@@ -278,9 +282,11 @@ public class MatchController : IDisposable
                     }
                     break;
                 case MultiplayManagerState.EndGame:
+                    Time.timeScale = 1;
                     try{
                         if (data is bool isBlackWin)
                         {
+                            OnSurrender?.Invoke();
                             EndMatch(isBlackWin ? END_TYPE.BlackWin : END_TYPE.WhiteWin, true);
                         }
                         else
@@ -314,6 +320,55 @@ public class MatchController : IDisposable
                     
                     break;
                 case MultiplayManagerState.ReadyComplete:                    
+                    break;
+                case MultiplayManagerState.DrawAnswer:
+                    //신청한 쪽의 timescale
+                    Time.timeScale = 1;
+                    if (data is bool isAccept)
+                    {
+                        if(isAccept)
+                        {
+                            EndMatch(END_TYPE.Draw, false);
+                        }
+                        else
+                        {
+                            UIManager.Instance.GetUI<AlarmPanelController>(UI_TYPE.Alarm).Show("상대방이 무승부를 거절했습니다.", () => {});
+                        }                        
+                    }
+                    else
+                    {
+                        Debug.LogError("데이터가 bool 형식이 아닙니다.");
+                    }
+                    break;                
+                case MultiplayManagerState.Draw:
+                    if (data is bool isQuestion)
+                    {
+                        if(isQuestion)
+                        {
+                            //받는 쪽의 timescale 조절
+                            Time.timeScale = 0;
+                            UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("상대방이 무승부를 요청했습니다. 수락하시겠습니까?", () =>
+                            {
+                                multiplayController.SendAnswerDraw(true);
+                                EndMatch(END_TYPE.Draw, false);
+                                Time.timeScale = 1;
+                            }, () =>
+                            {
+                                multiplayController.SendAnswerDraw(false);
+                                Time.timeScale = 1;
+                            });
+
+                        }
+                        else
+                        {
+                            EndMatch(END_TYPE.Draw, false);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("데이터가 bool 형식이 아닙니다.");
+                    }
+
                     break;
             }
         });
@@ -361,9 +416,10 @@ public class MatchController : IDisposable
         if(_matchState == MATCH_STATE.BlackTurn){
             _matchState = MATCH_STATE.WhiteTurn;
         }
-        else{
+        else if(_matchState == MATCH_STATE.WhiteTurn){
             _matchState = MATCH_STATE.BlackTurn;
         }
+
         if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController aiController)
         {
             OperateCommand command = new OperateCommand();
@@ -404,14 +460,35 @@ public class MatchController : IDisposable
         isFirst = true;
     }
 
+    public void RequestDraw()
+    {
+        if(_gameTypeController is MultiplayController multiplayController)
+        {
+            //multiplayController.EndGame(!IsClientBlack());
+            multiplayController.SendRequestDraw(true);
+        }
+    }
+
     public void Surrender()
     {
+        OnSurrender?.Invoke(); //EndMatch이전에 불려야함
+
         if(_gameTypeController is MultiplayController multiplayController)
         {
             multiplayController.EndGame(!IsClientBlack());
         }
         
         EndMatch(IsClientBlack() ? END_TYPE.WhiteWin : END_TYPE.BlackWin, true);
+    }
+
+    public void DrawMatch()
+    {
+        if(_gameTypeController is MultiplayController multiplayController)
+        {
+            multiplayController.SendRequestDraw(true);
+        }
+
+        EndMatch(END_TYPE.Draw, false);
     }
 
     public void EndMatch(END_TYPE endType, bool isSurrender)
@@ -462,6 +539,8 @@ public class MatchController : IDisposable
         
         FiveCells.Clear();
         EndStones.Clear();
+        
+        CursorManager.Instance.SetBrushCursorTexture();
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         

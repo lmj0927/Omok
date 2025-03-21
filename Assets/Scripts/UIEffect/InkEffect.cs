@@ -29,7 +29,7 @@ public class InkEffect : MonoBehaviour
     {
         if(revealMaterial != null && elapsedTime < duration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.unscaledDeltaTime;
             // 0~1 사이의 시간 값 계산 후 애니메이션 커브를 통해 _Threshold 값 결정
             float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
             float thresholdValue = revealCurve.Evaluate(normalizedTime);

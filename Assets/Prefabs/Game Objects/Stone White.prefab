@@ -127,6 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speedThreshold: 0.07
+  lifeTimeLimit: 5
   stoneType: 0
 --- !u!136 &3515163120943498566
 CapsuleCollider:

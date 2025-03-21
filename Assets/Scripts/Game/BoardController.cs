@@ -65,6 +65,10 @@ public class BoardController : MonoBehaviour
             _gridPlacementSystem.ClearStones();
             placeCellList.Clear();
             placeCellIndexes.Clear();
+
+            GameManager.Instance.matchController.OnEndGridOmok -= _gridPlacementSystem.EndOmok;
+            GameManager.Instance.matchController.OnSurrender -= _gridPlacementSystem.OverturnBoard;
+
             Destroy(_gameSystem);
         }
     }

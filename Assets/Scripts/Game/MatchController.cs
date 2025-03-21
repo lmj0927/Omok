@@ -133,6 +133,8 @@ public class MatchController : IDisposable
         UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
 
+        CursorManager.Instance.SetHandCursorTexture();
+        
         var gameBoardUIController = UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game);
         gameBoardUIController.Initialize();
         gameBoardUIController.Show().Forget();
@@ -533,6 +535,8 @@ public class MatchController : IDisposable
         
         FiveCells.Clear();
         EndStones.Clear();
+        
+        CursorManager.Instance.SetBrushCursorTexture();
 
         MatchInfoUtil.AddMatchInfo(_matchInfo);
         

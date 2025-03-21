@@ -13,6 +13,7 @@ public class CoinController
     
     public void AddCoin(int amount)
     {
+        AudioManager.Instance.PlaySFX("coin");
         Coin += amount;
         SaveCoin();
         OnCoinChanged?.Invoke(Coin);

@@ -412,9 +412,10 @@ public class MatchController : IDisposable
         if(_matchState == MATCH_STATE.BlackTurn){
             _matchState = MATCH_STATE.WhiteTurn;
         }
-        else{
+        else if(_matchState == MATCH_STATE.WhiteTurn){
             _matchState = MATCH_STATE.BlackTurn;
         }
+
         if (_matchState == MATCH_STATE.WhiteTurn && _gameTypeController is AIController aiController)
         {
             OperateCommand command = new OperateCommand();

@@ -16,6 +16,10 @@ public class UserInfoPanel : MonoBehaviour
     [SerializeField] Image profileImage;
     [SerializeField] private List<Sprite> _profileSprites = new List<Sprite>();
     
+    [Header("Use WinRate")]
+    [SerializeField] TMP_Text winRateText;
+    [SerializeField] bool usingWinRate;
+    
     private PROFILE_STATE _profileState;
     private UserInfo _userInfo;
 
@@ -33,6 +37,7 @@ public class UserInfoPanel : MonoBehaviour
     {
         GameManager.Instance.playerDataController.OnChangedProfile = SetProfileImage;
         SetDefaultInfo();
+        if(winRateText != null) winRateText.gameObject.SetActive(usingWinRate);
     }
 
     //로드 되지않은 상태의 프로필 정보
@@ -86,6 +91,12 @@ public class UserInfoPanel : MonoBehaviour
         
         string infoStr = $"{_userInfo.tier}급 {_userInfo.nickname}";
         infoText.text = infoStr;
+
+        if (usingWinRate && winRateText != null)
+        {
+            float winRate = (float)userInfo.winCount / (userInfo.winCount + userInfo.loseCount) * 100f;
+            winRateText.text = $"{userInfo.winCount}승 {userInfo.loseCount}패 {userInfo.drawCount}무 ({(float.IsNaN(winRate) ? 0 : winRate):F0}%)";
+        }
         
         SetProfileImage(_userInfo.profileIndex);
         

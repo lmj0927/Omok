@@ -452,6 +452,8 @@ public class MatchController : IDisposable
     
     public void Dispose()
     {
+        Time.timeScale = 1;
+        Debug.Log("## Dispose MatchController");
         _gameTypeController?.Dispose();
         _gameTypeController = null;
         _matchState = MATCH_STATE.End;
@@ -462,14 +464,14 @@ public class MatchController : IDisposable
     {
         if(_gameTypeController is MultiplayController multiplayController)
         {
-            //multiplayController.EndGame(!IsClientBlack());
             multiplayController.SendRequestDraw(true);
         }
     }
 
     public void Surrender()
     {
-        OnSurrender?.Invoke(); //EndMatch이전에 불려야함
+        Debug.Log("## Surrender");
+        OnSurrender?.Invoke();
 
         if(_gameTypeController is MultiplayController multiplayController)
         {
@@ -491,7 +493,7 @@ public class MatchController : IDisposable
 
     public void EndMatch(END_TYPE endType, bool isSurrender)
     {
-        
+        if(_matchState == MATCH_STATE.End) return;
         _matchState = MATCH_STATE.End;
 
         PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;

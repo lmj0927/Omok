@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using SocketIOClient;
 using UnityEngine;
@@ -9,6 +10,31 @@ public class MultiplayController : IBaseGameTypeController
 {
     private SocketIOUnity _socket;
     private event Action<Constants.MultiplayManagerState, dynamic> _onMultiplayStateChanged;
+
+    Dictionary<string, Action<SocketIOResponse>> eventHandlers;
+
+    Queue<Action> _actionQueue = new Queue<Action>();
+    bool _isProcessing = false;
+
+    async UniTask ProcessQueue()
+    {
+        if (_isProcessing) return; // 이미 처리 중이면 대기
+        _isProcessing = true;
+
+        while (_actionQueue.Count > 0)
+        {
+            System.Action action;
+            lock (_actionQueue)
+            {
+                action = _actionQueue.Dequeue();
+            }
+            
+            action.Invoke();
+            await UniTask.Delay(50); // 잠깐 딜레이를 줘서 자연스럽게 처리
+        }
+
+        _isProcessing = false;
+    }
 
     public void Initailize(){
         var sid = PlayerPrefs.GetString(Constants.SID);
@@ -22,18 +48,48 @@ public class MultiplayController : IBaseGameTypeController
             },
             
         });
+
+        eventHandlers = new Dictionary<string, Action<SocketIOResponse>>()
+        {
+            { "createRoomCli", CreateRoom },
+            { "joinRoomCli", JoinRoom },
+            { "leaveRoomCli", LeaveRoom },
+            { "startGameCli", StartGame },
+            { "endGameCli", EndGame },
+            { "endTurnCli", EndTurn },
+            { "readyCompleteCli", ReadyComplete },
+            { "drawGameCli", DrawGame },
+            { "drawAnswerCli", DrawAnswer },
+        };
+
         
-        _socket.OnUnityThread("createRoomCli", CreateRoom);
-        _socket.OnUnityThread("joinRoomCli", JoinRoom);
-        _socket.OnUnityThread("startGameCli", StartGame);
-        _socket.OnUnityThread("endGameCli", EndGame);
-        _socket.OnUnityThread("endTurnCli", EndTurn);
-        _socket.OnUnityThread("readyCompleteCli", ReadyComplete);
-        _socket.OnUnityThread("drawGameCli", DrawGame);
-        _socket.OnUnityThread("drawAnswerCli", DrawAnswer);
+        foreach (var handler in eventHandlers)
+        {
+            _socket.OnUnityThread(handler.Key, response => EnqueueAction(() => handler.Value(response)));
+        }
+
+        // _socket.OnUnityThread("createRoomCli", CreateRoom);
+        // _socket.OnUnityThread("joinRoomCli", JoinRoom);
+        // _socket.OnUnityThread("startGameCli", StartGame);
+        // _socket.OnUnityThread("endGameCli", EndGame);
+        // _socket.OnUnityThread("endTurnCli", EndTurn);
+        // _socket.OnUnityThread("readyCompleteCli", ReadyComplete);
+        // _socket.OnUnityThread("drawGameCli", DrawGame);
+        // _socket.OnUnityThread("drawAnswerCli", DrawAnswer);
         
         _socket.Connect();
     }
+
+    void EnqueueAction(Action action)
+    {
+        lock (_actionQueue)
+        {
+            _actionQueue.Enqueue(action);
+        }
+
+        ProcessQueue().Forget();
+    }
+
     public MultiplayController()
     {
 

@@ -44,6 +44,7 @@ public class MatchController : IDisposable
     public Action OnTurnEndUI;
     public Action<END_TYPE, Action> OnGameEndUI;
     public Action OnEndGridOmok;
+    public Action OnSurrender;
     public List<Cell> FiveCells = new();
     public List<Transform> EndStones = new();
 
@@ -285,6 +286,7 @@ public class MatchController : IDisposable
                     try{
                         if (data is bool isBlackWin)
                         {
+                            OnSurrender?.Invoke();
                             EndMatch(isBlackWin ? END_TYPE.BlackWin : END_TYPE.WhiteWin, true);
                         }
                         else
@@ -469,6 +471,8 @@ public class MatchController : IDisposable
 
     public void Surrender()
     {
+        OnSurrender?.Invoke(); //EndMatch이전에 불려야함
+
         if(_gameTypeController is MultiplayController multiplayController)
         {
             multiplayController.EndGame(!IsClientBlack());

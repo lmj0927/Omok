@@ -159,6 +159,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         _isStartMatch = false;
         
         giveUpButton.interactable = true;
+        requestDrawButton.interactable = true;
 
         executeButton.onClick.RemoveAllListeners();
         executeButton.onClick.AddListener(OnClickExecuteButton);
@@ -236,6 +237,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         //게임 종료 후에는 종료 버튼을 제외한 어떤 버튼도 눌리지 않도록 처리. 재시작 시 이 사항 모두 초기화.
         _isStartMatch = false;
         giveUpButton.interactable = false;
+        requestDrawButton.interactable = false;
 
         switch (endType)
         {
@@ -306,7 +308,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 _excuteButtonText.DOColor(_isBlack ? Color.white : Color.black, Duration);
                 _excuteButtonImage.DOColor(_isBlack ? Color.black : timerColors[0], Duration);
 
-                giveUpButton.interactable = _isBlack;
+                //giveUpButton.interactable = _isBlack;
+                requestDrawButton.interactable = _isBlack;
 
                 timerCircleImage.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerSeed.DOColor(_isBlack ? timerColors[0] : timerColors[1], Duration);
@@ -340,7 +343,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 _excuteButtonText.DOColor(!_isBlack ? Color.black : Color.black, Duration);
                 _excuteButtonImage.DOColor(!_isBlack ? Color.white : timerColors[0], Duration);
 
-                giveUpButton.interactable = !_isBlack;
+                //giveUpButton.interactable = !_isBlack;
+                requestDrawButton.interactable = !_isBlack;
 
                 timerCircleImage.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);
                 _timerSeed.DOColor(!_isBlack ? timerColors[0] : timerColors[1], Duration);

@@ -4093,6 +4093,10 @@ MonoBehaviour:
     rgba: 4282892799
   - serializedVersion: 2
     rgba: 4279642695
+  - serializedVersion: 2
+    rgba: 4278216959
+  - serializedVersion: 2
+    rgba: 4278201855
 --- !u!1001 &390832254045540590
 PrefabInstance:
   m_ObjectHideFlags: 0

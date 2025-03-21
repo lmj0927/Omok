@@ -80,6 +80,16 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     {
         if(_isStartMatch)
         {
+            List<int> targetSeconds = new List<int> { 20, 15, 10, 5, 3, 2, 1 };
+
+            foreach (var targetSecond in targetSeconds)
+            {
+                if (IsTargetSecond(targetSecond))
+                {
+                    ShakeButton();
+                }
+            }
+
             GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
             OnTimerCircle(); 
             
@@ -101,6 +111,12 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
                 }
             }
         }
+    }
+
+    bool IsTargetSecond(int targetSecond)
+    {
+        return GameManager.Instance.matchController.TurnTime > targetSecond && GameManager.Instance.matchController.TurnTime - Time.deltaTime <= targetSecond;
+
     }
 
     // void OnEnable()
@@ -350,9 +366,29 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         }
     }
 
+    void ShakeButton()
+    {
+        executeButton.transform.DOShakePosition(0.5f, 10, 50, 90, false, true);
+    }
+
     void OnTimerCircle()
     {
         float fillValue = Mathf.InverseLerp(0f,30f,GameManager.Instance.matchController.TurnTime);
+
+        if(fillValue < 0.25f)
+        {
+            timerCircleImage.DOColor(timerColors[3], Duration);
+            _timerHead.DOColor(timerColors[3], Duration);
+            _timerSeed.DOColor(timerColors[3], Duration);
+        }
+        else if(fillValue < 0.5f)
+        {
+            timerCircleImage.DOColor(timerColors[2], Duration);
+            _timerHead.DOColor(timerColors[2], Duration);
+            _timerSeed.DOColor(timerColors[2], Duration);
+        }
+        
+        
         float rotateValue = Mathf.Lerp(0f,360f,fillValue);
         
         timerCircleImage.fillAmount = fillValue;

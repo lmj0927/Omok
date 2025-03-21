@@ -10,13 +10,8 @@ public class StoneSpawner : MonoBehaviour
 {
     [SerializeField] GameObject[] stonePrefab;
     CancellationTokenSource _spawnCts;
-    GameObject parent;
-
-    void Start()
-    {
-        parent = new GameObject("Stones");
-        parent.transform.SetParent(transform);   
-    }
+    
+    private Queue<GameObject> _spawnedStone = new Queue<GameObject>();
 
     public void StartSpawn()
     {
@@ -37,11 +32,10 @@ public class StoneSpawner : MonoBehaviour
     public void DisableSpawner()
     {
         StopSpawn();
-
-        if(parent != null){
-            foreach(Transform child in parent.transform){
-                Destroy(child.gameObject);
-            }
+        
+        foreach (var stone in _spawnedStone)
+        {
+            stone.gameObject.SetActive(false);
         }
         
         gameObject.SetActive(false);
@@ -63,12 +57,31 @@ public class StoneSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnStone(int index, Vector3 position)
+    private void SpawnStone(int index, Vector3 position)
     {
-        var stoneObject = Instantiate(stonePrefab[index], position, Random.rotation, parent.transform);
+        if (_spawnedStone.Count != 0)
+        {
+            var first = _spawnedStone.Dequeue();
+            first.transform.position = position;
+            first.transform.rotation = Random.rotation;
+            first.SetActive(true);
+
+            return;
+        }
+        
+        var stoneObject = Instantiate(stonePrefab[index], position, Random.rotation, transform);
         if (stoneObject.TryGetComponent<Stone>(out var stone))
         {
+            stone.OnStop += ReturnStone;
             stone.SetKinematic(false);
         }
+        
+        _spawnedStone.Enqueue(stoneObject);
+    }
+
+    private void ReturnStone(GameObject stoneObject)
+    {
+        stoneObject.SetActive(false);
+        _spawnedStone.Enqueue(stoneObject);
     }
 }

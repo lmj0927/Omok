@@ -201,8 +201,6 @@ public class MatchController : IDisposable
             aiController.SetAILevel(aiId);
         }
         
-        
-        
         NetworkManage.Instance.LoadUserInfo(aiId, 
             (userInfo) =>
             {
@@ -500,6 +498,9 @@ public class MatchController : IDisposable
         PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);
 
         _matchInfo.gameResult = endType;
+
+        bool isClientWin = IsClientBlack() && endType == END_TYPE.BlackWin || !IsClientBlack() && endType == END_TYPE.WhiteWin;
+
         switch (endType)
         {
             case END_TYPE.Draw:
@@ -509,22 +510,25 @@ public class MatchController : IDisposable
                     UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
                     _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
                 });
+
+                myPlayerDataController.Draw();
+                if(_matchPlayType == PLAY_TYPE.AI)
+                {
+                    opponentPlayerDataController.Draw();
+                }
                 break;
             case END_TYPE.BlackWin:
                 OnGameEndUI?.Invoke(END_TYPE.BlackWin, () =>
                 {
-                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(true, myPlayerDataController.UserInfo);
+                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(isClientWin, myPlayerDataController.UserInfo);
                     UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
                     _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
                 });
-            
-                myPlayerDataController.Win();
-                opponentPlayerDataController.Lose();
                 break;
             case END_TYPE.WhiteWin:
                 OnGameEndUI?.Invoke(END_TYPE.WhiteWin, () =>
                 {
-                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(false, myPlayerDataController.UserInfo);
+                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(isClientWin, myPlayerDataController.UserInfo);
                     UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
                     _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
                 });
@@ -536,6 +540,13 @@ public class MatchController : IDisposable
                 }
                 break;
         }
+
+        if(isClientWin)
+        {
+            myPlayerDataController.Win();
+            opponentPlayerDataController.Lose();
+        }
+
         
         FiveCells.Clear();
         EndStones.Clear();

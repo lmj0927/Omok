@@ -39,7 +39,7 @@ public class LeaderBoardPanelController : PanelController
         
         float winRate = (float)userInfo.winCount / (userInfo.winCount + userInfo.loseCount) * 100f;
         userInfoText.text = $"{userInfo.tier}급 {userInfo.nickname}";
-        userWinRateText.text = $"{rankIndex}위 | {userInfo.drawCount}무 {userInfo.winCount}승 {userInfo.loseCount}패 ({(float.IsNaN(winRate) ? 0 : winRate):F0}%)";
+        userWinRateText.text = $"{rankIndex}위 | {userInfo.winCount}승 {userInfo.loseCount}패 {userInfo.drawCount}무 ({(float.IsNaN(winRate) ? 0 : winRate):F0}%)";
     }
 
     void ReloadCell()

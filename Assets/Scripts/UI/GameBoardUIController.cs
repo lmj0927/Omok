@@ -56,8 +56,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     [Header("UserProfiles")]
     [SerializeField] private RectTransform userinfoPanel;
     [SerializeField] private RectTransform opponentinfoPanel;
-    private UserInfoPanel _userInfoPanel;
-    private UserInfoPanel _opponentInfo;
+    private UserInfoPanel _leftUserInfoPanel;
+    private UserInfoPanel _rightUserInfoPanel;
     private Vector3 _downScaleInfo = new Vector3(0.75f, 0.75f, 0.75f);
     
     //타이머
@@ -136,8 +136,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
             GameManager.Instance.matchController.OnGameEndUI = GameEnded;
         
-            _opponentInfo = opponentinfoPanel.GetComponent<UserInfoPanel>();
-            _userInfoPanel = userinfoPanel.GetComponent<UserInfoPanel>();
+            _rightUserInfoPanel = opponentinfoPanel.GetComponent<UserInfoPanel>();
+            _leftUserInfoPanel = userinfoPanel.GetComponent<UserInfoPanel>();
         
             _onRepeatEffect += OnRepeatBoardEffect;
             _onRepeatEffect += OnRepeatCircleEffect;
@@ -170,8 +170,18 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     public void StartMatch()
     {
         _isBlack = GameManager.Instance.matchController.IsClientBlack();
-        _opponentInfo.SetUserInfo(GameManager.Instance.matchController.GetCurrentMatchInfo().opponent);
-        _userInfoPanel.RefreshInfo().Forget();
+        if(_isBlack)
+        {
+            _leftUserInfoPanel.RefreshInfo().Forget();
+            _rightUserInfoPanel.SetUserInfo(GameManager.Instance.matchController.GetCurrentMatchInfo().opponent);
+        }
+        else
+        {           
+            _rightUserInfoPanel.RefreshInfo().Forget();
+            _leftUserInfoPanel.SetUserInfo(GameManager.Instance.matchController.GetCurrentMatchInfo().opponent);
+        }
+        // _rightUserInfoPanel.SetUserInfo(GameManager.Instance.matchController.GetCurrentMatchInfo().opponent);
+        // _leftUserInfoPanel.RefreshInfo().Forget();
         _isStartMatch = true;
         
         SetChangedTurn();
@@ -458,6 +468,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         whiteTurnPanel.sizeDelta = new Vector2(_whiteOriginWidth, whiteTurnPanel.sizeDelta.y);
 
         var emptyUserInfo = new UserInfo();
-        _opponentInfo.SetUserInfo(emptyUserInfo);
+        _rightUserInfoPanel.SetUserInfo(emptyUserInfo);
+        _leftUserInfoPanel.SetUserInfo(emptyUserInfo);
     }
 }

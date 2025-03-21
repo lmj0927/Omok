@@ -356,6 +356,8 @@ public class GridPlacementSystem : MonoBehaviour
 
     public void OverturnBoard()
     {
+        AudioManager.Instance.PlaySFX("overturnBoard");
+        
         var cam = Camera.main;
         var closestExplosion = explosionPositions.OrderBy(t => Vector3.Distance(cam.transform.position, t.position)).FirstOrDefault().position;
         

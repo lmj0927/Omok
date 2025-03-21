@@ -499,7 +499,7 @@ public class MatchController : IDisposable
 
         _matchInfo.gameResult = endType;
 
-        bool isClientWin = IsClientBlack() && endType == END_TYPE.BlackWin;
+        bool isClientWin = IsClientBlack() && endType == END_TYPE.BlackWin || !IsClientBlack() && endType == END_TYPE.WhiteWin;
 
         switch (endType)
         {

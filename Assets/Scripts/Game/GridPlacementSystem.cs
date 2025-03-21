@@ -29,9 +29,6 @@ public class GridPlacementSystem : MonoBehaviour
     Vector3Int currentGridPosition;
     bool canPlace = true;
     bool isReplacing = false;
-    
-    int selectedPrefabType = 0;
-    
     CELL_TYPE currentTurn = CELL_TYPE.None;
 
     public Action<TurnData> OnSetCurrentCell;

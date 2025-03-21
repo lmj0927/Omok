@@ -9,7 +9,7 @@ public class CursorManager : Singleton<CursorManager>
     public Texture2D cursorHandTexture;
     
     // Start is called before the first frame update
-    void Awake()
+    void Start()
     {
         Cursor.SetCursor(cursorBrushTexture, new Vector2(0, cursorBrushTexture.height / 8f), CursorMode.ForceSoftware);
     }

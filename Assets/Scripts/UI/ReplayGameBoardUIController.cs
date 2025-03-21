@@ -31,6 +31,8 @@ public class ReplayGameBoardUIController : MonoBehaviour, IGameUI
 
     private void OnClickExitButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
+
         UIManager.Instance.ShowUI<NotationUIController>(UI_TYPE.Notation, () =>
         {
             UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu).Forget();
@@ -40,21 +42,25 @@ public class ReplayGameBoardUIController : MonoBehaviour, IGameUI
 
     private void OnClickNextButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.Draw });
     }
 
     private void OnClickPrevButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.Remove });
     }
     
     private void OnClickFirstButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.RemoveAll });
     }
 
     private void OnClickLastButton()
     {
+        AudioManager.Instance.PlaySFX("putStone");
         GameManager.Instance.matchController.Operate(new OperateCommand() { operateType = OperateType.DrawAll });
     }
 

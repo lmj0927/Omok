@@ -23,6 +23,8 @@ public class SignupPanelController : PanelController
 
     public async UniTask OnClickConfirmButton()
     {
+        AudioManager.Instance.PlaySFX("putStone");
+
         var username = _usernameInputField.text;
         var nickname = _nicknameInputField.text;
         var password = _passwordInputField.text;
@@ -86,6 +88,7 @@ public class SignupPanelController : PanelController
 
     public void OnClickCancelButton()
     {
+        AudioManager.Instance.PlaySFX("putStone");
         Debug.Log("OnClickCancelButton");
         Destroy(gameObject);
     }

@@ -14,6 +14,7 @@ public class FullscreenToggle : MonoBehaviour
 
     void OnToggleChanged(bool isFullscreen)
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         // 토글 상태에 따라 전체화면 설정 변경
         Screen.fullScreen = isFullscreen;
     }

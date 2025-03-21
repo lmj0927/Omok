@@ -26,8 +26,10 @@ public class ConfirmPanelController : PopupController
     /// </summary>
     public void OnClickConfirmButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.HideUI<ConfirmPanelController>(UI_TYPE.Confirm, () =>
         {
+            AudioManager.Instance.PlaySFX("buttonClick");
             onConfirmButtonClick?.Invoke();
         });
     }
@@ -37,6 +39,7 @@ public class ConfirmPanelController : PopupController
     /// </summary>
     public void OnClickCloseButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         Hide();
         onCloseButtonClick?.Invoke();
     }

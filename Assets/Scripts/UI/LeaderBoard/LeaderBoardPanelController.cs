@@ -101,6 +101,7 @@ public class LeaderBoardPanelController : PanelController
 
     void OnClickCloseButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         Hide();
         GameManager.Instance.mainUIUpdate?.Invoke();
     }

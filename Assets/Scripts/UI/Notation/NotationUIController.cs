@@ -19,6 +19,7 @@ public class NotationUIController : PanelController
         _notationPanel = gameObject.GetComponent<RectTransform>();
         backButton.onClick.AddListener(() =>
         {
+            AudioManager.Instance.PlaySFX("buttonClick");
             GameManager.Instance.mainUIUpdate?.Invoke();
             Hide();
         });

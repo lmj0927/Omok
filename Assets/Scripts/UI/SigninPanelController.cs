@@ -30,6 +30,8 @@ public class SigninPanelController : PanelController
 
     private async UniTask OnClickSigninButton()
     {
+        AudioManager.Instance.PlaySFX("putStone");
+
         string username = _usernameInputField.text;
         string password = _passwordInputField.text;
 
@@ -87,6 +89,7 @@ public class SigninPanelController : PanelController
    
     public void OnClickSignupButton()
     {
+        AudioManager.Instance.PlaySFX("putStone");
         UIManager.Instance.GetUI<SignupPanelController>(UI_TYPE.SignUp);
     }
 

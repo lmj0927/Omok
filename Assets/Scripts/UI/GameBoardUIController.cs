@@ -180,6 +180,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 
     public void OnClickRequestDrawButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("무승부를 신청하시겠습니까?", () =>
         {
             GameManager.Instance.matchController.RequestDraw();
@@ -189,6 +190,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     
     public void OnClickGiveUpButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("정말로 게임을 포기하시겠습니까?", () =>
         {
             GameManager.Instance.GiveUpGame();
@@ -199,14 +201,17 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     //착수버튼
     public void OnClickExecuteButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         GameManager.Instance.matchController.SetTurn();
     }
     
     //매치 정상 완료 후, 퇴장 버튼
     void OnClickEndButton(Action onComplete)
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("로비로 돌아갑니다.", () =>
         {
+            AudioManager.Instance.PlaySFX("buttonClick");
             onComplete?.Invoke();
             UIManager.Instance.GetUI<GameBoardUIController>(UI_TYPE.Game).Hide();
             GameManager.Instance.mainUIUpdate?.Invoke();

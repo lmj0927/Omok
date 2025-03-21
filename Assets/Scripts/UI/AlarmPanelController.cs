@@ -25,6 +25,7 @@ public class AlarmPanelController : PopupController
     /// </summary>
     public void OnClickCloseButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.HideUI<AlarmPanelController>(UI_TYPE.Alarm, () =>
         {
             onCloseButtonClick?.Invoke();

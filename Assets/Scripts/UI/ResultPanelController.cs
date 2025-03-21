@@ -36,6 +36,7 @@ public class ResultPanelController : PopupController
         _rectTransform = gameObject.GetComponent<RectTransform>();
         closeButton.onClick.AddListener(() =>
         {
+            AudioManager.Instance.PlaySFX("buttonClick");
             Hide();
         });
     }

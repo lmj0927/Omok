@@ -27,6 +27,7 @@ public class ShopPanelController: PanelController
         scrollRect.Reload(products, itemCellPrefab);
         backButton.onClick.AddListener(() =>
         {
+            AudioManager.Instance.PlaySFX("buttonClick");
             Hide();
         });
         

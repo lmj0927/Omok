@@ -26,6 +26,7 @@ public class EditProfilePanel : PopupController
     
     public void OnClickProfile(int index)
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         _profileIndex = index;
         GameManager.Instance.playerDataController.SetProfile(index);
         
@@ -34,6 +35,7 @@ public class EditProfilePanel : PopupController
 
     public void OnClickCloseButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         Hide();
     }
 }

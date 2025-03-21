@@ -34,6 +34,7 @@ public class SettingsPanelController : PanelController
 
     private void OnClickProfileButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         if (userInfoPanel.GetProfileState() == Constants.PROFILE_STATE.Load)
         {
             UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile).Forget();
@@ -45,11 +46,13 @@ public class SettingsPanelController : PanelController
     /// </summary>
     private void OnClickCloseButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         Hide();
     }
 
     private void OnClickLogoutButton()
     {
+        AudioManager.Instance.PlaySFX("buttonClick");
         UnityWebRequest.ClearCookieCache();
         PlayerPrefs.SetString(Constants.SID, null); 
         Hide();

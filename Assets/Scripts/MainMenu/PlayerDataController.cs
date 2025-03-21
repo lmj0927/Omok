@@ -51,6 +51,20 @@ public class PlayerDataController
             });
     }
 
+    public void Draw()
+    {
+        NetworkManage.Instance.SendDrawWrapper(UserInfo.userId,
+            (userInfo) =>{
+                UserInfo = userInfo;
+                Debug.Log("SendDraw Success " + userInfo.nickname + " tier" + userInfo.tier + " score" + userInfo.score);
+                
+                GameManager.Instance.mainUIUpdate?.Invoke();
+            },
+            () => {
+                Debug.Log("SendDraw Fail");
+            });
+    }
+
     public void SetNickname(string nickname)
     {
         var info = UserInfo;

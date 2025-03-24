@@ -284,7 +284,6 @@ public class MatchController : IDisposable
                     try{
                         if (data is bool isBlackWin)
                         {
-                            OnSurrender?.Invoke();
                             EndMatch(isBlackWin ? END_TYPE.BlackWin : END_TYPE.WhiteWin, true);
                         }
                         else

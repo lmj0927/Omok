@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 5487584933915368178}
   - component: {fileID: 1848371203506302720}
   - component: {fileID: 8479591310909706330}
+  - component: {fileID: 1843722477928558432}
+  - component: {fileID: -4585106137279272235}
+  - component: {fileID: 5204095817865650535}
   m_Layer: 0
   m_Name: Stone Warning
   m_TagString: Untagged
@@ -96,6 +99,79 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f66c8b861107f47d5878a874639ee1d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rigidbody: {fileID: 0}
-  meshCollider: {fileID: 0}
+  speedThreshold: 0
+  lifeTimeLimit: 0
   stoneType: 0
+--- !u!54 &1843722477928558432
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3928392095050592808}
+  serializedVersion: 4
+  m_Mass: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!136 &-4585106137279272235
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3928392095050592808}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.019965239
+  m_Height: 0.10419438
+  m_Direction: 1
+  m_Center: {x: -0.0000000035478958, y: 0.000000014191583, z: -0.0025328037}
+--- !u!136 &5204095817865650535
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3928392095050592808}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.01943792
+  m_Height: 0.10419438
+  m_Direction: 0
+  m_Center: {x: -0.0000000035478958, y: 0.000000014191583, z: -0.002125798}

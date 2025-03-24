@@ -4071,6 +4071,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   requestDrawButton: {fileID: 6329059918586041754}
   giveUpButton: {fileID: 5429011510459496982}
+  giveUpButtonRect: {fileID: 3714861021755653284}
   executeButton: {fileID: 2720113580731912896}
   changeViewButton: {fileID: 1009033353269415913}
   descriptionPanel: {fileID: 4667493939504914011}

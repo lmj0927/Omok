@@ -5,7 +5,6 @@ using AYellowpaper.SerializedCollections;
 using System;
 using System.Linq;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 
 public class GridPlacementSystem : MonoBehaviour
 {
@@ -295,6 +294,8 @@ public class GridPlacementSystem : MonoBehaviour
             renderer.material.color = new Color32(154,255,0,255);
             endRingList.Add(endRing.gameObject);
         }
+
+        if(previewObject != null) previewObject.SetActive(false);
     }
 
     public void RemoveStone(int row, int col)
@@ -356,6 +357,11 @@ public class GridPlacementSystem : MonoBehaviour
 
     public void OverturnBoard()
     {
+        if (previewObject != null)
+        {
+            Destroy(previewObject);
+        }
+
         AudioManager.Instance.PlaySFX("overturnBoard");
         
         var cam = Camera.main;

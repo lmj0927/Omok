@@ -470,9 +470,6 @@ public class MatchController : IDisposable
 
     public void Surrender()
     {
-        Debug.Log("## Surrender");
-        OnSurrender?.Invoke();
-
         if(_gameTypeController is MultiplayController multiplayController)
         {
             multiplayController.EndGame(!IsClientBlack());
@@ -495,6 +492,10 @@ public class MatchController : IDisposable
     {
         if(_matchState == MATCH_STATE.End) return;
         _matchState = MATCH_STATE.End;
+        if(isSurrender)
+        {
+            OnSurrender?.Invoke();
+        }
 
         PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;
         PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);

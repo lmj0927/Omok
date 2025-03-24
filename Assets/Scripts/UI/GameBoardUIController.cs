@@ -12,6 +12,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     [Header("Interaction Buttons")]
     [SerializeField] Button requestDrawButton;
     [SerializeField] Button giveUpButton;
+    [SerializeField] RectTransform giveUpButtonRect;
+    private Vector2 _giveUpButtonPosition;
     [SerializeField] Button executeButton;
     [SerializeField] Button changeViewButton;
     
@@ -82,30 +84,24 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         {
             List<int> targetSeconds = new List<int> { 20, 15, 10, 5, 3, 2, 1 };
 
-            foreach (var targetSecond in targetSeconds)
+            if (IsMyTurn())
             {
-                if (IsTargetSecond(targetSecond))
+                foreach (var targetSecond in targetSeconds)
                 {
-                    ShakeButton();
+                    if (IsTargetSecond(targetSecond))
+                    {
+                        ShakeButton();
+                    }
                 }
             }
-
+            
             GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
+            
             OnTimerCircle(); 
             
             if (GameManager.Instance.matchController.TurnTime <= 0)
             {
-                bool isMyTurn = false;
-                if(_isBlack && _currentState == MATCH_STATE.BlackTurn)
-                {
-                    isMyTurn = true;
-                }
-                else if(!_isBlack && _currentState == MATCH_STATE.WhiteTurn)
-                {
-                    isMyTurn = true;
-                }
-
-                if(isMyTurn)
+                if(IsMyTurn())
                 {
                     GameManager.Instance.matchController.Surrender();
                 }
@@ -117,6 +113,17 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     {
         return GameManager.Instance.matchController.TurnTime > targetSecond && GameManager.Instance.matchController.TurnTime - Time.deltaTime <= targetSecond;
 
+    }
+    
+    bool IsMyTurn()
+    {
+        if ((_isBlack && _currentState == MATCH_STATE.BlackTurn) ||
+            (!_isBlack && _currentState == MATCH_STATE.WhiteTurn))
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     // void OnEnable()
@@ -132,6 +139,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             giveUpButton.onClick.AddListener(OnClickGiveUpButton);
             executeButton.onClick.AddListener(OnClickExecuteButton);
             changeViewButton.onClick.AddListener(OnClickChangeViewButton);
+            
+            _giveUpButtonPosition = giveUpButtonRect.anchoredPosition;
             
             GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
             GameManager.Instance.matchController.OnGameEndUI = GameEnded;
@@ -154,6 +163,18 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             
             _blackOriginWidth = blackTurnPanel.sizeDelta.x;
             _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
+        }
+
+        
+        if (GameManager.Instance.matchController.GetCurrentPlayType() == PLAY_TYPE.AI)
+        {
+            requestDrawButton.gameObject.SetActive(false);
+            giveUpButtonRect.anchoredPosition = requestDrawButton.GetComponent<RectTransform>().anchoredPosition;
+        }
+        else
+        {
+            requestDrawButton.gameObject.SetActive(true);
+            giveUpButtonRect.anchoredPosition = _giveUpButtonPosition;
         }
         
         _isStartMatch = false;
@@ -392,27 +413,37 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
 
     void OnTimerCircle()
     {
-        float fillValue = Mathf.InverseLerp(0f,30f,GameManager.Instance.matchController.TurnTime);
+        if (IsMyTurn())
+        {
+            float fillValue = Mathf.InverseLerp(0f,30f,GameManager.Instance.matchController.TurnTime);
 
-        if(fillValue < 0.25f)
-        {
-            timerCircleImage.DOColor(timerColors[3], Duration);
-            _timerHead.DOColor(timerColors[3], Duration);
-            _timerSeed.DOColor(timerColors[3], Duration);
+            if(fillValue < 0.25f)
+            {
+                timerCircleImage.DOColor(timerColors[3], Duration);
+                _timerHead.DOColor(timerColors[3], Duration);
+                _timerSeed.DOColor(timerColors[3], Duration);
+            }
+            else if(fillValue < 0.5f)
+            {
+                timerCircleImage.DOColor(timerColors[2], Duration);
+                _timerHead.DOColor(timerColors[2], Duration);
+                _timerSeed.DOColor(timerColors[2], Duration);
+            }
+        
+        
+            float rotateValue = Mathf.Lerp(0f,360f,fillValue);
+        
+            timerCircleImage.fillAmount = fillValue;
+            _timerHeadRect.rotation = Quaternion.Euler(0f, 0f, rotateValue);
         }
-        else if(fillValue < 0.5f)
+        else
         {
-            timerCircleImage.DOColor(timerColors[2], Duration);
-            _timerHead.DOColor(timerColors[2], Duration);
-            _timerSeed.DOColor(timerColors[2], Duration);
+            if (GameManager.Instance.matchController.GetCurrentPlayType() == PLAY_TYPE.AI)
+            {
+                timerText.text = "";
+                return;
+            }
         }
-        
-        
-        float rotateValue = Mathf.Lerp(0f,360f,fillValue);
-        
-        timerCircleImage.fillAmount = fillValue;
-        _timerHeadRect.rotation = Quaternion.Euler(0f, 0f, rotateValue);
-        
         timerText.text = $"{GameManager.Instance.matchController.TurnTime:F2}";
     }
 

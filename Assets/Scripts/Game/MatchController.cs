@@ -284,7 +284,6 @@ public class MatchController : IDisposable
                     try{
                         if (data is bool isBlackWin)
                         {
-                            OnSurrender?.Invoke();
                             EndMatch(isBlackWin ? END_TYPE.BlackWin : END_TYPE.WhiteWin, true);
                         }
                         else
@@ -442,6 +441,11 @@ public class MatchController : IDisposable
         return _matchInfo;
     }
 
+    public PLAY_TYPE GetCurrentPlayType()
+    {
+        return _matchPlayType;
+    }
+
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
     }
@@ -470,9 +474,6 @@ public class MatchController : IDisposable
 
     public void Surrender()
     {
-        Debug.Log("## Surrender");
-        OnSurrender?.Invoke();
-
         if(_gameTypeController is MultiplayController multiplayController)
         {
             multiplayController.EndGame(!IsClientBlack());
@@ -495,6 +496,10 @@ public class MatchController : IDisposable
     {
         if(_matchState == MATCH_STATE.End) return;
         _matchState = MATCH_STATE.End;
+        if(isSurrender)
+        {
+            OnSurrender?.Invoke();
+        }
 
         PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;
         PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);

@@ -442,6 +442,11 @@ public class MatchController : IDisposable
         return _matchInfo;
     }
 
+    public PLAY_TYPE GetCurrentPlayType()
+    {
+        return _matchPlayType;
+    }
+
     public bool IsMyTurn(){
         return _matchInfo.isBlack == (_matchState == MATCH_STATE.BlackTurn);
     }

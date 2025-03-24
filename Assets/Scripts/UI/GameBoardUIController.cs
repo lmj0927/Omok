@@ -155,6 +155,10 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             _blackOriginWidth = blackTurnPanel.sizeDelta.x;
             _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
         }
+
+        if (GameManager.Instance.matchController.GetCurrentPlayType() == PLAY_TYPE.AI)
+            requestDrawButton.gameObject.SetActive(false);
+        else requestDrawButton.gameObject.SetActive(true);
         
         _isStartMatch = false;
         

@@ -40,13 +40,11 @@ public class DrawPanelController : PopupController
 
     private IEnumerator OnDrawTimer()
     {
-        Debug.Log("OnDrawTimer");
         while (Time.realtimeSinceStartup - _timerValue < _timerMaxValue)
         {
             var currentTime = _timerMaxValue - (Time.realtimeSinceStartup - _timerValue);
             var fillValue = Mathf.InverseLerp(0f,_timerMaxValue, currentTime);
             fillRect.fillAmount = fillValue;
-            Debug.Log(currentTime);
             yield return null;
         }
         OnClickCloseButton();

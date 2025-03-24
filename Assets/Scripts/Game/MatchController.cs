@@ -102,17 +102,18 @@ public class MatchController : IDisposable
 
     public void CloseMatchMaking()
     {
-        _matchMakingCts?.Cancel();
+        if(_isMatched || _isCancelMatch) return;
         _isMatched = false;
         _isCancelMatch = true;
+        _matchMakingCts?.Cancel();
         Dispose();
     }
 
     void StartMatch()
     {
-        _matchMakingCts?.Cancel();
         _isMatched = true;
         _isCancelMatch = false;
+        _matchMakingCts?.Cancel();
 
         UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
@@ -127,9 +128,10 @@ public class MatchController : IDisposable
 
     //StartMatch Delay
     async UniTask StartMatchDelayed(){
-        _matchMakingCts?.Cancel();
         _isMatched = true;
         _isCancelMatch = false;
+        _matchState = MATCH_STATE.BlackTurn;
+        _matchMakingCts?.Cancel();
         
         UIManager.Instance.HideUI<MatchMakingController>(UI_TYPE.MatchMaking);
         UIManager.Instance.HideUI<MainMenuController>(UI_TYPE.MainMenu);
@@ -144,7 +146,7 @@ public class MatchController : IDisposable
         GameManager.Instance.cameraMover.SetCamera(new Vector3(cameraMoverMatchStartRotateX, cameraMoverMatchStartRotateY, 0), cameraMoverMatchStartDistance);
         await UniTask.Delay(500);
         
-        _matchState = MATCH_STATE.BlackTurn;
+        
         
         gameBoardUIController.StartMatch();
     }
@@ -257,11 +259,11 @@ public class MatchController : IDisposable
                 case MultiplayManagerState.JoinRoom:
                     _matchInfo.isBlack = false;
                     isFirst = false;
+                    _isMatched = true;
                     Debug.Log("## Join Room");
                     break;
                 case MultiplayManagerState.StartGame:
                     try{
-                        _isMatched = true;
                         if (data is UserInfo user)
                         {
                             UserInfo opponent = user;

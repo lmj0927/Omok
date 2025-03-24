@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class PopupController: MonoBehaviour, IGameUI
 {
-    [SerializeField] private RectTransform panelRectTransform;      // 팝업창
-    private CanvasGroup _backgroundCanvasGroup;                     // 뒤에 시커먼 배경
+    [SerializeField] protected RectTransform panelRectTransform;      // 팝업창
+    protected CanvasGroup _backgroundCanvasGroup;                     // 뒤에 시커먼 배경
 
     public delegate void PanelControllerHideDelegate();
     

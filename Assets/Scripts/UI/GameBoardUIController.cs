@@ -12,6 +12,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
     [Header("Interaction Buttons")]
     [SerializeField] Button requestDrawButton;
     [SerializeField] Button giveUpButton;
+    [SerializeField] RectTransform giveUpButtonRect;
+    private Vector2 _giveUpButtonPosition;
     [SerializeField] Button executeButton;
     [SerializeField] Button changeViewButton;
     
@@ -154,6 +156,19 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             
             _blackOriginWidth = blackTurnPanel.sizeDelta.x;
             _whiteOriginWidth = whiteTurnPanel.sizeDelta.x;
+        }
+
+        
+        if (GameManager.Instance.matchController.GetCurrentPlayType() == PLAY_TYPE.AI)
+        {
+            requestDrawButton.gameObject.SetActive(false);
+            _giveUpButtonPosition = giveUpButtonRect.anchoredPosition;
+            giveUpButtonRect.anchoredPosition = requestDrawButton.GetComponent<RectTransform>().anchoredPosition;
+        }
+        else
+        {
+            requestDrawButton.gameObject.SetActive(true);
+            giveUpButtonRect.anchoredPosition = _giveUpButtonPosition;
         }
         
         _isStartMatch = false;

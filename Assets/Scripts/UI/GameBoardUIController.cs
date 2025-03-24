@@ -436,7 +436,14 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             timerCircleImage.fillAmount = fillValue;
             _timerHeadRect.rotation = Quaternion.Euler(0f, 0f, rotateValue);
         }
-        
+        else
+        {
+            if (GameManager.Instance.matchController.GetCurrentPlayType() == PLAY_TYPE.AI)
+            {
+                timerText.text = "";
+                return;
+            }
+        }
         timerText.text = $"{GameManager.Instance.matchController.TurnTime:F2}";
     }
 

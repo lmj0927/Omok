@@ -30,7 +30,11 @@ public class ShopProductCell: MonoBehaviour, IReloadableCell<ProductData>
 
     private void OnClickProductButton()
     {
-        GameManager.Instance.coinController.AddCoin(_reward);
+        var confirmUI = UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm);
+        confirmUI.Show("코인을 구매하시겠습니까?", () =>
+        {
+            GameManager.Instance.coinController.AddCoin(_reward);
+        });
     }
 
     private void SetProductType(ProductType productType)

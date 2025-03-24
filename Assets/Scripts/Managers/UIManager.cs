@@ -24,6 +24,7 @@ public enum UI_TYPE
     EditProfile,
     Notation,
     Alarm,
+    Draw
 }
 
 

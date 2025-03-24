@@ -10,6 +10,7 @@ using DG.Tweening;
 public class PanelController : MonoBehaviour, IGameUI
 {
     [SerializeField] protected RectTransform panelRectTransform;
+    protected List<IGameUI> childPanels = new List<IGameUI>();
     
     /// <summary>
     /// Panel 표시 함수
@@ -35,6 +36,14 @@ public class PanelController : MonoBehaviour, IGameUI
     /// </summary>
     public virtual UniTask Hide()
     {
+        if (childPanels is { Count: > 0 })
+        {
+            foreach (var childPanel in childPanels)
+            {
+                childPanel.Hide();
+            }
+        }
+        
         var original = panelRectTransform.anchoredPosition;
         
         var tcs = new UniTaskCompletionSource();

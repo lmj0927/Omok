@@ -32,12 +32,12 @@ public class SettingsPanelController : PanelController
         userInfoPanel.RefreshInfo().Forget();
     }
 
-    private void OnClickProfileButton()
+    private async void OnClickProfileButton()
     {
         AudioManager.Instance.PlaySFX("buttonClick");
         if (userInfoPanel.GetProfileState() == Constants.PROFILE_STATE.Load)
         {
-            UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile).Forget();
+            childPanels.Add(await UIManager.Instance.ShowUI<EditProfilePanel>(UI_TYPE.EditProfile));
         }
     }
 

@@ -506,6 +506,8 @@ public class MatchController : IDisposable
         PlayerDataController myPlayerDataController = GameManager.Instance.playerDataController;
         PlayerDataController opponentPlayerDataController = new PlayerDataController(_matchInfo.opponent);
 
+        var previousUserInfo = myPlayerDataController.UserInfo;
+        
         _matchInfo.gameResult = endType;
 
         bool isClientWin = IsClientBlack() && endType == END_TYPE.BlackWin || !IsClientBlack() && endType == END_TYPE.WhiteWin;
@@ -529,7 +531,7 @@ public class MatchController : IDisposable
             case END_TYPE.BlackWin:
                 OnGameEndUI?.Invoke(END_TYPE.BlackWin, () =>
                 {
-                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(isClientWin, myPlayerDataController.UserInfo);
+                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(isClientWin, previousUserInfo);
                     UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
                     _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
                 });
@@ -537,7 +539,7 @@ public class MatchController : IDisposable
             case END_TYPE.WhiteWin:
                 OnGameEndUI?.Invoke(END_TYPE.WhiteWin, () =>
                 {
-                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(isClientWin, myPlayerDataController.UserInfo);
+                    UIManager.Instance.GetUI<ResultPanelController>(UI_TYPE.MatchResult).Show(isClientWin, previousUserInfo);
                     UIManager.Instance.HideUI<GameBoardUIController>(UI_TYPE.Game);
                     _ = UIManager.Instance.ShowUI<MainMenuController>(UI_TYPE.MainMenu);
                 });

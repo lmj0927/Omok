@@ -135,6 +135,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             executeButton.onClick.AddListener(OnClickExecuteButton);
             changeViewButton.onClick.AddListener(OnClickChangeViewButton);
             
+            _giveUpButtonPosition = giveUpButtonRect.anchoredPosition;
+            
             GameManager.Instance.matchController.OnTurnEndUI = SetChangedTurn;
             GameManager.Instance.matchController.OnGameEndUI = GameEnded;
         
@@ -162,7 +164,6 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         if (GameManager.Instance.matchController.GetCurrentPlayType() == PLAY_TYPE.AI)
         {
             requestDrawButton.gameObject.SetActive(false);
-            _giveUpButtonPosition = giveUpButtonRect.anchoredPosition;
             giveUpButtonRect.anchoredPosition = requestDrawButton.GetComponent<RectTransform>().anchoredPosition;
         }
         else

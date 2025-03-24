@@ -45,6 +45,7 @@ public class MatchController : IDisposable
     public Action<END_TYPE, Action> OnGameEndUI;
     public Action OnEndGridOmok;
     public Action OnSurrender;
+    public Action OnReceiveDraw;
     public List<Cell> FiveCells = new();
     public List<Transform> EndStones = new();
 
@@ -323,6 +324,7 @@ public class MatchController : IDisposable
                 case MultiplayManagerState.DrawAnswer:
                     //신청한 쪽의 timescale
                     Time.timeScale = 1;
+                    OnReceiveDraw?.Invoke();
                     if (data is bool isAccept)
                     {
                         if(isAccept)
@@ -346,7 +348,7 @@ public class MatchController : IDisposable
                         {
                             //받는 쪽의 timescale 조절
                             Time.timeScale = 0;
-                            UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("상대방이 무승부를 요청했습니다. 수락하시겠습니까?", () =>
+                            UIManager.Instance.GetUI<DrawPanelController>(UI_TYPE.Draw).Show(false, "상대방이 무승부를 요청했습니다.\n수락하시겠습니까?", () =>
                             {
                                 multiplayController.SendAnswerDraw(true);
                                 EndMatch(END_TYPE.Draw, false);
@@ -561,6 +563,8 @@ public class MatchController : IDisposable
         
         FiveCells.Clear();
         EndStones.Clear();
+        
+        OnReceiveDraw = null;
         
         CursorManager.Instance.SetBrushCursorTexture();
 

@@ -97,7 +97,7 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
             
             GameManager.Instance.matchController.TurnTime -= Time.deltaTime;
             
-            OnTimerCircle(); 
+            OnTimerCircle();
             
             if (GameManager.Instance.matchController.TurnTime <= 0)
             {
@@ -214,8 +214,8 @@ public class GameBoardUIController : MonoBehaviour, IGameUI
         AudioManager.Instance.PlaySFX("buttonClick");
         UIManager.Instance.GetUI<ConfirmPanelController>(UI_TYPE.Confirm).Show("무승부를 신청하시겠습니까?", () =>
         {
+            UIManager.Instance.GetUI<DrawPanelController>(UI_TYPE.Draw).Show(true, "상대방의 의사를 기다리는 중입니다..");
             GameManager.Instance.matchController.RequestDraw();
-            Time.timeScale = 0;
         });
     }
     

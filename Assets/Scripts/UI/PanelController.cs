@@ -11,19 +11,24 @@ public class PanelController : MonoBehaviour, IGameUI
 {
     [SerializeField] protected RectTransform panelRectTransform;
     protected List<IGameUI> childPanels = new List<IGameUI>();
+
+    readonly static Vector2 _InvalidPosition = new Vector2(-999, -999);
+    Vector2 _originalPosition = _InvalidPosition;
     
     /// <summary>
     /// Panel 표시 함수
     /// </summary>
     public virtual UniTask Show()
     {
-        var original = panelRectTransform.anchoredPosition;
-        panelRectTransform.anchoredPosition = new Vector2(Screen.width, original.y);
+        if(_originalPosition == _InvalidPosition)
+            _originalPosition = panelRectTransform.anchoredPosition;
+        
+        panelRectTransform.anchoredPosition = new Vector2(Screen.width, _originalPosition.y);
 
         var tcs = new UniTaskCompletionSource();
         
         gameObject.SetActive(true);
-        panelRectTransform.DOAnchorPosX(original.x, .3f).SetEase(Ease.InQuint).OnComplete(() =>
+        panelRectTransform.DOAnchorPosX(_originalPosition.x, .3f).SetEase(Ease.InQuint).OnComplete(() =>
         {
             tcs.TrySetResult();
         });
